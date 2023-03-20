@@ -34,6 +34,38 @@ Entrance Directions: U: Up
     from perspective of above view with the name of the tile at the top of the tile
 
 '''
+class Tile():
+    def __init__(filepath):
+        self.image = pygame.image.load(filepath)                          ## loads the image in
+        filename = filepath.split("/")                                    ## Cuts out all but the name
+        title = filename[2].split(".")                                    ## Cuts out the .jpg
+        self.info = title[0].split("_")                                   ## Breaks the name into useful information
+        self.id = self.info[0]                                            ## 
+        self.type = self.info[1]
+        self.name = self.info[2]
+        self.doors = self.info[3]
+
+    ## Turns the image into the tile texture according to the requested size
+    def create_texture(name):
+        image = name
+        image = pygame.transform.scale(image,(TILE_SIZE,TILE_SIZE))
+        return image
+
+    def setup():
+        self.texture = create_texture(self.image)                       ## creates the appropriate texture for the image
+        exec("%s = %d" % (self.name,self.texture))                      ## turns the name into a variable for the textures list below
+        ## call the file
+        ## get the image
+        ## cut off .jpg and before the /
+        ## break it up by _
+        ## get id number: Put in data member
+        ## Identify tile type: Put in data member
+        ## Get file Name: Put in data member
+        ## Get Directions: Check against dictionary, otherwise false
+        ## Create a funciton to rotate tile image (and doors)
+        ## save a neighbor Function
+
+
 
 ## Linking the names of the tiles with the location of the images
 BackTile   = pygame.image.load("Images/Tile_Scans/0_None_BackTile_None.jpg")
@@ -67,11 +99,7 @@ DarkSlime = pygame.image.load("Images/Tile_Scans/27_Red_DarkSlime_DR.jpg")
 HallofIllusion = pygame.image.load("Images/Tile_Scans/28_Blue_HallofIllusion_DR.jpg")
 MimicChest = pygame.image.load("Images/Tile_Scans/29_Blue_MimicChest_D.jpg")
 
-## Turns the image into the tile texture according to the requested size
-def create_texture(name):
-    image = name
-    image = pygame.transform.scale(image,(TILE_SIZE,TILE_SIZE))
-    return image
+
 
 ## Assigning values to the tile for the computer to run through them
 ## Values in Hexidecimal (don't know why but it works)
@@ -111,8 +139,10 @@ textures = {
 ## Turns the values of the tile into a list
 tiles = [0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d]
 
+
+
 # generate with tiles randomly
-def generate_map(width, height, tilesize = TILE_SIZE):
+def generate_map(width, height, tilesize):
     map_data = []
     used = []                                                                                               ## initializes the list for the tiles already used
     for i in range(height // tilesize):
@@ -131,7 +161,7 @@ def generate_map(width, height, tilesize = TILE_SIZE):
     return map_data
 
 
-def draw_map(screen, map_data):
+def draw_map(screen, map_data, TILE_SIZE):
     MAP_HEIGHT = len(map_data) 
     MAP_WIDTH = len(map_data[0])
     for row in range(MAP_HEIGHT):

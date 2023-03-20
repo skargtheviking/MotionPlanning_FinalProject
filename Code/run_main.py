@@ -11,15 +11,17 @@ pygame.init()
 
 clock = pygame.time.Clock()
 
+# dimension of each tiles
+TILE_SIZE = 128
 
 # create a surface represent our window
 screen = pygame.display.set_mode((640, 640))
 
 sprites_group = pygame.sprite.Group()
 
-player = Player(sprites_group, screen.get_rect().center, (25,25), (0,0,255))
+player = Player(sprites_group, screen.get_rect().center, (25,25), (0,0,255), TILE_SIZE)
 
-map_data = generate_map(640, 640)
+map_data = generate_map(640, 640, TILE_SIZE)
 
 ## with a ceter piece if everything goes in a straight line it is 29 + 28 = 57
 ## Though with turning corners the max possible length a tunnel can go is 22 tiles
@@ -42,7 +44,7 @@ def main():
                 running = False
         # draw
         screen.fill((255,255,255))
-        draw_map(screen, map_data)
+        draw_map(screen, map_data, TILE_SIZE)
         sprites_group.draw(screen)
 
 
