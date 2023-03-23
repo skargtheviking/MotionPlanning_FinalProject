@@ -39,10 +39,12 @@ Entrance Directions: U: Up
 
 ## Creates a class for the tiles
 class Tile:                                                                 
-    def __init__(self, filepath):                                         ## initalizes the tile class with the path to the file
+    def __init__(self, filepath, parent=None):                            ## initalizes the tile class with the path to the file
         ## Gets the image so it can display
         self.image = pygame.image.load(filepath)                          ## loads the image in
         self.texture = create_texture(self.image)                         ## creates the appropriate texture for the image
+        self.children = []                                                ## inializes the children of said tile
+        self.parent = parent                                              ## indicates the parent of said tile
         
         ## Gets the information hardwritten in the file's name
         filename = filepath.split("/")                                    ## Cuts out all but the name of the image
@@ -66,41 +68,101 @@ class Tile:
                 self.left = True                                          ## indicate door is a left door
                 self.right = True                                         ## indicate door is a right door
             
-            case "UDL":
-                self.up = True
-                self.down = True
-                self.left = True
+            case "UDL":                                                   ## if it has the three doors with UDL
+                self.up = True                                            ## indicate door is a up door
+                self.down = True                                          ## indicate door is a down door
+                self.left = True                                          ## indicate door is a left door
             
-            case "UDR":
-                self.up = True
-                self.down = True
-                self.right = True
+            case "UDR":                                                   ## if it has the three doors with UDR
+                self.up = True                                            ## indicate door is a up door
+                self.down = True                                          ## indicate door is a down door
+                self.right = True                                         ## indicate door is a right door
 
-            case "DLR":
-                self.down = True
-                self.left = True
-                self.right = True
+            case "DLR":                                                   ## if it has the three doors with DLR
+                self.down = True                                          ## indicate door is a down door
+                self.left = True                                          ## indicate door is a left door
+                self.right = True                                         ## indicate door is a right door
 
-            case "UD":
-                self.up = True
-                self.down = True
+            case "UD":                                                    ## if it has the two doors with UD
+                self.up = True                                            ## indicate door is a up door
+                self.down = True                                          ## indicate door is a down door
 
-            case "DL":
-                self.down = True
-                self.left = True
+            case "DL":                                                    ## if it has the two doors with DL
+                self.down = True                                          ## indicate door is a down door
+                self.left = True                                          ## indicate door is a left door
 
-            case "DR":
-                self.down = True
-                self.right = True
+            case "DR":                                                    ## if it has the two doors with DR
+                self.down = True                                          ## indicate door is a down door
+                self.right = True                                         ## indicate door is a right door
 
-            case "D":
-                self.down = True
+            case "D":                                                     ## if it has the two doors with D
+                self.down = True                                          ## indicate door is a down door
 
         self.token = 0                     
         if self.type == "Red" or self.type == "Green" or self.type == "Blue":
             self.token = 1      
+    
+    def add_child(self, child):                                           ## adds a child to the tile
+        '''
+        Add a child node
+        '''
+        self.children.append(child)                                       ## adds a connecting tile
 
-        def rotate_clockwise(self):
+    def rotate_clockwise(self):
+        ## rotate image
+        self.image = pygame.transform.rotate(self.image, -90)             ## takes the existing image and rotates it by 90 degrees clockwise
+        self.texture = create_texture(self.image)                         ## creates the appropriate texture for the image
+        
+        ## rotate doors (Doesn't need to rotate if its "UDLR" or None doors)
+        if self.doors == "UDL" or self.doors == "UDR" or self.doors == "DLR":       ## if it has three doors
+            if self.up == True and self.left == True and self.down == True:        
+                self.down = False
+                self.right = True
+            elif self.right == True and self.up == True and self.left == True:
+                self.left = False
+                self.down = True
+            elif self.down == True and self.right == True and self.up == True:
+                self.up = False
+                self.left = True
+            elif self.left == True and self.down == True and self.right == True:
+                self.right = False
+                self.up = True
+        elif self.doors == "UD" or self.doors == "DL" or self.doors == "DR":
+            if self.up == True and self.down == True:
+                self.up = False
+                self.down = False
+                self.left = True
+                self.right = True
+            elif self.left == True and self.right == True:
+                self.left = False
+                self.right = False
+                self.down = True
+                self.up = True
+            elif self.down == True and self.left == True:
+                self.down = False
+                self.up = True
+            elif self.left == True and self.up == True:
+                self.left = False
+                self.right = True
+            elif self.up == True and self.right == True:
+                self.up = False
+                self.down = True
+            elif self.right == True and self.down == True:
+                self.right = False
+                self.left = True
+        elif self.doors == "D":
+            if self.down == True:
+                self.down = False
+                self.left = True
+            elif self.left == True:
+                self.left = False
+                self.up = True
+            elif self.up == True:
+                self.up = False
+                self.right = True
+            elif self.right == True:
+                self.right = False
+                self.down = True
 
 
         ## Get Directions: Check against dictionary, otherwise false
@@ -148,65 +210,151 @@ MimicChest = Tile("Images/Tile_Scans/29_Blue_MimicChest_D.jpg")
 ## Assigning values to the tile for the computer to run through them
 ## Values in Hexidecimal (don't know why but it works)
 textures = {
-    0x0 : BackTile.texture,
-    0x1 : StartTile.texture,
-    0x2 : FireofEidolon.texture,
-    0x3 : VoraxsHeart.texture,
-    0x4 : VoraxFocus.texture,
-    0x5 : VoraxsKnowledge.texture,
-    0x6 : EndTile.texture,
-    0x7 : SecretX.texture,
-    0x8 : SecretY.texture,
-    0x9 : VoraciousPlant.texture,
-    0xa : Minotaur.texture,
-    0xb : FloatingStones.texture,
-    0xc : LaughingShadow.texture,
-    0xd : Psychomancer.texture,
-    0xe : Dragonling.texture,
-    0xf : ParadoxPuzzle.texture,
-    0x10 : FelKnight.texture,
-    0x11 : SpikedPit.texture,
-    0x12 : DenofSnakes.texture,
-    0x13 : ArrowTrap.texture,
-    0x14 : Mindeater.texture,
-    0x15 : SkeletalGuards.texture,
-    0x16 : PendulumBlades.texture,
-    0x17 : AcidJets.texture,
-    0x18 : SphynxsRiddle.texture,
-    0x19 : OgreBrute.texture,
-    0x1a : LavaLake.texture,
-    0x1b : DarkSlime.texture,
-    0x1c : HallofIllusion.texture,
-    0x1d : MimicChest.texture,
+    0x0 : BackTile,
+    0x1 : StartTile,
+    0x2 : FireofEidolon,
+    0x3 : VoraxsHeart,
+    0x4 : VoraxFocus,
+    0x5 : VoraxsKnowledge,
+    0x6 : EndTile,
+    0x7 : SecretX,
+    0x8 : SecretY,
+    0x9 : VoraciousPlant,
+    0xa : Minotaur,
+    0xb : FloatingStones,
+    0xc : LaughingShadow,
+    0xd : Psychomancer,
+    0xe : Dragonling,
+    0xf : ParadoxPuzzle,
+    0x10 : FelKnight,
+    0x11 : SpikedPit,
+    0x12 : DenofSnakes,
+    0x13 : ArrowTrap,
+    0x14 : Mindeater,
+    0x15 : SkeletalGuards,
+    0x16 : PendulumBlades,
+    0x17 : AcidJets,
+    0x18 : SphynxsRiddle,
+    0x19 : OgreBrute,
+    0x1a : LavaLake,
+    0x1b : DarkSlime,
+    0x1c : HallofIllusion,
+    0x1d : MimicChest,
 }
 
 ## Turns the values of the tile into a list
 tiles = [0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d]
 
+## Use this as a general thing to create a self built map later on
 # generate with tiles randomly
-def generate_map(width, height, tilesize):
-    map_data = []
+#def generate_map(width, height, tilesize):
+#    map_data = []                                                                                           ## Keeps track of what tile is in each location
+#    used = []                                                                                               ## initializes the list for the tiles already used
+#    for i in range(height // tilesize):                                                                     ## This is the row
+#        map_data.append([])                                                                                 ## making the map_data a row x column calling
+#        for j in range(width // tilesize):                                                                  ## This is the column
+#            rand_index = random.randint(2,29)                                                               ## generates a random number from 2-29 to call the tiles
+#            if i == (math.trunc((height//tilesize)/2)) and j == (math.trunc((width//tilesize)/2)):          ## if the tile in question is at the center
+#                rand_index = 1                                                                              ## put the start tile there (setting rand to 1)
+#            if rand_index in used:                                                                          ## if the tile has been used before
+#                rand_index = 0                                                                              ## put in the filler tile instead (setting rand to zero)
+#            else:                                                                                           ## if the tile has not been used before
+#                used.append(rand_index)                                                                     ## add the number to the used index
+#            # convert to hex from int value
+#            tile = int(hex(tiles[rand_index]), 16)                                                          ## get the tile information
+            
+#            map_data[i].append(tile)                                                                        ## add the tile to the map
+#    return map_data
+
+##############################################################################################################################################################################################################################
+#### Things to add to tile map
+####    - Create a known map
+####    - Lining up the doors
+####    - Going back and expanding from the start tile a % of the time
+####    - Adding tokens
+####    - have the display be max_row and max_column big
+##############################################################################################################################################################################################################################
+
+## building map from center point
+def building_map(width, height, tilesize):
+    ## initilizing variables                                               
     used = []                                                                                               ## initializes the list for the tiles already used
-    for i in range(height // tilesize):
-        map_data.append([])
-        for j in range(width // tilesize):
-            rand_index = random.randint(2,29)                                                               ## generates a random number from 2-29 to call the tiles
+    map_data = []                                                                                           ## Keeps track of what tile is in each location
+    for i in range(height // tilesize):                                                                     ## This is the row
+        map_data.append([])                                                                                 ## making the map_data a row x column calling
+        for j in range(width // tilesize):                                                                  ## This is the column
             if i == (math.trunc((height//tilesize)/2)) and j == (math.trunc((width//tilesize)/2)):          ## if the tile in question is at the center
                 rand_index = 1                                                                              ## put the start tile there (setting rand to 1)
-            if rand_index in used:                                                                          ## if the tile has been used before
-                rand_index = 0                                                                              ## put in the filler tile instead (setting rand to zero)
-            else:                                                                                           ## if the tile has not been used before
-                used.append(rand_index)                                                                     ## add the number to the used index
-            # convert to hex from string value
-            tile = int(hex(tiles[rand_index]), 16)                                                          ## get the tile information
-            map_data[i].append(tile)                                                                        ## add the tile to the map
-    return map_data
+            else:                                                                                           ## if the tile has been used before
+                rand_index = 0                                                                              ## put in the filler tile to create a blank map
+            tile = int(hex(tiles[rand_index]), 16)                                                          ## get the tile information after converting to hex from intiger value
+            map_data[i].append(tile)                                                                        ## add teh tile to the map
 
+    row = math.trunc((height//tilesize)/2)                                                                  ## Start at the center row point
+    column = math.trunc((width//tilesize)/2)                                                                ## Start at the center column point
+    Working_Tile = textures[map_data[row][column]]                                                          ## indicates this is the working tile
+    
+    
+    while len(used) <= 27:                                                                                  ## should run until all 27 tiles have been added (not counting start or blank)
+        #print(len(used))                                                                                    ## debug check to see if all tiles have been used
+        rand_index = random.randint(2,29)                                                                   ## generates a random number from 2-29 to call the tiles
+        while rand_index in used:                                                                           ## checks if the number has already been used
+            rand_index = random.randint(2,29)                                                               ## if already been used get another random number and try again
+        checked_directions = []                                                                             ## keeps track of which directions checked
+        rand_direction = random.randint(1,4)                                                                ## generate a random direction
+        match rand_direction:                                                                               ## picking a random direction
+            case 1:                                                                                         ## randomly moving up
+                new_row = row - 1                                                                           ## Move up by one tile
+                new_column = column                                                                         ## column stays the same
+            case 2:                                                                                         ## randomly movign down
+                new_row = row + 1                                                                           ## Move down by one tile
+                new_column = column                                                                         ## column stays the same
+            case 3:                                                                                         ## randomly moving left
+                new_row = row                                                                               ## row stays the same
+                new_column = column - 1                                                                     ## Move left by one tile
+            case 4:                                                                                         ## randomly moving right
+                new_row = row                                                                               ## row stays the same
+                new_column = column + 1                                                                     ## Move right by one tile
+        checked_directions.append(rand_direction)                                                           ## Marks taht we checked that direction
+
+        ##print("checked_direction ", checked_directions)                                                    ## debug checks to see if all surrounding tiles are taken
+        
+        while map_data[new_row][new_column] != 0 and len(checked_directions) <= 4:                          ## run again if the new spot is already occupied 
+            rand_direction = random.randint(1,4)                                                            ## generate a random direction
+            match rand_direction:                                                                           ## picking a random direction
+                case 1:                                                                                     ## randomly moving up
+                    new_row = row - 1                                                                       ## Move up by one tile
+                    new_column = column                                                                     ## column stays the same
+                case 2:                                                                                     ## randomly movign down
+                    new_row = row + 1                                                                       ## Move down by one tile
+                    new_column = column                                                                     ## column stays the same
+                case 3:                                                                                     ## randomly moving left
+                    new_row = row                                                                           ## row stays the same
+                    new_column = column - 1                                                                 ## Move left by one tile
+                case 4:                                                                                     ## randomly moving right
+                    new_row = row                                                                           ## row stays the same
+                    new_column = column + 1                                                                 ## Move right by one tile            
+            checked_directions.append(rand_direction)                                                       ## marked that we checked that direction
+
+        if len(checked_directions) >= 4:                                                                    ## if every direction is blocked
+            Working_Tile = Working_Tile.parent                                                              ## back up to the parent
+        else:                                                                                               ## if not trapped                   
+            used.append(rand_index)                                                                         ## add the rand_index to the used list
+            row = new_row                                                                                   ## sets the row as the new row
+            column = new_column                                                                             ## sets the column as the new column
+            tile = int(hex(tiles[rand_index]), 16)                                                          ## get the tile information after converting to hex from intiger value
+            New_Tile = textures[map_data[row][column]]                                                      ## Calls forth the new tile
+            Working_Tile.add_child(New_Tile)                                                                ## adds the new tile as a child of the working tile 
+            New_Tile.parent = Working_Tile                                                                  ## adds the new tile parent as the working title 
+            Working_Tile = New_Tile                                                                         ## Moves onto the next tile
+            map_data[row][column] = tile                                                                    ## sets the new tile up in the correction location
+
+    return map_data                                                                                         ## returns the map data
 
 def draw_map(screen, map_data, TILE_SIZE):
     MAP_HEIGHT = len(map_data) 
     MAP_WIDTH = len(map_data[0])
     for row in range(MAP_HEIGHT):
         for col in range(MAP_WIDTH):
-            screen.blit(textures[map_data[row][col]],
+            screen.blit(textures[map_data[row][col]].texture,
                         (col*TILE_SIZE, row*TILE_SIZE))        

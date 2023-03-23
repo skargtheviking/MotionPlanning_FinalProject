@@ -5,6 +5,16 @@ import settings
 
 TILE_SIZE = settings.TILE_SIZE  ## Gets the size of the tile from the settings file and sets it as a global variable
 
+##############################################################################################################################################################################################################################
+#### Things to add to player
+####    - Can only go through doors if both tiles match doors
+####    - Pick up and keep track of tokens
+####    - Pick up event tokens
+####    - Player sprite
+####    - Win Condition and display
+####    - Astar with backpath (actions taken)
+##############################################################################################################################################################################################################################
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, sprites_group, pos, dim, col):
         self.groups = sprites_group
