@@ -12,26 +12,35 @@ TILE_SIZE = settings.TILE_SIZE  ## Gets the size of the tile from the settings f
 
 ## Turns the image into the tile texture according to the requested size
 def create_texture(name):
-    image = pygame.transform.scale(name,(TILE_SIZE,TILE_SIZE))            ## scales the image to tile size
-    return image                                                          ## returns the tile image
+    image = pygame.transform.scale(name,(TILE_SIZE,TILE_SIZE))                      ## scales the image to tile size
+    return image                                                                    ## returns the tile image
 
 ## Turns the image into the tile texture according to the requested size
 def create_token_texture(name):
-    image = pygame.transform.scale(name,(TILE_SIZE/4,TILE_SIZE/4))        ## scales the image to 1/4 of a tile size
-    return image                                                          ## return the token image
+    image = pygame.transform.scale(name,(TILE_SIZE/4,TILE_SIZE/4))                  ## scales the image to 1/4 of a tile size
+    return image                                                                    ## return the token image
 
-Cultist = pygame.image.load("Images/Tokens/Cultist.png")                  ## Gets the cultist image
-Token_Red = pygame.image.load("Images/Tokens/Token_Red.png")              ## Gets the red token
-Token_Green = pygame.image.load("Images/Tokens/Token_Green.png")          ## gets the green token
-Token_Blue = pygame.image.load("Images/Tokens/Token_Blue.png")            ## gets the blue token
+Token_Cultist = pygame.image.load("Images/Tokens/Cultist.png")                      ## Gets the cultist image
+Token_Red = pygame.image.load("Images/Tokens/Token_Red.png")                        ## Gets the red token
+Token_Green = pygame.image.load("Images/Tokens/Token_Green.png")                    ## gets the green token
+Token_Blue = pygame.image.load("Images/Tokens/Token_Blue.png")                      ## gets the blue token
+Token_RedEvent = pygame.image.load("Images/Tokens/Token_RedEvent.png")              ## Gets the red event token
+Token_GreenEvent = pygame.image.load("Images/Tokens/Token_GreenEvent.png")          ## gets the green evemt token
+Token_BlueEvent = pygame.image.load("Images/Tokens/Token_BlueEvent.png")            ## gets the blue event token
+Token_FireofEidolon = pygame.image.load("Images/Tokens/Token_FireofEidolon.png")    ## gets the Fire of Eidolon token
 
-token_texture = {                                                         ## creates a dictionary of the token displays
-    0x0 : create_token_texture(Cultist),                                  ## the cultists token
-    0x1 : create_token_texture(Token_Red),                                ## the red token 
-    0x2 : create_token_texture(Token_Green),                              ## the green token
-    0x3 : create_token_texture(Token_Blue)                                ## the blue token
+token_texture = {                                                                   ## creates a dictionary of the token displays
+    0x0 : create_token_texture(Token_Cultist),                                      ## the cultists token
+    0x1 : create_token_texture(Token_Red),                                          ## the red token 
+    0x2 : create_token_texture(Token_Green),                                        ## the green token
+    0x3 : create_token_texture(Token_Blue),                                         ## the blue token
+    0x4 : create_token_texture(Token_RedEvent),                                     ## the red event token 
+    0x5 : create_token_texture(Token_GreenEvent),                                   ## the green event token
+    0x6 : create_token_texture(Token_BlueEvent),                                    ## the blue event token
+    0x7 : create_token_texture(Token_FireofEidolon),                                ## the Fire of Eidolon token
 }
-token_list = [0x0, 0x1, 0x2, 0x3]                                         ## reference list for the token dictionary
+
+token_list = [0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7]                                    ## reference list for the token dictionary
 
 ''' 
 30 total tile types
@@ -141,6 +150,14 @@ class Tile:
                 token_number = int(hex(token_list[2]), 16)                          ## grab the green token
             case "Blue":                                                            ## if it's listed as blue
                 token_number = int(hex(token_list[3]), 16)                          ## grab the blue token
+            case "RedEvent":                                                        ## if it's listed as red event
+                token_number = int(hex(token_list[4]), 16)                          ## grab the red token
+            case "GreenEvent":                                                      ## if it's listed as green event 
+                token_number = int(hex(token_list[5]), 16)                          ## grab the green token
+            case "BlueEvent":                                                       ## if it's listed as blue event
+                token_number = int(hex(token_list[6]), 16)                          ## grab the blue token
+            case "FireofEidolon":                                                       ## if it's listed as blue event
+                token_number = int(hex(token_list[7]), 16)                          ## grab the blue token
             case _:                                                                 ## if no tile is listed
                 token_number = None                                                 ## it does not have a token number
         if token_number == None:                                                    ## if there is no token number
@@ -217,14 +234,14 @@ FireofEidolon = Tile("Images/Tile_Scans/2_FireofEidolon_FireofEidolon_D.jpg")
 VoraxsHeart = Tile("Images/Tile_Scans/3_RedEvent_VoraxsHeart_D.jpg")
 VoraxFocus = Tile("Images/Tile_Scans/4_GreenEvent_VoraxFocus_D.jpg")
 VoraxsKnowledge = Tile("Images/Tile_Scans/5_BlueEvent_VoraxsKnowledge_D.jpg")
-EndTile = Tile("Images/Tile_Scans/6_End_EndTile_UPLR.jpg")
-SecretX = Tile("Images/Tile_Scans/7_Secret_SecretX_UPLR.jpg")
-SecretY = Tile("Images/Tile_Scans/8_Secret_SecretY_UPLR.jpg")
-VoraciousPlant = Tile("Images/Tile_Scans/9_Red_VoraciousPlant_UPLR.jpg")
-Minotaur = Tile("Images/Tile_Scans/10_Red_Minotaur_UPLR.jpg")
-FloatingStones = Tile("Images/Tile_Scans/11_Green_FloatingStones_UPLR.jpg")
-LaughingShadow = Tile("Images/Tile_Scans/12_Blue_LaughingShadow_UPLR.jpg")
-Psychomancer = Tile("Images/Tile_Scans/13_Blue_Psychomancer_UPLR.jpg")
+EndTile = Tile("Images/Tile_Scans/6_End_EndTile_UDLR.jpg")
+SecretX = Tile("Images/Tile_Scans/7_Secret_SecretX_UDLR.jpg")
+SecretY = Tile("Images/Tile_Scans/8_Secret_SecretY_UDLR.jpg")
+VoraciousPlant = Tile("Images/Tile_Scans/9_Red_VoraciousPlant_UDLR.jpg")
+Minotaur = Tile("Images/Tile_Scans/10_Red_Minotaur_UDLR.jpg")
+FloatingStones = Tile("Images/Tile_Scans/11_Green_FloatingStones_UDLR.jpg")
+LaughingShadow = Tile("Images/Tile_Scans/12_Blue_LaughingShadow_UDLR.jpg")
+Psychomancer = Tile("Images/Tile_Scans/13_Blue_Psychomancer_UDLR.jpg")
 Dragonling = Tile("Images/Tile_Scans/14_Red_Dragonling_UDL.jpg")
 ParadoxPuzzle = Tile("Images/Tile_Scans/15_Blue_ParadoxPuzzle_UDL.jpg")
 FelKnight = Tile("Images/Tile_Scans/16_Red_FelKnight_UDR.jpg")
@@ -348,47 +365,54 @@ def building_map(width, height, tilesize):
                 new_row = row - 1                                                                           ## Move up by one tile
                 new_column = column                                                                         ## column stays the same
                 direction = "U"                                                                             ## indciates working tile is one space down
-                print("name '", Working_Tile.name)
-                print("Tile? '", Working_Tile.up)
                 if Working_Tile.up == True:                                                                 ## if the current tile has an up door
                     walled = False                                                                          ## no longer walled
+                print("name ", Working_Tile.name)
+                print("doors_labeled", Working_Tile.doors)
+                print("direction ", direction)
+                print("Door? ", Working_Tile.up)
+
             case 2:                                                                                         ## randomly movign down
                 new_row = row + 1                                                                           ## Move down by one tile
                 new_column = column                                                                         ## column stays the same
                 direction = "D"                                                                             ## indciates working tile is one space up
-                print("name '", Working_Tile.name)
-                print("Tile? '", Working_Tile.down)
                 if Working_Tile.down == True:                                                               ## if the current tile has a down door
                     walled = False                                                                          ## no longer walled
+                print("name ", Working_Tile.name)
+                print("doors_labeled", Working_Tile.doors)
+                print("direction ", direction)
+                print("Door? ", Working_Tile.down)
+
             case 3:                                                                                         ## randomly moving left
                 new_row = row                                                                               ## row stays the same
                 new_column = column - 1                                                                     ## Move left by one tile
                 direction = "L"                                                                             ## indciates working tile is one space right
-                print("name '", Working_Tile.name)
-                print("Tile? '", Working_Tile.left)
                 if Working_Tile.left == True:                                                               ## if the current tile has a left door
                     walled = False                                                                          ## no longer walled
+                print("name ", Working_Tile.name)
+                print("doors_labeled", Working_Tile.doors)
+                print("direction ", direction)
+                print("Door? ", Working_Tile.left)
+
             case 4:                                                                                         ## randomly moving right
                 new_row = row                                                                               ## row stays the same
                 new_column = column + 1                                                                     ## Move right by one tile
                 direction = "R"                                                                             ## indciates working tile is one space left
-                print("name '", Working_Tile.name)
-                print("Tile? '", Working_Tile.right)
                 if Working_Tile.right == True:                                                              ## if the current tile has a right door
                     walled = False                                                                          ## no longer walled
+                print("name ", Working_Tile.name)
+                print("doors_labeled", Working_Tile.doors)
+                print("direction ", direction)
+                print("Door? ", Working_Tile.right)
+
         checked_directions.append(rand_direction)                                                           ## Marks taht we checked that direction
 
         ##print("checked_direction ", checked_directions)                                                    ## debug checks to see if all surrounding tiles are taken
-        print("direction '", direction)
         print("walled '", walled)
-        print("talen '", map_data[new_row][new_column] != 0)
+        print("taken '", map_data[new_row][new_column] != 0)
         while (walled == True or map_data[new_row][new_column] != 0)  and len(checked_directions) < 4:
-            print("direction ", direction)
-            print("walled ", walled)
-            print("talen ", map_data[new_row][new_column] != 0)
             rand_direction = random.randint(1,4)                                                            ## generate a random direction
             while rand_direction in checked_directions:                                                                       ## checks if the number has already been used
-                print("checked_directions", len(checked_directions))
                 rand_direction = random.randint(1, 4)                                                           ## if already been used get another random number and try again
             #while map_data[new_row][new_column] != 0 and len(checked_directions) <= 4:                          ## run again if the new spot is already occupied 
 
@@ -397,36 +421,50 @@ def building_map(width, height, tilesize):
                     new_row = row - 1                                                                       ## Move up by one tile
                     new_column = column                                                                     ## column stays the same
                     direction = "U"                                                                         ## indciates working tile is one space down
-                    print("name ", Working_Tile.name)
-                    print("Tile? ", Working_Tile.up)
                     if Working_Tile.up == True:                                                             ## if the current tile has an up door
                         walled = False                                                                      ## no longer walled
+                    print("name ", Working_Tile.name)
+                    print("doors_labeled", Working_Tile.doors)
+                    print("direction ", direction)
+                    print("Door? ", Working_Tile.up)
+
                 case 2:                                                                                     ## randomly movign down
                     new_row = row + 1                                                                       ## Move down by one tile
                     new_column = column                                                                     ## column stays the same
                     direction = "D"                                                                         ## indciates working tile is one space up
-                    print("name ", Working_Tile.name)
-                    print("Tile? ", Working_Tile.up)
                     if Working_Tile.down == True:                                                           ## if the current tile has a down door
                         walled = False                                                                      ## no longer walled
+                    print("name ", Working_Tile.name)
+                    print("doors_labeled", Working_Tile.doors)
+                    print("direction ", direction)
+                    print("Door? ", Working_Tile.down)
+
                 case 3:                                                                                     ## randomly moving left
                     new_row = row                                                                           ## row stays the same
                     new_column = column - 1                                                                 ## Move left by one tile
                     direction = "L"                                                                         ## indciates working tile is one space right
-                    print("name ", Working_Tile.name)
-                    print("Tile? ", Working_Tile.up)
                     if Working_Tile.left == True:                                                           ## if the current tile has a left door
                         walled = False                                                                      ## no longer walled
+                    print("name ", Working_Tile.name)
+                    print("doors_labeled", Working_Tile.doors)
+                    print("direction ", direction)
+                    print("Door? ", Working_Tile.left)
+
                 case 4:                                                                                     ## randomly moving right
                     new_row = row                                                                           ## row stays the same
                     new_column = column + 1                                                                 ## Move right by one tile
-                    print("name ", Working_Tile.name)
-                    print("Tile? ", Working_Tile.up)
                     direction = "R"                                                                         ## indciates working tile is one space left
                     if Working_Tile.right == True:                                                          ## if the current tile has a right door
-                        walled = False                                                                      ## no longer walled       
+                        walled = False                                                                      ## no longer walled 
+                    print("name ", Working_Tile.name)
+                    print("doors_labeled", Working_Tile.doors)
+                    print("direction ", direction)
+                    print("Door? ", Working_Tile.right)
+      
             checked_directions.append(rand_direction)                                                       ## marked that we checked that direction
-            
+
+            print("walled ", walled)
+            print("taken ", map_data[new_row][new_column] != 0)            
         if len(checked_directions) >= 4 or walled == True:                                                                    ## if every direction is blocked
             Working_Tile = Working_Tile.parent                                                              ## back up to the parent
         else:                                                                                               ## if not trapped                   
@@ -436,19 +474,19 @@ def building_map(width, height, tilesize):
             tile = int(hex(tiles[rand_index]), 16)                                                          ## get the tile information after converting to hex from intiger value
             map_data[new_row][new_column] = tile                                                            ## replaces the blank tile with the new tile value
             New_Tile = tile_textures[map_data[new_row][new_column]]                                         ## Calls forth the new tile
-            match direction:
-                case "U":
-                    if New_Tile.down == False:
-                        New_Tile.rotate_clockwise
-                case "D":
-                    if New_Tile.up == False:
-                        New_Tile.rotate_clockwise
-                case "L":
-                    if New_Tile.right == False:
-                        New_Tile.rotate_clockwise
-                case "R":
-                    if New_Tile.left == False:
-                        New_Tile.rotate_clockwise
+            #match direction:
+            #    case "U":
+            #        if New_Tile.down == False:
+            #            New_Tile.rotate_clockwise
+            #    case "D":
+            #        if New_Tile.up == False:
+            #            New_Tile.rotate_clockwise
+            #    case "L":
+            #        if New_Tile.right == False:
+            #            New_Tile.rotate_clockwise
+            #    case "R":
+            #        if New_Tile.left == False:
+            #            New_Tile.rotate_clockwise
             Working_Tile.add_child(New_Tile)                                                                ## adds the new tile as a child of the working tile 
             New_Tile.parent = Working_Tile                                                                  ## adds the new tile parent as the working title 
             Working_Tile = New_Tile                                                                         ## Moves onto the next tile

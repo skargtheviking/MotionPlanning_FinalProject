@@ -1,4 +1,4 @@
-## Source: https://github.com/gurb/rpg-game-tutorials/blob/main/004-Generating%20Tile%20Map/player.py
+# Source: https://github.com/gurb/rpg-game-tutorials/blob/main/004-Generating%20Tile%20Map/player.py
 import pygame
 import time
 import settings
@@ -14,14 +14,18 @@ TILE_SIZE = settings.TILE_SIZE  ## Gets the size of the tile from the settings f
 ####    - Win Condition and display
 ####    - Astar with backpath (actions taken)
 ##############################################################################################################################################################################################################################
+def create_player_texture(name):
+    image = pygame.transform.scale(name,(TILE_SIZE/4,TILE_SIZE/4))                  ## scales the image to 1/4 of a tile size
+    return image                                                                    ## return the token image
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, sprites_group, pos, dim, col):
         self.groups = sprites_group
         pygame.sprite.Sprite.__init__(self, self.groups)
 
-        self.image = pygame.Surface(dim)
-        self.image.fill(col)
+        self.image = pygame.image.load("Images/Player/GreenKnight.png")
+        self.image = create_player_texture(self.image)
         self.rect = self.image.get_rect()
         self.rect.center = pos
         self.Green_Token = 0
