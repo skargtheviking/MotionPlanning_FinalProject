@@ -89,6 +89,8 @@ class Tile:
         self.name = self.info[2]                                                    ## Determine the name of the tile
         self.doors = self.info[3]                                                   ## Gets the data on the doors
         self.token = self.Token_grabber()                                           ## grab the token texture
+        self.row = 0
+        self.column = 0
 
         ## Establishes the Doors
         self.up = False                                                             ## default no door up
@@ -156,7 +158,7 @@ class Tile:
                 token_number = int(hex(token_list[5]), 16)                          ## grab the green token
             case "BlueEvent":                                                       ## if it's listed as blue event
                 token_number = int(hex(token_list[6]), 16)                          ## grab the blue token
-            case "FireofEidolon":                                                       ## if it's listed as blue event
+            case "FireofEidolon":                                                   ## if it's listed as blue event
                 token_number = int(hex(token_list[7]), 16)                          ## grab the blue token
             case _:                                                                 ## if no tile is listed
                 token_number = None                                                 ## it does not have a token number
@@ -297,37 +299,17 @@ tile_textures = {
 ## Turns the values of the tile into a list
 tiles = [0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d]
 
-## Use this as a general thing to create a self built map later on
-# generate with tiles randomly
-#def generate_map(width, height, tilesize):
-#    map_data = []                                                                                           ## Keeps track of what tile is in each location
-#    used = []                                                                                               ## initializes the list for the tiles already used
-#    for i in range(height // tilesize):                                                                     ## This is the row
-#        map_data.append([])                                                                                 ## making the map_data a row x column calling
-#        for j in range(width // tilesize):                                                                  ## This is the column
-#            rand_index = random.randint(2,29)                                                               ## generates a random number from 2-29 to call the tiles
-#            if i == (math.trunc((height//tilesize)/2)) and j == (math.trunc((width//tilesize)/2)):          ## if the tile in question is at the center
-#                rand_index = 1                                                                              ## put the start tile there (setting rand to 1)
-#            if rand_index in used:                                                                          ## if the tile has been used before
-#                rand_index = 0                                                                              ## put in the filler tile instead (setting rand to zero)
-#            else:                                                                                           ## if the tile has not been used before
-#                used.append(rand_index)                                                                     ## add the number to the used index
-#            # convert to hex from int value
-#            tile = int(hex(tiles[rand_index]), 16)                                                          ## get the tile information
-            
-#            map_data[i].append(tile)                                                                        ## add the tile to the map
-#    return map_data
-
 ##############################################################################################################################################################################################################################
 #### Things to add to tile map
-####    - Create a known map
-####    - Lining up the doors
+####    - Tile Neighbors w/ matching doors (or do I have that in the players movement where it checks of both are doors.  That way programming the rougue later is also easier?)
+####    - Need to add function to allow for easy prebuilt maps
 ####    - Going back and expanding from the start tile a % of the time
-####    - have the display be max_row and max_column big
+####    - have the display be max_row and max_column big (at 128)
+####    - have function that allows the player to build the map as they go
 ##############################################################################################################################################################################################################################
 
-## building map from center point
-def building_map(width, height, tilesize):
+## player builds map as they go
+def initalize_living_map(width, height, tilesize):
     ## initilizing variables                                               
     used = []                                                                                               ## initializes the list for the tiles already used
     map_data = []                                                                                           ## Keeps track of what tile is in each location
@@ -345,148 +327,204 @@ def building_map(width, height, tilesize):
 
     row = math.trunc((height//tilesize)/2)                                                                  ## Start at the center row point
     column = math.trunc((width//tilesize)/2)                                                                ## Start at the center column point
+
+    ###### Attemps to zoom in on area.  Still needs work#####
     max_row = row
     max_column = column
     min_row = row
     min_column = column
     print("row and column min max ", min_row, max_row, min_column, max_column)
-    Working_Tile = tile_textures[map_data[row][column]]                                                          ## indicates this is the working tile
+    ###### End of Attemps to zoom in on area.  Still needs work#####
+
+    ## Inializes the working tile and records its location
+    Working_Tile = tile_textures[map_data[row][column]]                                                     ## indicates this is the working tile
+    Working_Tile.row = row                                                                                  ## tells the tile the row its on
+    Working_Tile.column = column                                                                            ## tells the tile the column its on
     
+
+
+## building a premade map from center point
+def building_premade_map(width, height, tilesize):
+    ## initilizing variables                                               
+    used = []                                                                                               ## initializes the list for the tiles already used
+    map_data = []                                                                                           ## Keeps track of what tile is in each location
     
-    while len(used) <= 3:#27:                                                                                  ## should run until all 27 tiles have been added (not counting start or blank)
+    ## initializes map
+    for i in range(height // tilesize):                                                                     ## This is the row
+        map_data.append([])                                                                                 ## making the map_data a row x column calling
+        for j in range(width // tilesize):                                                                  ## This is the column
+            if i == (math.trunc((height//tilesize)/2)) and j == (math.trunc((width//tilesize)/2)):          ## if the tile in question is at the center
+                rand_index = 1                                                                              ## put the start tile there (setting rand to 1)
+            else:                                                                                           ## if the tile has been used before
+                rand_index = 0                                                                              ## put in the filler tile to create a blank map
+            tile = int(hex(tiles[rand_index]), 16)                                                          ## get the tile information after converting to hex from intiger value
+            map_data[i].append(tile)                                                                        ## add teh tile to the map
+
+    row = math.trunc((height//tilesize)/2)                                                                  ## Start at the center row point
+    column = math.trunc((width//tilesize)/2)                                                                ## Start at the center column point
+
+    ###### Attemps to zoom in on area.  Still needs work#####
+    max_row = row
+    max_column = column
+    min_row = row
+    min_column = column
+    print("row and column min max ", min_row, max_row, min_column, max_column)
+    ###### End of Attemps to zoom in on area.  Still needs work#####
+
+    ## Inializes the working tile and records its location
+    Working_Tile = tile_textures[map_data[row][column]]                                                     ## indicates this is the working tile
+    Working_Tile.row = row                                                                                  ## tells the tile the row its on
+    Working_Tile.column = column                                                                            ## tells the tile the column its on
+    
+    #number = 0                                                                                              ## used for debugging tiles (or making premade maps)
+    #testing_direction = [1, 2, 3, 4]                                                                        ## used for debugging directions (or making premade maps)
+    while len(used) <= 5: #27:                                                                                 ## should run until all 27 tiles have been added (not counting start or blank)
+        #num_dir = 0                                                                                         ## used for debugging directions (or making premade maps)
         #print(len(used))                                                                                    ## debug check to see if all tiles have been used
         walled = True                                                                                       ## if there is a wall going in that direction
         direction = "N"                                                                                     ## which direction is the previous tile
         checked_directions = []                                                                             ## keeps track of which directions checked
-        #checked_directions.clear()
         rand_direction = random.randint(1,4)                                                                ## generate a random direction
+        #num_dir = num_dir +1                                                                                ## used for debugging directions (or making premade maps)
+        #rand_direction = num_dir                                                                            ## used for debugging directions (or making premade maps)
         match rand_direction:                                                                               ## picking a random direction
             case 1:                                                                                         ## randomly moving up
                 new_row = row - 1                                                                           ## Move up by one tile
                 new_column = column                                                                         ## column stays the same
                 direction = "U"                                                                             ## indciates working tile is one space down
-                if Working_Tile.up == True:                                                                 ## if the current tile has an up door
+                if Working_Tile.up == True and map_data[new_row][new_column] == 0:                          ## if the current tile has an up door and there isn't a tile already there
                     walled = False                                                                          ## no longer walled
-                print("name ", Working_Tile.name)
-                print("doors_labeled", Working_Tile.doors)
-                print("direction ", direction)
-                print("Door? ", Working_Tile.up)
+                #print("name ", Working_Tile.name)                                                           ## used for debugging
+                #print("doors_labeled", Working_Tile.doors)                                                  ## used for debugging
+                #print("direction ", direction)                                                              ## used for debugging
+                #print("Door? ", Working_Tile.up)                                                            ## used for debugging
 
             case 2:                                                                                         ## randomly movign down
                 new_row = row + 1                                                                           ## Move down by one tile
                 new_column = column                                                                         ## column stays the same
                 direction = "D"                                                                             ## indciates working tile is one space up
-                if Working_Tile.down == True:                                                               ## if the current tile has a down door
+                if Working_Tile.down == True and map_data[new_row][new_column] == 0:                        ## if the current tile has a down door and there isn't a tile already there
                     walled = False                                                                          ## no longer walled
-                print("name ", Working_Tile.name)
-                print("doors_labeled", Working_Tile.doors)
-                print("direction ", direction)
-                print("Door? ", Working_Tile.down)
+                #print("name ", Working_Tile.name)                                                           ## used for debugging
+                #print("doors_labeled", Working_Tile.doors)                                                  ## used for debugging
+                #print("direction ", direction)                                                              ## used for debugging
+                #print("Door? ", Working_Tile.up)                                                            ## used for debugging
 
             case 3:                                                                                         ## randomly moving left
                 new_row = row                                                                               ## row stays the same
                 new_column = column - 1                                                                     ## Move left by one tile
                 direction = "L"                                                                             ## indciates working tile is one space right
-                if Working_Tile.left == True:                                                               ## if the current tile has a left door
+                if Working_Tile.left == True and map_data[new_row][new_column] == 0:                        ## if the current tile has a left door and there isn't a tile already there
                     walled = False                                                                          ## no longer walled
-                print("name ", Working_Tile.name)
-                print("doors_labeled", Working_Tile.doors)
-                print("direction ", direction)
-                print("Door? ", Working_Tile.left)
+                #print("name ", Working_Tile.name)                                                           ## used for debugging
+                #print("doors_labeled", Working_Tile.doors)                                                  ## used for debugging
+                #print("direction ", direction)                                                              ## used for debugging
+                #print("Door? ", Working_Tile.up)                                                            ## used for debugging
 
             case 4:                                                                                         ## randomly moving right
                 new_row = row                                                                               ## row stays the same
                 new_column = column + 1                                                                     ## Move right by one tile
                 direction = "R"                                                                             ## indciates working tile is one space left
-                if Working_Tile.right == True:                                                              ## if the current tile has a right door
+                if Working_Tile.right == True and map_data[new_row][new_column] == 0:                       ## if the current tile has a right door and there isn't a tile already there
                     walled = False                                                                          ## no longer walled
-                print("name ", Working_Tile.name)
-                print("doors_labeled", Working_Tile.doors)
-                print("direction ", direction)
-                print("Door? ", Working_Tile.right)
+                #print("name ", Working_Tile.name)                                                           ## used for debugging
+                #print("doors_labeled", Working_Tile.doors)                                                  ## used for debugging
+                #print("direction ", direction)                                                              ## used for debugging
+                #print("Door? ", Working_Tile.up)                                                            ## used for debugging
 
         checked_directions.append(rand_direction)                                                           ## Marks taht we checked that direction
-
+        #testing = [11, 3, 4, 16]                                                                            ## used for debugging tiles (or making premade maps)
         ##print("checked_direction ", checked_directions)                                                    ## debug checks to see if all surrounding tiles are taken
-        print("walled '", walled)
-        print("taken '", map_data[new_row][new_column] != 0)
-        while (walled == True or map_data[new_row][new_column] != 0)  and len(checked_directions) < 4:
+        #print("walled '", walled)                                                                           ## used for deubbing
+        #print("taken '", map_data[new_row][new_column] != 0)                                                ## used for deubbing
+        #print("row ", row, "column", column)                                                                ## checking the row and column for dubugging 
+        #print("new_row ", new_row, "new_column ", new_column)                                               ## checking the new row and new column for dubugging 
+        while (walled == True or map_data[new_row][new_column] != 0)  and len(checked_directions) < 4:      ## if there was a wall in the way, the proposed space was already taken, and we havn't checked every direction run again
             rand_direction = random.randint(1,4)                                                            ## generate a random direction
-            while rand_direction in checked_directions:                                                                       ## checks if the number has already been used
-                rand_direction = random.randint(1, 4)                                                           ## if already been used get another random number and try again
-            #while map_data[new_row][new_column] != 0 and len(checked_directions) <= 4:                          ## run again if the new spot is already occupied 
+            while rand_direction in checked_directions:                                                     ## checks if the number has already been used
+                rand_direction = random.randint(1, 4)                                                       ## if already been used get another random number and try again
 
             match rand_direction:                                                                           ## picking a random direction
                 case 1:                                                                                     ## randomly moving up
                     new_row = row - 1                                                                       ## Move up by one tile
                     new_column = column                                                                     ## column stays the same
                     direction = "U"                                                                         ## indciates working tile is one space down
-                    if Working_Tile.up == True:                                                             ## if the current tile has an up door
+                    if Working_Tile.up == True and map_data[new_row][new_column] == 0:                      ## if the current tile has an up door and there isn't a tile already there
                         walled = False                                                                      ## no longer walled
-                    print("name ", Working_Tile.name)
-                    print("doors_labeled", Working_Tile.doors)
-                    print("direction ", direction)
-                    print("Door? ", Working_Tile.up)
+                        #print("name ", Working_Tile.name)                                                   ## used for debugging
+                        #print("doors_labeled", Working_Tile.doors)                                          ## used for debugging
+                        #print("direction ", direction)                                                      ## used for debugging
+                        #print("Door? ", Working_Tile.up)                                                    ## used for debugging
 
                 case 2:                                                                                     ## randomly movign down
                     new_row = row + 1                                                                       ## Move down by one tile
                     new_column = column                                                                     ## column stays the same
                     direction = "D"                                                                         ## indciates working tile is one space up
-                    if Working_Tile.down == True:                                                           ## if the current tile has a down door
+                    if Working_Tile.down == True and map_data[new_row][new_column] == 0:                    ## if the current tile has a down door and there isn't a tile already there
                         walled = False                                                                      ## no longer walled
-                    print("name ", Working_Tile.name)
-                    print("doors_labeled", Working_Tile.doors)
-                    print("direction ", direction)
-                    print("Door? ", Working_Tile.down)
+                        #print("name ", Working_Tile.name)                                                   ## used for debugging
+                        #print("doors_labeled", Working_Tile.doors)                                          ## used for debugging
+                        #print("direction ", direction)                                                      ## used for debugging
+                        #print("Door? ", Working_Tile.up)                                                    ## used for debugging
 
                 case 3:                                                                                     ## randomly moving left
                     new_row = row                                                                           ## row stays the same
                     new_column = column - 1                                                                 ## Move left by one tile
                     direction = "L"                                                                         ## indciates working tile is one space right
-                    if Working_Tile.left == True:                                                           ## if the current tile has a left door
+                    if Working_Tile.left == True and map_data[new_row][new_column] == 0:                    ## if the current tile has a left door and there isn't a tile already there
                         walled = False                                                                      ## no longer walled
-                    print("name ", Working_Tile.name)
-                    print("doors_labeled", Working_Tile.doors)
-                    print("direction ", direction)
-                    print("Door? ", Working_Tile.left)
+                        #print("name ", Working_Tile.name)                                                   ## used for debugging
+                        #print("doors_labeled", Working_Tile.doors)                                          ## used for debugging
+                        #print("direction ", direction)                                                      ## used for debugging
+                        #print("Door? ", Working_Tile.up)                                                    ## used for debugging
 
                 case 4:                                                                                     ## randomly moving right
                     new_row = row                                                                           ## row stays the same
                     new_column = column + 1                                                                 ## Move right by one tile
                     direction = "R"                                                                         ## indciates working tile is one space left
-                    if Working_Tile.right == True:                                                          ## if the current tile has a right door
+                    if Working_Tile.right == True and map_data[new_row][new_column] == 0:                                                          ## if the current tile has a right door
                         walled = False                                                                      ## no longer walled 
-                    print("name ", Working_Tile.name)
-                    print("doors_labeled", Working_Tile.doors)
-                    print("direction ", direction)
-                    print("Door? ", Working_Tile.right)
+                        #print("name ", Working_Tile.name)                                                   ## used for debugging
+                        #print("doors_labeled", Working_Tile.doors)                                          ## used for debugging
+                        #print("direction ", direction)                                                      ## used for debugging
+                        #print("Door? ", Working_Tile.up)                                                    ## used for debugging
       
             checked_directions.append(rand_direction)                                                       ## marked that we checked that direction
 
-            print("walled ", walled)
-            print("taken ", map_data[new_row][new_column] != 0)            
-        if len(checked_directions) >= 4 or walled == True:                                                                    ## if every direction is blocked
+        #print("walled '", walled)                                                                           ## used for deubbing
+        #print("taken '", map_data[new_row][new_column] != 0)                                                ## used for deubbing
+        #print("row ", row, "column", column)                                                                ## checking the row and column for dubugging 
+        #print("new_row ", new_row, "new_column ", new_column)                                               ## checking the new row and new column for dubugging          
+
+        if map_data[new_row][new_column] != 0 or walled == True:                                            ## if last direction was blocked by a wall or if was already taken
             Working_Tile = Working_Tile.parent                                                              ## back up to the parent
-        else:                                                                                               ## if not trapped                   
+            row = Working_Tile.row                                                                          ## sets the row to where the parent row is
+            column = Working_Tile.column                                                                    ## sets the column to the parent column
+        else:                                                                                               ## if not trapped
             rand_index = random.randint(2,29)                                                               ## generates a random number from 2-29 to call the tiles
             while rand_index in used:                                                                       ## checks if the number has already been used
                 rand_index = random.randint(2,29)                                                           ## if already been used get another random number and try again
+            #rand_index = testing[number]                                                                   ## used for debugging tiles (or making premade maps)
             tile = int(hex(tiles[rand_index]), 16)                                                          ## get the tile information after converting to hex from intiger value
             map_data[new_row][new_column] = tile                                                            ## replaces the blank tile with the new tile value
             New_Tile = tile_textures[map_data[new_row][new_column]]                                         ## Calls forth the new tile
-            #match direction:
-            #    case "U":
-            #        if New_Tile.down == False:
-            #            New_Tile.rotate_clockwise
-            #    case "D":
-            #        if New_Tile.up == False:
-            #            New_Tile.rotate_clockwise
-            #    case "L":
-            #        if New_Tile.right == False:
-            #            New_Tile.rotate_clockwise
-            #    case "R":
-            #        if New_Tile.left == False:
-            #            New_Tile.rotate_clockwise
+            New_Tile.row = new_row                                                                          ## tells tile where its row is located in the map
+            New_Tile.column = new_column                                                                    ## tells tile where its column is located in the map
+
+            ## lines up the doors from the current tile and the newly placed tile
+            match direction:                                                                                ## checks where the direction of the new tile is placed
+                case "U":                                                                                   ## if it was upwards
+                    while New_Tile.down == False:                                                           ## if the new tile doesen't have a down door to enter from
+                        New_Tile.rotate_clockwise()                                                         ## rotate the tile clockwise
+                case "D":                                                                                   ## if the was downwards
+                    while New_Tile.up == False:                                                             ## rotate the tile clockwis
+                        New_Tile.rotate_clockwise()                                                         ## rotate the tile clockwise
+                case "L":                                                                                   ## if it was from the left
+                    while New_Tile.right == False:                                                          ## rotate the tile clockwis
+                        New_Tile.rotate_clockwise()                                                         ## rotate the tile clockwise
+                case "R":                                                                                   ## if it was from the right    
+                    while New_Tile.left == False:                                                           ##  rotate the tile clockwis
+                        New_Tile.rotate_clockwise()                                                         ## rotate the tile clockwise 
             Working_Tile.add_child(New_Tile)                                                                ## adds the new tile as a child of the working tile 
             New_Tile.parent = Working_Tile                                                                  ## adds the new tile parent as the working title 
             Working_Tile = New_Tile                                                                         ## Moves onto the next tile
@@ -494,8 +532,9 @@ def building_map(width, height, tilesize):
             column = new_column                                                                             ## sets the column as the new column
             map_data[row][column] = tile                                                                    ## sets the new tile up in the correction location
             used.append(rand_index)                                                                         ## add the rand_index to the used list
+            #number = number + 1                                                                             ## used for debugging tiles (or making premade maps)
             
-            ## for limiting window size (still needs work)
+    ###### Attemps to zoom in on area.  Still needs work#####
             if row > max_row:
                 max_row = row
             if row < min_row:
@@ -507,8 +546,12 @@ def building_map(width, height, tilesize):
 
     max_mins = [min_row, max_row, min_column, max_column]
     print("max_mins ", max_mins)
+    ###### End of Attemps to zoom in on area.  Still needs work#####
+
     return map_data, max_mins                                                                                ## returns the map data
 
+
+## This function places all the tiles and tokens for the user to see
 def draw_map(screen, map_data, max_mins, TILE_SIZE):
     
     MAP_HEIGHT = len(map_data) 
@@ -518,7 +561,7 @@ def draw_map(screen, map_data, max_mins, TILE_SIZE):
     #for row in range(max_mins[0], max_mins[1]+1):
     #    for col in range(max_mins[2], max_mins[3]+1):
             screen.blit(tile_textures[map_data[row][col]].texture,                                          ## Grabs the tile image and displays it at it's current location
-                        (col*TILE_SIZE, row*TILE_SIZE))  
+                        (col*TILE_SIZE, row*TILE_SIZE))                                                     ## places the tile in it's proper row and column
             if tile_textures[map_data[row][col]].token != None:                                             ## if the tile has a token
                 screen.blit(tile_textures[map_data[row][col]].token,                                        ## display the token at about a 3rd of a TILE_SIZE down and right from the upper left of the tile location
-                        (col*TILE_SIZE+TILE_SIZE/3, row*TILE_SIZE+TILE_SIZE/3))     
+                        (col*TILE_SIZE+TILE_SIZE/3, row*TILE_SIZE+TILE_SIZE/3))                             ## the token will be placed about a 1/3rd of the way down and a 1/3rd of the way to the right from the upper left corner of the tile

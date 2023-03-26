@@ -17,7 +17,7 @@ TILE_SIZE = settings.TILE_SIZE  ## Gets the size of the tile from the settings f
 
 
 #map_data = generate_map(640, 640, TILE_SIZE)
-map_data, max_mins = building_map(9*128, 9*128, TILE_SIZE)
+map_data, max_mins = building_premade_map(9*128, 9*128, TILE_SIZE)
 
 # create a surface represent our window
 screen = pygame.display.set_mode((9*TILE_SIZE, 9*TILE_SIZE))

@@ -2,6 +2,7 @@
 import pygame
 import time
 import settings
+from tilemap import *
 
 TILE_SIZE = settings.TILE_SIZE  ## Gets the size of the tile from the settings file and sets it as a global variable
 
@@ -13,6 +14,7 @@ TILE_SIZE = settings.TILE_SIZE  ## Gets the size of the tile from the settings f
 ####    - Player sprite
 ####    - Win Condition and display
 ####    - Astar with backpath (actions taken)
+####    - Have the player build the map as they go
 ##############################################################################################################################################################################################################################
 def create_player_texture(name):
     image = pygame.transform.scale(name,(TILE_SIZE/4,TILE_SIZE/4))                  ## scales the image to 1/4 of a tile size
