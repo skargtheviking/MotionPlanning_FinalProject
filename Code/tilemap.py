@@ -6,6 +6,7 @@ import settings
 import pygame
 import random
 import math
+import numpy as np
 
 # dimension of each tiles
 TILE_SIZE = settings.TILE_SIZE  ## Gets the size of the tile from the settings file and sets it as a global variable
@@ -301,10 +302,7 @@ tiles = [0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0
 
 ##############################################################################################################################################################################################################################
 #### Things to add to tile map
-####    - Tile Neighbors w/ matching doors (or do I have that in the players movement where it checks of both are doors.  That way programming the rougue later is also easier?)
-####    - Need to add function to allow for easy prebuilt maps
-####    - Going back and expanding from the start tile a % of the time
-####    - have the display be max_row and max_column big (at 128)
+####    - Going back and expanding from the start tile a % of the time (and what to do when going back to start tile and start tile is surrounded)
 ####    - have function that allows the player to build the map as they go
 ##############################################################################################################################################################################################################################
 
@@ -333,60 +331,84 @@ def initalize_living_map(width, height, tilesize):
     max_column = column
     min_row = row
     min_column = column
-    print("row and column min max ", min_row, max_row, min_column, max_column)
     ###### End of Attemps to zoom in on area.  Still needs work#####
 
     ## Inializes the working tile and records its location
     Working_Tile = tile_textures[map_data[row][column]]                                                     ## indicates this is the working tile
     Working_Tile.row = row                                                                                  ## tells the tile the row its on
     Working_Tile.column = column                                                                            ## tells the tile the column its on
-    
 
+## building a pre-determined map    
+def building_premade_map(width, height, tile_order, direction_order):
+    map_data = np.empty((height, width))                                                                    ## Keeps track of what tile is in each location
 
-## building a premade map from center point
-def building_premade_map(width, height, tilesize):
+    for row in range(height):                                                                               ## goes over each row
+        for column in range(width):                                                                         ## goes over each column
+            direction = direction_order[row][column]                                                        ## gets the determined direction
+            map_data[row][column] = tile = int(hex(tiles[tile_order[row][column]]), 16)                     ## stores the tile varilable in its location in the map data
+            New_Tile = tile_textures[map_data[row][column]]                                                 ## Calls forth the new tile
+            New_Tile.row = row                                                                              ## tells tile where its row is located in the map
+            New_Tile.column = column                                                                        ## tells tile where its column is located in the map
+            match direction:                                                                                ## reads in the direction
+                #case "U":                                                                                  ## if wanted to point Up nothing happens
+                #    print("none")                                                   
+                case "D":                                                                                   ## rotate so the top of the tile points down
+                    New_Tile.rotate_clockwise()
+                    New_Tile.rotate_clockwise()
+                case "L":                                                                                   ## rotate so the top of the tile points left 
+                    New_Tile.rotate_clockwise()
+                    New_Tile.rotate_clockwise()
+                    New_Tile.rotate_clockwise()
+                case "R":                                                                                   ## rotate so the top of the tile points right 
+                    New_Tile.rotate_clockwise()
+
+    new_height = len(map_data)                                                                              ## determines the new_height of the new map
+    new_width = len(map_data[0])                                                                            ## determines the new_wideth of the new map
+
+    max_mins = [new_height, new_width]                                                                      ## stores the new dimensiosn of the new map in an easy access list
+    return map_data, max_mins                                                                               ## returns the map data
+
+## building a randomly generated map from center point
+def building_random_map(width, height):
     ## initilizing variables                                               
     used = []                                                                                               ## initializes the list for the tiles already used
     map_data = []                                                                                           ## Keeps track of what tile is in each location
     
     ## initializes map
-    for i in range(height // tilesize):                                                                     ## This is the row
+    for i in range(height):                                                                                 ## This is the row
         map_data.append([])                                                                                 ## making the map_data a row x column calling
-        for j in range(width // tilesize):                                                                  ## This is the column
-            if i == (math.trunc((height//tilesize)/2)) and j == (math.trunc((width//tilesize)/2)):          ## if the tile in question is at the center
+        for j in range(width):                                                                              ## This is the column
+            if i == (math.trunc((height)/2)) and j == (math.trunc((width)/2)):                              ## if the tile in question is at the center
                 rand_index = 1                                                                              ## put the start tile there (setting rand to 1)
             else:                                                                                           ## if the tile has been used before
                 rand_index = 0                                                                              ## put in the filler tile to create a blank map
             tile = int(hex(tiles[rand_index]), 16)                                                          ## get the tile information after converting to hex from intiger value
             map_data[i].append(tile)                                                                        ## add teh tile to the map
 
-    row = math.trunc((height//tilesize)/2)                                                                  ## Start at the center row point
-    column = math.trunc((width//tilesize)/2)                                                                ## Start at the center column point
+    row = math.trunc((height)/2)                                                                            ## Start at the center row point
+    column = math.trunc((width)/2)                                                                          ## Start at the center column point
 
-    ###### Attemps to zoom in on area.  Still needs work#####
-    max_row = row
-    max_column = column
-    min_row = row
-    min_column = column
-    print("row and column min max ", min_row, max_row, min_column, max_column)
-    ###### End of Attemps to zoom in on area.  Still needs work#####
+    max_row = row                                                                                           ## initalizes the max row
+    max_column = column                                                                                     ## initalizes the max column
+    min_row = row                                                                                           ## initalizes the min row
+    min_column = column                                                                                     ## initalizes the min column
+    #print("row and column min max ", min_row, max_row, min_column, max_column)                              ## used for debugging
 
     ## Inializes the working tile and records its location
     Working_Tile = tile_textures[map_data[row][column]]                                                     ## indicates this is the working tile
     Working_Tile.row = row                                                                                  ## tells the tile the row its on
     Working_Tile.column = column                                                                            ## tells the tile the column its on
     
-    #number = 0                                                                                              ## used for debugging tiles (or making premade maps)
-    #testing_direction = [1, 2, 3, 4]                                                                        ## used for debugging directions (or making premade maps)
-    while len(used) <= 5: #27:                                                                                 ## should run until all 27 tiles have been added (not counting start or blank)
-        #num_dir = 0                                                                                         ## used for debugging directions (or making premade maps)
+    #number = 0                                                                                              ## used for debugging tiles
+    #testing_direction = [2, 3, 1, 4]                                                                        ## used for debugging directions
+    while len(used) <= 27:                                                                                 ## should run until all 27 tiles have been added (not counting start or blank)
+        #num_dir = 0                                                                                         ## used for debugging directions
         #print(len(used))                                                                                    ## debug check to see if all tiles have been used
         walled = True                                                                                       ## if there is a wall going in that direction
         direction = "N"                                                                                     ## which direction is the previous tile
         checked_directions = []                                                                             ## keeps track of which directions checked
         rand_direction = random.randint(1,4)                                                                ## generate a random direction
-        #num_dir = num_dir +1                                                                                ## used for debugging directions (or making premade maps)
-        #rand_direction = num_dir                                                                            ## used for debugging directions (or making premade maps)
+        #rand_direction = testing_direction[num_dir]                                                         ## used for debugging directions
         match rand_direction:                                                                               ## picking a random direction
             case 1:                                                                                         ## randomly moving up
                 new_row = row - 1                                                                           ## Move up by one tile
@@ -431,19 +453,22 @@ def building_premade_map(width, height, tilesize):
                 #print("doors_labeled", Working_Tile.doors)                                                  ## used for debugging
                 #print("direction ", direction)                                                              ## used for debugging
                 #print("Door? ", Working_Tile.up)                                                            ## used for debugging
-
+        if new_row < 0 or new_column < 0:                                                                   ## if it goes negative
+            walled = True                                                                                   ## prevents from wrapping around
         checked_directions.append(rand_direction)                                                           ## Marks taht we checked that direction
-        #testing = [11, 3, 4, 16]                                                                            ## used for debugging tiles (or making premade maps)
+        #testing = [11, 3, 4, 16]                                                                            ## used for debugging tiles
         ##print("checked_direction ", checked_directions)                                                    ## debug checks to see if all surrounding tiles are taken
         #print("walled '", walled)                                                                           ## used for deubbing
         #print("taken '", map_data[new_row][new_column] != 0)                                                ## used for deubbing
         #print("row ", row, "column", column)                                                                ## checking the row and column for dubugging 
         #print("new_row ", new_row, "new_column ", new_column)                                               ## checking the new row and new column for dubugging 
+        
         while (walled == True or map_data[new_row][new_column] != 0)  and len(checked_directions) < 4:      ## if there was a wall in the way, the proposed space was already taken, and we havn't checked every direction run again
             rand_direction = random.randint(1,4)                                                            ## generate a random direction
             while rand_direction in checked_directions:                                                     ## checks if the number has already been used
                 rand_direction = random.randint(1, 4)                                                       ## if already been used get another random number and try again
-
+            #num_dir = num_dir + 1                                                                           ## used for debugging directions
+            #rand_direction = testing_direction[num_dir]                                                     ## used for debugging directions
             match rand_direction:                                                                           ## picking a random direction
                 case 1:                                                                                     ## randomly moving up
                     new_row = row - 1                                                                       ## Move up by one tile
@@ -482,13 +507,14 @@ def building_premade_map(width, height, tilesize):
                     new_row = row                                                                           ## row stays the same
                     new_column = column + 1                                                                 ## Move right by one tile
                     direction = "R"                                                                         ## indciates working tile is one space left
-                    if Working_Tile.right == True and map_data[new_row][new_column] == 0:                                                          ## if the current tile has a right door
+                    if Working_Tile.right == True and map_data[new_row][new_column] == 0:                   ## if the current tile has a right door and there isn't a tile already there
                         walled = False                                                                      ## no longer walled 
                         #print("name ", Working_Tile.name)                                                   ## used for debugging
                         #print("doors_labeled", Working_Tile.doors)                                          ## used for debugging
                         #print("direction ", direction)                                                      ## used for debugging
                         #print("Door? ", Working_Tile.up)                                                    ## used for debugging
-      
+            if new_row < 0 or new_column < 0:                                                               ## if it goes negative
+                walled = True                                                                               ## prevents from wrapping around
             checked_directions.append(rand_direction)                                                       ## marked that we checked that direction
 
         #print("walled '", walled)                                                                           ## used for deubbing
@@ -497,9 +523,17 @@ def building_premade_map(width, height, tilesize):
         #print("new_row ", new_row, "new_column ", new_column)                                               ## checking the new row and new column for dubugging          
 
         if map_data[new_row][new_column] != 0 or walled == True:                                            ## if last direction was blocked by a wall or if was already taken
-            Working_Tile = Working_Tile.parent                                                              ## back up to the parent
-            row = Working_Tile.row                                                                          ## sets the row to where the parent row is
-            column = Working_Tile.column                                                                    ## sets the column to the parent column
+            if Working_Tile.parent != None:                                                                 ## if it's not the starting tile
+                Working_Tile = Working_Tile.parent                                                          ## back up to the parent
+                if Working_Tile.parent != None:                                                             ## if it's not the starting tile
+                    row = Working_Tile.row                                                                  ## sets the row to where the parent row is
+                    column = Working_Tile.column                                                            ## sets the column to the parent column
+                else:
+                    child = random.randint(0, len(Working_Tile.children)-1)
+                    Working_Tile = Working_Tile.children[child]                            
+            else:
+                child = random.randint(0, len(Working_Tile.children)-1)
+                Working_Tile = Working_Tile.children[child]                                                     
         else:                                                                                               ## if not trapped
             rand_index = random.randint(2,29)                                                               ## generates a random number from 2-29 to call the tiles
             while rand_index in used:                                                                       ## checks if the number has already been used
@@ -510,7 +544,9 @@ def building_premade_map(width, height, tilesize):
             New_Tile = tile_textures[map_data[new_row][new_column]]                                         ## Calls forth the new tile
             New_Tile.row = new_row                                                                          ## tells tile where its row is located in the map
             New_Tile.column = new_column                                                                    ## tells tile where its column is located in the map
-
+            row = new_row                                                                                   ## sets the row as the new row
+            column = new_column                                                                             ## sets the column as the new column
+            used.append(rand_index)                                                                         ## add the rand_index to the used list
             ## lines up the doors from the current tile and the newly placed tile
             match direction:                                                                                ## checks where the direction of the new tile is placed
                 case "U":                                                                                   ## if it was upwards
@@ -528,31 +564,49 @@ def building_premade_map(width, height, tilesize):
             Working_Tile.add_child(New_Tile)                                                                ## adds the new tile as a child of the working tile 
             New_Tile.parent = Working_Tile                                                                  ## adds the new tile parent as the working title 
             Working_Tile = New_Tile                                                                         ## Moves onto the next tile
-            row = new_row                                                                                   ## sets the row as the new row
-            column = new_column                                                                             ## sets the column as the new column
-            map_data[row][column] = tile                                                                    ## sets the new tile up in the correction location
-            used.append(rand_index)                                                                         ## add the rand_index to the used list
-            #number = number + 1                                                                             ## used for debugging tiles (or making premade maps)
+            #number = number + 1                                                                             ## used for debugging tiles
             
-    ###### Attemps to zoom in on area.  Still needs work#####
-            if row > max_row:
-                max_row = row
-            if row < min_row:
-                min_row = row
-            if column > max_column:
-                max_column = column
-            if column < min_column:
-                min_column = column
+            if new_row > max_row:                                                                           ## if the new row is bigger than the previously recorded max row
+                max_row = new_row                                                                           ## set the new row to be the new max row
+            if new_row < min_row:                                                                           ## if the new row is smaller than the previously recorded min row
+                min_row = new_row                                                                           ## set the new row to be the new min row
+            if new_column > max_column:                                                                     ## if the new column is bigger than the previously recorded max column
+                max_column = new_column                                                                     ## set the new column to be the new max columm
+            if new_column < min_column:                                                                     ## if the new column is smaller than the previously recorded min column
+                min_column = new_column                                                                     ## the the new column to be the new min column
 
-    max_mins = [min_row, max_row, min_column, max_column]
-    print("max_mins ", max_mins)
-    ###### End of Attemps to zoom in on area.  Still needs work#####
+    ## Gets rid of excess rows and columns
+    #print("min_row", min_row)                                                                               ## used for debugging
+    #print("max_row", max_row)                                                                               ## used for debugging
+    #print("min_column", min_column)                                                                         ## used for debugging
+    #print("max_column", max_column)                                                                         ## used for debugging
+    #print("mapdata", map_data)                                                                              ## used for debugging
 
-    return map_data, max_mins                                                                                ## returns the map data
+    delete_rows = []                                                                                         ## initalizing list of rows that need to be deleated
+    delete_columns = []                                                                                      ## initalizing list of columns that need to be deleated
+    for i in range(max_row+1, height):                                                                       ## determines the numbers of the rows at the bottom of the map that needs to be deleted 
+        delete_rows.append(i)                                                                                ## adds the number of the rows at the bottom of the map that needs to be deleted to the list
+    for j in range(0, min_row):                                                                              ## determines the numbers of the rows at the top of the map that needs to be deleted 
+        delete_rows.append(j)                                                                                ## adds the number of the rows at the top of the map that needs to be deleted to the list
+    map_data = np.delete(map_data, delete_rows, 0)                                                           ## deletes the unnessisary rows 
+    #print("mapdata_mid", map_data)                                                                           ## used for debugging
+    for k in range(max_column+1, width):                                                                     ## determines the columns from the right edge of the map that eeed to be deleted
+        delete_columns.append(k)                                                                             ## adds the numbers of the columns at thte right of the map that needs to be deleted to the list
+    for p in range(0, min_column):                                                                           ## determines the columns from the left edge of the map that eeed to be deleted
+        delete_columns.append(p)                                                                             ## adds the numbers of the columns at thte left of the map that needs to be deleted to the list
+    map_data = np.delete(map_data, delete_columns, 1)                                                        ## deletes the unnessisary columns
+    #print("new ", map_data)                                                                                   ## used for debugging
+    new_height = len(map_data)                                                                               ## determines the new_height of the new map
+    new_width = len(map_data[0])                                                                             ## determines the new_wideth of the new map
+
+    max_mins = [new_height, new_width]                                                                       ## stores the new dimensiosn of the new map in an easy access list
+    #print("max_mins ", max_mins)                                                                             ## used for debugging
+
+    return map_data, max_mins                                                                                ## returns the map data and size of the new map
 
 
 ## This function places all the tiles and tokens for the user to see
-def draw_map(screen, map_data, max_mins, TILE_SIZE):
+def draw_map(screen, map_data, TILE_SIZE):
     
     MAP_HEIGHT = len(map_data) 
     MAP_WIDTH = len(map_data[0])

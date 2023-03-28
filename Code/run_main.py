@@ -14,17 +14,34 @@ clock = pygame.time.Clock()
 
 # dimension of each tiles
 TILE_SIZE = settings.TILE_SIZE  ## Gets the size of the tile from the settings file and sets it as a global variable
-
+height = 43                    ## sets the estimated hight of the map
+width = 43                       ## sets the estimated width of the map
 
 #map_data = generate_map(640, 640, TILE_SIZE)
-map_data, max_mins = building_premade_map(9*128, 9*128, TILE_SIZE)
+map_data, max_mins = building_random_map(width, height)
+
+##################################################
+############# Premade Map ########################
+##################################################
+### enter the tile number (base 10) into tile_order
+#tile_order = [[16, 20, 4], [2, 1, 6], [23, 12, 15]]
+
+### enter the where you want the top of the tile to be at (U at top, D at bottom, L on the left, and R on the right)
+#direction_order = [["U", "U", "D"], ["L", "R", "D"], ["U", "U", "U"]]
+
+### Determines where each tile is on the map
+#map_data, max_mins = building_premade_map(height, width, tile_order, direction_order)   
+
+##################################################
+############# End Of Premade Map #################
+##################################################
 
 # create a surface represent our window
-screen = pygame.display.set_mode((9*TILE_SIZE, 9*TILE_SIZE))
+screen = pygame.display.set_mode((max_mins[1]*TILE_SIZE, max_mins[0]*TILE_SIZE))
 
 sprites_group = pygame.sprite.Group()
 
-player = Player(sprites_group, screen.get_rect().center, (TILE_SIZE/4,TILE_SIZE/4), (0,0,255))
+player = Player(sprites_group, map_data)
 
 ## with a ceter piece if everything goes in a straight line it is 29 + 28 = 57
 ## Though with turning corners the max possible length a tunnel can go is 22 tiles
@@ -48,7 +65,7 @@ def main():
                 running = False
         # draw
         screen.fill((255,255,255))
-        draw_map(screen, map_data, max_mins, TILE_SIZE)
+        draw_map(screen, map_data, TILE_SIZE)
         sprites_group.draw(screen)
 
 
