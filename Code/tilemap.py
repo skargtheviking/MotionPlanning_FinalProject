@@ -13,35 +13,41 @@ TILE_SIZE = settings.TILE_SIZE  ## Gets the size of the tile from the settings f
 
 ## Turns the image into the tile texture according to the requested size
 def create_texture(name):
-    image = pygame.transform.scale(name,(TILE_SIZE,TILE_SIZE))                      ## scales the image to tile size
-    return image                                                                    ## returns the tile image
+    image = pygame.transform.scale(name,(TILE_SIZE,TILE_SIZE))                              ## scales the image to tile size
+    return image                                                                            ## returns the tile image
 
 ## Turns the image into the tile texture according to the requested size
 def create_token_texture(name):
-    image = pygame.transform.scale(name,(TILE_SIZE/4,TILE_SIZE/4))                  ## scales the image to 1/4 of a tile size
-    return image                                                                    ## return the token image
+    image = pygame.transform.scale(name,(TILE_SIZE/4,TILE_SIZE/4))                          ## scales the image to 1/4 of a tile size
+    return image                                                                            ## return the token image
 
-Token_Cultist = pygame.image.load("Images/Tokens/Cultist.png")                      ## Gets the cultist image
-Token_Red = pygame.image.load("Images/Tokens/Token_Red.png")                        ## Gets the red token
-Token_Green = pygame.image.load("Images/Tokens/Token_Green.png")                    ## gets the green token
-Token_Blue = pygame.image.load("Images/Tokens/Token_Blue.png")                      ## gets the blue token
-Token_RedEvent = pygame.image.load("Images/Tokens/Token_RedEvent.png")              ## Gets the red event token
-Token_GreenEvent = pygame.image.load("Images/Tokens/Token_GreenEvent.png")          ## gets the green evemt token
-Token_BlueEvent = pygame.image.load("Images/Tokens/Token_BlueEvent.png")            ## gets the blue event token
-Token_FireofEidolon = pygame.image.load("Images/Tokens/Token_FireofEidolon.png")    ## gets the Fire of Eidolon token
+Token_Cultist = pygame.image.load("Images/Tokens/Cultist.png")                              ## Gets the cultist image
+Token_Red = pygame.image.load("Images/Tokens/Token_Red.png")                                ## Gets the red token
+Token_Green = pygame.image.load("Images/Tokens/Token_Green.png")                            ## gets the green token
+Token_Blue = pygame.image.load("Images/Tokens/Token_Blue.png")                              ## gets the blue token
+Token_RedEvent = pygame.image.load("Images/Tokens/Token_RedEvent.png")                      ## Gets the red event token
+Token_GreenEvent = pygame.image.load("Images/Tokens/Token_GreenEvent.png")                  ## gets the green evemt token
+Token_BlueEvent = pygame.image.load("Images/Tokens/Token_BlueEvent.png")                    ## gets the blue event token
+Token_RedEvent_Broken = pygame.image.load("Images/Tokens/Token_RedEvent_Broken.png")        ## Gets the broken red event token
+Token_GreenEvent_Broken = pygame.image.load("Images/Tokens/Token_GreenEvent_Broken.png")    ## gets the broken green evemt token
+Token_BlueEvent_Broken = pygame.image.load("Images/Tokens/Token_BlueEvent_Broken.png")      ## gets the broken blue event token
+Token_FireofEidolon = pygame.image.load("Images/Tokens/Token_FireofEidolon.png")            ## gets the Fire of Eidolon token
 
-token_texture = {                                                                   ## creates a dictionary of the token displays
-    0x0 : create_token_texture(Token_Cultist),                                      ## the cultists token
-    0x1 : create_token_texture(Token_Red),                                          ## the red token 
-    0x2 : create_token_texture(Token_Green),                                        ## the green token
-    0x3 : create_token_texture(Token_Blue),                                         ## the blue token
-    0x4 : create_token_texture(Token_RedEvent),                                     ## the red event token 
-    0x5 : create_token_texture(Token_GreenEvent),                                   ## the green event token
-    0x6 : create_token_texture(Token_BlueEvent),                                    ## the blue event token
-    0x7 : create_token_texture(Token_FireofEidolon),                                ## the Fire of Eidolon token
+token_texture = {                                                                           ## creates a dictionary of the token displays
+    0x0 : create_token_texture(Token_Cultist),                                              ## the cultists token
+    0x1 : create_token_texture(Token_Red),                                                  ## the red token 
+    0x2 : create_token_texture(Token_Green),                                                ## the green token
+    0x3 : create_token_texture(Token_Blue),                                                 ## the blue token
+    0x4 : create_token_texture(Token_RedEvent),                                             ## the red event token 
+    0x5 : create_token_texture(Token_GreenEvent),                                           ## the green event token
+    0x6 : create_token_texture(Token_BlueEvent),                                            ## the blue event token
+    0x7 : create_token_texture(Token_FireofEidolon),                                        ## the Fire of Eidolon token
+    0x8: create_token_texture(Token_RedEvent_Broken),                                       ## the broken red event token
+    0x9: create_token_texture(Token_GreenEvent_Broken),                                     ## the broken green event token
+    0xa: create_token_texture(Token_BlueEvent_Broken),                                      ## the broken blue event token
 }
 
-token_list = [0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7]                                    ## reference list for the token dictionary
+token_list = [0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa]                        ## reference list for the token dictionary
 
 ''' 
 30 total tile types
@@ -154,13 +160,19 @@ class Tile:
             case "Blue":                                                            ## if it's listed as blue
                 token_number = int(hex(token_list[3]), 16)                          ## grab the blue token
             case "RedEvent":                                                        ## if it's listed as red event
-                token_number = int(hex(token_list[4]), 16)                          ## grab the red token
+                token_number = int(hex(token_list[4]), 16)                          ## grab the red event token
             case "GreenEvent":                                                      ## if it's listed as green event 
-                token_number = int(hex(token_list[5]), 16)                          ## grab the green token
+                token_number = int(hex(token_list[5]), 16)                          ## grab the green event token
             case "BlueEvent":                                                       ## if it's listed as blue event
-                token_number = int(hex(token_list[6]), 16)                          ## grab the blue token
-            case "FireofEidolon":                                                   ## if it's listed as blue event
-                token_number = int(hex(token_list[7]), 16)                          ## grab the blue token
+                token_number = int(hex(token_list[6]), 16)                          ## grab the blue event token
+            case "FireofEidolon":                                                   ## if it's listed as Fire of Eidolon
+                token_number = int(hex(token_list[7]), 16)                          ## grab the Fire of Eidolon token
+            case "Broken_RedEvent":                                                 ## if it's listed as broken red event
+                token_number = int(hex(token_list[8]), 16)                          ## grab the broken red event token
+            case "Broken_GreenEvent":                                               ## if it's listed as broken green event 
+                token_number = int(hex(token_list[9]), 16)                          ## grab the broken green event token
+            case "Broken_BlueEvent":                                                ## if it's listed as broken blue event
+                token_number = int(hex(token_list[10]), 16)                         ## grab the broken blue event token
             case _:                                                                 ## if no tile is listed
                 token_number = None                                                 ## it does not have a token number
         if token_number == None:                                                    ## if there is no token number
@@ -302,7 +314,7 @@ tiles = [0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0
 
 ##############################################################################################################################################################################################################################
 #### Things to add to tile map
-####    - Going back and expanding from the start tile a % of the time (and what to do when going back to start tile and start tile is surrounded)
+####    - Going back and expanding from the start tile a % of the time (and what to do when going back to start tile and start tile is surrounded, currently the current attempt may cause infiniate loop)
 ####    - have function that allows the player to build the map as they go
 ##############################################################################################################################################################################################################################
 
