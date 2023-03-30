@@ -10,6 +10,7 @@ TILE_SIZE = settings.TILE_SIZE  ## Gets the size of the tile from the settings f
 ##############################################################################################################################################################################################################################
 #### Things to add to player
 ####    - Shows path taken when you win
+####    - Adds a total cost
 ####    - Have the player build the map as they go
 ####    - Have it keep track of total cost of the path
 ####    - Use automated system such as Astar
@@ -75,7 +76,10 @@ class Player(pygame.sprite.Sprite):
                     if tile_textures[self.map_data[self.row][self.column+1]].left == True:
                         self.actions.append("R")                                                                                                                ## remembers it moved right
                         self.move(+TILE_SIZE, 0)
-
+        if keys[pygame.K_p]:
+            print("map ", self.map_data)
+            print("player location, ", self.row, self.column)
+            print("Doors, ", tile_textures[self.map_data[self.row][self.column]].left)
  
         ## Grabs tokens
         if keys[pygame.K_e]:
@@ -110,7 +114,7 @@ class Player(pygame.sprite.Sprite):
                             settings.FireofEidolon_Grabbed = True                                                                                               ## marks that the Fire of Eidolon has been grabbed
                             self.FireofEidolon = 1                                                                                                              ## indicates that the player has the Fire of Eidolon
                             tile_textures[self.map_data[self.row][self.column]].token = None                                                                    ## Removes the token
-                self.actions.append("Token")                                                                                                                    ## remembers it grabbed a token (or at least tired)
+                self.actions.append("T")                                                                                                                    ## remembers it grabbed a token (or at least tired)
 
 
     def move(self, dx, dy):

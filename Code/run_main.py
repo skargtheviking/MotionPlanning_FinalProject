@@ -68,7 +68,6 @@ def main():
         draw_map(screen, map_data, TILE_SIZE)
         sprites_group.draw(screen)
 
-
         # update
         sprites_group.update()
         pygame.display.flip()
