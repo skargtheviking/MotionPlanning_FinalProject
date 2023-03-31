@@ -114,17 +114,17 @@ class Player(pygame.sprite.Sprite):
                             settings.FireofEidolon_Grabbed = True                                                                                               ## marks that the Fire of Eidolon has been grabbed
                             self.FireofEidolon = 1                                                                                                              ## indicates that the player has the Fire of Eidolon
                             tile_textures[self.map_data[self.row][self.column]].token = None                                                                    ## Removes the token
-                self.actions.append("T")                                                                                                                    ## remembers it grabbed a token (or at least tired)
+                self.actions.append("T")                                                                                                                        ## remembers it grabbed a token (or at least tired)
 
-
+    ## moves the player on the screen and where the player is on the map
     def move(self, dx, dy):
-        self.rect.x += dx
-        self.rect.y += dy
-        self.row = self.row + dy//TILE_SIZE
-        self.column = self.column + dx//TILE_SIZE
-        self.visited.append([self.row, self.column])
-        if tile_textures[self.map_data[self.row][self.column]].name == "EndTile" and self.FireofEidolon == 1:
-            print("You Win!")
-            print(self.visited)
-            print(self.actions)
-        time.sleep(0.5)
+        self.rect.x += dx                                                                                                                                       ## lets the compter know where to move the player in the x direction
+        self.rect.y += dy                                                                                                                                       ## lets the compter know where to move the player in the y direction
+        self.row = self.row + dy//TILE_SIZE                                                                                                                     ## sets the new row
+        self.column = self.column + dx//TILE_SIZE                                                                                                               ## sets the new column
+        self.visited.append([self.row, self.column])                                                                                                            ## saves the tile visited
+        if tile_textures[self.map_data[self.row][self.column]].name == "EndTile" and self.FireofEidolon == 1:                                                   ## if the player is on the End Tile and has the Fire of Eidolon
+            print("You Win!")                                                                                                                                   ## let the player know they won
+            print(self.visited)                                                                                                                                 ## displays the visited tiles in order of vist
+            print(self.actions)                                                                                                                                 ## displays the actions in order of taken
+        time.sleep(0.5)                                                                                                                                         ## gives the computer a time before reading the next keystroke

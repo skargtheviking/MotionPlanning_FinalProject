@@ -9,7 +9,11 @@ import math
 import numpy as np
 
 # dimension of each tiles
-TILE_SIZE = settings.TILE_SIZE  ## Gets the size of the tile from the settings file and sets it as a global variable
+TILE_SIZE = settings.TILE_SIZE                                                              ## Gets the size of the tile from the settings file and sets it as a global variable
+Names_of_Buildable = []                                                                     ## keeps track of the names of the tiles that potentially can be built off of (avaliable neighbros and doors) and allows the program to quickly check if tile has been used
+Buildable = []                                                                              ## keeps track of the tiles (instances) that potentially can be built off of (avaliable neighbros and doors)
+#placed = []                                                                                 ## determines the order palced (used for debugging)
+
 
 ## Turns the image into the tile texture according to the requested size
 def create_texture(name):
@@ -96,8 +100,8 @@ class Tile:
         self.name = self.info[2]                                                    ## Determine the name of the tile
         self.doors = self.info[3]                                                   ## Gets the data on the doors
         self.token = self.Token_grabber()                                           ## grab the token texture
-        self.row = 0
-        self.column = 0
+        self.row = 0                                                                ## initializes the row
+        self.column = 0                                                             ## initializes the column
 
         ## Establishes the Doors
         self.up = False                                                             ## default no door up
@@ -238,6 +242,18 @@ class Tile:
                 self.right = False                                                  ## move to the D position
                 self.down = True
 
+    ## checks its neighbors and doors to see if there is a space to build off from
+    def check_neighbors(self, map_data):                                            ## checks if there is a space to build off from
+        if (map_data[self.row+1][self.column] == 0 and self.down == True) or (      ## is there a space that has both a door avaliable and a empty tile space
+            map_data[self.row-1][self.column] == 0 and self.up == True) or (
+            map_data[self.row][self.column+1] == 0 and self.right == True) or (
+            map_data[self.row][self.column-1] == 0 and self.left == True):
+
+            if self.name not in Names_of_Buildable:                                 ## if the working tile isn't already part of the list
+                Buildable.append(self)                                              ## adds the class instance to the list
+                Names_of_Buildable.append(self.name)                                ## adds the name of the class instances in buildable for quick comparison searches
+
+
         ## Get Directions: Check against dictionary, otherwise false
         ## Create a funciton to rotate tile image (and doors)
         ## save a neighbor Function
@@ -314,11 +330,10 @@ tiles = [0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0
 
 ##############################################################################################################################################################################################################################
 #### Things to add to tile map
-####    - Going back and expanding from the start tile a % of the time (and what to do when going back to start tile and start tile is surrounded, currently the current attempt may cause infiniate loop)
 ####    - have function that allows the player to build the map as they go
 ##############################################################################################################################################################################################################################
 
-## player builds map as they go
+## initalizing player builds map as they go
 def initalize_living_map(width, height, tilesize):
     ## initilizing variables                                               
     used = []                                                                                               ## initializes the list for the tiles already used
@@ -349,6 +364,7 @@ def initalize_living_map(width, height, tilesize):
     Working_Tile = tile_textures[map_data[row][column]]                                                     ## indicates this is the working tile
     Working_Tile.row = row                                                                                  ## tells the tile the row its on
     Working_Tile.column = column                                                                            ## tells the tile the column its on
+
 
 ## building a pre-determined map    
 def building_premade_map(width, height, tile_order, direction_order):
@@ -535,17 +551,21 @@ def building_random_map(width, height):
         #print("new_row ", new_row, "new_column ", new_column)                                               ## checking the new row and new column for dubugging          
 
         if map_data[new_row][new_column] != 0 or walled == True:                                            ## if last direction was blocked by a wall or if was already taken
-            if Working_Tile.parent != None:                                                                 ## if it's not the starting tile
-                Working_Tile = Working_Tile.parent                                                          ## back up to the parent
-                if Working_Tile.parent != None:                                                             ## if it's not the starting tile
-                    row = Working_Tile.row                                                                  ## sets the row to where the parent row is
-                    column = Working_Tile.column                                                            ## sets the column to the parent column
-                else:
-                    child = random.randint(0, len(Working_Tile.children)-1)
-                    Working_Tile = Working_Tile.children[child]                            
-            else:
-                child = random.randint(0, len(Working_Tile.children)-1)
-                Working_Tile = Working_Tile.children[child]                                                     
+            if Working_Tile.name in Names_of_Buildable:                                                     ## checks if the stuck working tile is in the list of buildable (just searching names is faster computation)
+                Buildable.remove(Working_Tile)                                                              ## removes it from the buildable list
+                Names_of_Buildable.remove(Working_Tile.name)                                                ## removes its name from the name of buildable list
+            if len(Buildable) <= 0:                                                                         ## if there is no tiles in the buildable list
+                print("FAILED")                                                                             ## let the user know that there is no path to win
+                quit()                                                                                      ## ends the program
+            else:                                                                                           ## if there are buidlables in the list
+                #print("old ", Working_Tile.name)                                                            ## used for debugging
+                Working_Tile = random.choice(Buildable)                                                     ## pick a random buildable tile
+                row = Working_Tile.row                                                                      ## sets the row 
+                column = Working_Tile.column                                                                ## sets the column
+                Buildable.remove(Working_Tile)                                                              ## removes the Working tile from the Buildable set
+                Names_of_Buildable.remove(Working_Tile.name)                                                ## removes the Working tile name from the set of buildable names
+                #print("new ", Working_Tile.name)                                                            ## used for debuggin
+                                              
         else:                                                                                               ## if not trapped
             rand_index = random.randint(2,29)                                                               ## generates a random number from 2-29 to call the tiles
             while rand_index in used:                                                                       ## checks if the number has already been used
@@ -574,8 +594,10 @@ def building_random_map(width, height):
                     while New_Tile.left == False:                                                           ##  rotate the tile clockwis
                         New_Tile.rotate_clockwise()                                                         ## rotate the tile clockwise 
             Working_Tile.add_child(New_Tile)                                                                ## adds the new tile as a child of the working tile 
-            New_Tile.parent = Working_Tile                                                                  ## adds the new tile parent as the working title 
+            New_Tile.parent = Working_Tile                                                                  ## adds the new tile parent as the working title
+            Working_Tile.check_neighbors(map_data)                                                          ## records if there is an open neighbor
             Working_Tile = New_Tile                                                                         ## Moves onto the next tile
+            placed.append(Working_Tile.name)
             #number = number + 1                                                                             ## used for debugging tiles
             
             if new_row > max_row:                                                                           ## if the new row is bigger than the previously recorded max row
@@ -613,19 +635,18 @@ def building_random_map(width, height):
 
     max_mins = [new_height, new_width]                                                                       ## stores the new dimensiosn of the new map in an easy access list
     #print("max_mins ", max_mins)                                                                             ## used for debugging
-
+    #print("placed, ", placed)                                                                                ## used for debugging
+    #print("Names of Buildable ", Names_of_Buildable)                                                         ## used for debugging
     return map_data, max_mins                                                                                ## returns the map data and size of the new map
 
 
 ## This function places all the tiles and tokens for the user to see
 def draw_map(screen, map_data, TILE_SIZE):
     
-    MAP_HEIGHT = len(map_data) 
-    MAP_WIDTH = len(map_data[0])
-    for row in range(MAP_HEIGHT):
-        for col in range(MAP_WIDTH):
-    #for row in range(max_mins[0], max_mins[1]+1):
-    #    for col in range(max_mins[2], max_mins[3]+1):
+    MAP_HEIGHT = len(map_data)                                                                              ## gets the map height
+    MAP_WIDTH = len(map_data[0])                                                                            ## gest the width of the map
+    for row in range(MAP_HEIGHT):                                                                           ## cycle through each row
+        for col in range(MAP_WIDTH):                                                                        ## cycle through each column in the row
             screen.blit(tile_textures[map_data[row][col]].texture,                                          ## Grabs the tile image and displays it at it's current location
                         (col*TILE_SIZE, row*TILE_SIZE))                                                     ## places the tile in it's proper row and column
             if tile_textures[map_data[row][col]].token != None:                                             ## if the tile has a token

@@ -13,9 +13,9 @@ pygame.init()
 clock = pygame.time.Clock()
 
 # dimension of each tiles
-TILE_SIZE = settings.TILE_SIZE  ## Gets the size of the tile from the settings file and sets it as a global variable
-height = 43                    ## sets the estimated hight of the map
-width = 43                       ## sets the estimated width of the map
+TILE_SIZE = settings.TILE_SIZE      ## Gets the size of the tile from the settings file and sets it as a global variable
+height = 43                         ## sets the estimated hight of the map
+width = 43                          ## sets the estimated width of the map
 
 #map_data = generate_map(640, 640, TILE_SIZE)
 map_data, max_mins = building_random_map(width, height)
