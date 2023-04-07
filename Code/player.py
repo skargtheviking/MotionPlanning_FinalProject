@@ -86,12 +86,14 @@ class Player(pygame.sprite.Sprite):
 
         ## Calculate Heristic to nearest token 
         if keys[pygame.K_p]:
-            huristic_map = []
+            self.huristic_map = []                                                                                                                ## initalizes the huristic_map
+            for i in range(len(self.map_data)):
+                self.huristic_map.append([])
+                for j in range(len(self.map_data[0])):
+                    self.huristic_map[i].append(self.euclidean_heuristic(self.map_data[i][j]))
             print("map ", self.map_data)
-            huristic_map = self.euclidean_heuristic(6)
-            print(huristic_map)
+            print("huristic ", self.huristic_map)
             print("player location, ", self.row, self.column)
-            print("Doors, ", tile_textures[self.map_data[self.row][self.column]].left)
             time.sleep(0.5)                                                                                                                                     ## gives the computer a time before reading the next keystroke
 
         ## Grabs tokens
@@ -176,11 +178,13 @@ class Player(pygame.sprite.Sprite):
 
     ## Calculating the euclidean huristic value between two points
     def euclidean_heuristic(self, tile_num):
+        print("tile_num ", tile_num)
         if tile_num != 0:                                                                                                                                       ## skip if the goal is 0
             point = [0,0]                                                                                                                                       ## initalizes the point
             tile = np.where(self.map_data == tile_num)                                                                                                          ## to search by tile type
-            point[0] = int(tile[0])                                                                                                                             ## sets the row of the point
-            point[1] = int(tile[1])                                                                                                                             ## sets the column of the point
+            print("tile ", tile)
+            point[0] = int(tile[0][-1])                                                                                                                             ## sets the row of the point
+            point[1] = int(tile[1][-1])                                                                                                                             ## sets the column of the point
             print("Point ", point)                                                                                                                              ## used for debugging
             dis = sqrt((self.row-point[0])**2 + (self.column-point[1])**2)                                                                                      ## cacluate the euclidean huristic between the player point and the tile number goal
         else:                                                                                                                                                   ## if tile looking for is 0
