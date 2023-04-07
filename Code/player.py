@@ -5,6 +5,7 @@ import settings
 import numpy as np
 from tilemap import *
 import matplotlib.pyplot as plotter
+from math import hypot, sqrt
 
 TILE_SIZE = settings.TILE_SIZE  ## Gets the size of the tile from the settings file and sets it as a global variable
 
@@ -42,7 +43,7 @@ class Player(pygame.sprite.Sprite):
         self.Green_Token = 0                                                                                                                                    ## initalizes the green token count
         self.Red_Token = 0                                                                                                                                      ## initalizes the red token count
         self.Blue_Token = 0                                                                                                                                     ## initalizes the blue token count
-        self.FireofEidolon = 1                                                                                                                                  ## initalizes the grabbing of the Fire of Eidolon
+        self.FireofEidolon = 0                                                                                                                                  ## initalizes the grabbing of the Fire of Eidolon
         self.visited = [[self.row, self.column]]                                                                                                                ## keeps track of the locations visited (starting with the starting points)
         self.actions = ["S"]                                                                                                                                    ## keeps track of actions taken (starting with S for Start)
         self.totalcost = 0                                                                                                                                      ## keeps track of the total cost
@@ -53,6 +54,7 @@ class Player(pygame.sprite.Sprite):
     def get_event(self):
         keys = pygame.key.get_pressed()
 
+        ## Moving Up
         if keys[pygame.K_w]:                                                                                                                                    ## when the "W" button is pressed
             if tile_textures[self.map_data[self.row][self.column]].up == True:
                 if self.row-1 >= 0:                                                                                                                             ## makes sure player doesn't walk off edge
@@ -60,31 +62,38 @@ class Player(pygame.sprite.Sprite):
                         self.actions.append("U")                                                                                                                ## remembers it moved up
                         self.move(0, -TILE_SIZE)
 
+        ## Moving Down
         if keys[pygame.K_s]:
             if tile_textures[self.map_data[self.row][self.column]].down == True:
                 if self.row+1 < len(self.map_data):                                                                                                             ## makes sure player doesn't walk off edge
                     if tile_textures[self.map_data[self.row+1][self.column]].up == True:
                         self.actions.append("D")                                                                                                                ## remembers it moved down
                         self.move(0, +TILE_SIZE)
-
+        ## Moving Left
         if keys[pygame.K_a]:
             if tile_textures[self.map_data[self.row][self.column]].left == True:
                 if self.column-1 >= 0:                                                                                                                          ## makes sure player doesn't walk off edge
                     if tile_textures[self.map_data[self.row][self.column-1]].right == True:
                         self.actions.append("L")                                                                                                                ## remembers it moved left
                         self.move(-TILE_SIZE, 0)
-
+        ## Moving Right
         if keys[pygame.K_d]:
             if tile_textures[self.map_data[self.row][self.column]].right == True:
                 if self.column+1 < len(self.map_data[0]):                                                                                                      ## makes sure player doesn't walk off edge
                     if tile_textures[self.map_data[self.row][self.column+1]].left == True:
                         self.actions.append("R")                                                                                                                ## remembers it moved right
                         self.move(+TILE_SIZE, 0)
+
+        ## Calculate Heristic to nearest token 
         if keys[pygame.K_p]:
+            huristic_map = []
             print("map ", self.map_data)
+            huristic_map = self.euclidean_heuristic(6)
+            print(huristic_map)
             print("player location, ", self.row, self.column)
             print("Doors, ", tile_textures[self.map_data[self.row][self.column]].left)
- 
+            time.sleep(0.5)                                                                                                                                     ## gives the computer a time before reading the next keystroke
+
         ## Grabs tokens
         if keys[pygame.K_e]:                                                                                                                                    ## when the "E" button is pressed
             if tile_textures[self.map_data[self.row][self.column]].token != None:                                                                               ## If there is a tile there
@@ -136,14 +145,14 @@ class Player(pygame.sprite.Sprite):
                 self.rect.centerx = self.column*TILE_SIZE + TILE_SIZE/2                                                                                         ## places the player at the Secret Y's x position
                 self.rect.centery = self.row*TILE_SIZE + TILE_SIZE/2                                                                                            ## places the player at the Secret Y's y position
                 self.actions.append("X")                                                                                                                        ## Used the secret X tunnel
-                self.move(0, 0)
+                self.move(0, 0)                                                                                                                                 ## records where the player went
             elif tile_textures[self.map_data[self.row][self.column]].name == "SecretY":                                                                         ## if on a secret Y tile                  
                 self.row = int(self.X_tile[0])                                                                                                                  ## This is the row the player is at
                 self.column = int(self.X_tile[1])                                                                                                               ## This is the column the player is at
                 self.rect.centerx = self.column*TILE_SIZE + TILE_SIZE/2                                                                                         ## places the player at the Secret Y's x position
                 self.rect.centery = self.row*TILE_SIZE + TILE_SIZE/2                                                                                            ## places the player at the Secret Y's y position
                 self.actions.append("Y")                                                                                                                        ## Used the secret Y tunnel
-                self.move(0, 0)
+                self.move(0, 0)                                                                                                                                 ## records where the player went
             print(self.totalcost)                                                                                                                               ## used for debugging 
             time.sleep(0.5)                                                                                                                                     ## gives the computer a time before reading the next keystroke
 
@@ -162,6 +171,18 @@ class Player(pygame.sprite.Sprite):
             print("Vistied ", self.visited)                                                                                                                     ## displays the visited tiles in order of vist
             print("Actions ", self.actions)                                                                                                                     ## displays the actions in order of taken
             print("Total Cost ", self.totalcost)                                                                                                                ## displays the total costs to win
-            settings.Player_1 = self
+            settings.Player_1 = self                                                                                                                            ## sets player 1 as itself
         time.sleep(0.5)                                                                                                                                         ## gives the computer a time before reading the next keystroke
 
+    ## Calculating the euclidean huristic value between two points
+    def euclidean_heuristic(self, tile_num):
+        if tile_num != 0:                                                                                                                                       ## skip if the goal is 0
+            point = [0,0]                                                                                                                                       ## initalizes the point
+            tile = np.where(self.map_data == tile_num)                                                                                                          ## to search by tile type
+            point[0] = int(tile[0])                                                                                                                             ## sets the row of the point
+            point[1] = int(tile[1])                                                                                                                             ## sets the column of the point
+            print("Point ", point)                                                                                                                              ## used for debugging
+            dis = sqrt((self.row-point[0])**2 + (self.column-point[1])**2)                                                                                      ## cacluate the euclidean huristic between the player point and the tile number goal
+        else:                                                                                                                                                   ## if tile looking for is 0
+            dis = -1                                                                                                                                            ## just set the distance to -1 (impossible)
+        return dis                                                                                                                                              ## return the distance calculated
