@@ -9,49 +9,49 @@ import math
 import numpy as np
 
 # dimension of each tiles
-TILE_SIZE = settings.TILE_SIZE                                                              ## Gets the size of the tile from the settings file and sets it as a global variable
-Names_of_Buildable = []                                                                     ## keeps track of the names of the tiles that potentially can be built off of (avaliable neighbros and doors) and allows the program to quickly check if tile has been used
-Buildable = []                                                                              ## keeps track of the tiles (instances) that potentially can be built off of (avaliable neighbros and doors)
-#placed = []                                                                                 ## determines the order palced (used for debugging)
+TILE_SIZE = settings.TILE_SIZE                                                                          ## Gets the size of the tile from the settings file and sets it as a global variable
+Names_of_Buildable = []                                                                                 ## keeps track of the names of the tiles that potentially can be built off of (avaliable neighbros and doors) and allows the program to quickly check if tile has been used
+Buildable = []                                                                                          ## keeps track of the tiles (instances) that potentially can be built off of (avaliable neighbros and doors)
+#placed = []                                                                                             ## determines the order palced (used for debugging)
 
 
 ## Turns the image into the tile texture according to the requested size
 def create_texture(name):
-    image = pygame.transform.scale(name,(TILE_SIZE,TILE_SIZE))                              ## scales the image to tile size
-    return image                                                                            ## returns the tile image
+    image = pygame.transform.scale(name,(TILE_SIZE,TILE_SIZE))                                          ## scales the image to tile size
+    return image                                                                                        ## returns the tile image
 
 ## Turns the image into the tile texture according to the requested size
 def create_token_texture(name):
-    image = pygame.transform.scale(name,(TILE_SIZE/4,TILE_SIZE/4))                          ## scales the image to 1/4 of a tile size
-    return image                                                                            ## return the token image
+    image = pygame.transform.scale(name,(TILE_SIZE/4,TILE_SIZE/4))                                      ## scales the image to 1/4 of a tile size
+    return image                                                                                        ## return the token image
 
-Token_Cultist = pygame.image.load("Images/Tokens/Cultist.png")                              ## Gets the cultist image
-Token_Red = pygame.image.load("Images/Tokens/Token_Red.png")                                ## Gets the red token
-Token_Green = pygame.image.load("Images/Tokens/Token_Green.png")                            ## gets the green token
-Token_Blue = pygame.image.load("Images/Tokens/Token_Blue.png")                              ## gets the blue token
-Token_RedEvent = pygame.image.load("Images/Tokens/Token_RedEvent.png")                      ## Gets the red event token
-Token_GreenEvent = pygame.image.load("Images/Tokens/Token_GreenEvent.png")                  ## gets the green evemt token
-Token_BlueEvent = pygame.image.load("Images/Tokens/Token_BlueEvent.png")                    ## gets the blue event token
-Token_RedEvent_Broken = pygame.image.load("Images/Tokens/Token_RedEvent_Broken.png")        ## Gets the broken red event token
-Token_GreenEvent_Broken = pygame.image.load("Images/Tokens/Token_GreenEvent_Broken.png")    ## gets the broken green evemt token
-Token_BlueEvent_Broken = pygame.image.load("Images/Tokens/Token_BlueEvent_Broken.png")      ## gets the broken blue event token
-Token_FireofEidolon = pygame.image.load("Images/Tokens/Token_FireofEidolon.png")            ## gets the Fire of Eidolon token
+Token_Cultist = pygame.image.load("Images/Tokens/Cultist.png")                                          ## Gets the cultist image
+Token_Red = pygame.image.load("Images/Tokens/Token_Red.png")                                            ## Gets the red token
+Token_Green = pygame.image.load("Images/Tokens/Token_Green.png")                                        ## gets the green token
+Token_Blue = pygame.image.load("Images/Tokens/Token_Blue.png")                                          ## gets the blue token
+Token_RedEvent = pygame.image.load("Images/Tokens/Token_RedEvent.png")                                  ## Gets the red event token
+Token_GreenEvent = pygame.image.load("Images/Tokens/Token_GreenEvent.png")                              ## gets the green evemt token
+Token_BlueEvent = pygame.image.load("Images/Tokens/Token_BlueEvent.png")                                ## gets the blue event token
+Token_RedEvent_Broken = pygame.image.load("Images/Tokens/Token_RedEvent_Broken.png")                    ## Gets the broken red event token
+Token_GreenEvent_Broken = pygame.image.load("Images/Tokens/Token_GreenEvent_Broken.png")                ## gets the broken green evemt token
+Token_BlueEvent_Broken = pygame.image.load("Images/Tokens/Token_BlueEvent_Broken.png")                  ## gets the broken blue event token
+Token_FireofEidolon = pygame.image.load("Images/Tokens/Token_FireofEidolon.png")                        ## gets the Fire of Eidolon token
 
-token_texture = {                                                                           ## creates a dictionary of the token displays
-    0x0 : create_token_texture(Token_Cultist),                                              ## the cultists token
-    0x1 : create_token_texture(Token_Red),                                                  ## the red token 
-    0x2 : create_token_texture(Token_Green),                                                ## the green token
-    0x3 : create_token_texture(Token_Blue),                                                 ## the blue token
-    0x4 : create_token_texture(Token_RedEvent),                                             ## the red event token 
-    0x5 : create_token_texture(Token_GreenEvent),                                           ## the green event token
-    0x6 : create_token_texture(Token_BlueEvent),                                            ## the blue event token
-    0x7 : create_token_texture(Token_FireofEidolon),                                        ## the Fire of Eidolon token
-    0x8: create_token_texture(Token_RedEvent_Broken),                                       ## the broken red event token
-    0x9: create_token_texture(Token_GreenEvent_Broken),                                     ## the broken green event token
-    0xa: create_token_texture(Token_BlueEvent_Broken),                                      ## the broken blue event token
+token_texture = {                                                                                       ## creates a dictionary of the token displays
+    0x0 : create_token_texture(Token_Cultist),                                                          ## the cultists token
+    0x1 : create_token_texture(Token_Red),                                                              ## the red token 
+    0x2 : create_token_texture(Token_Green),                                                            ## the green token
+    0x3 : create_token_texture(Token_Blue),                                                             ## the blue token
+    0x4 : create_token_texture(Token_RedEvent),                                                         ## the red event token 
+    0x5 : create_token_texture(Token_GreenEvent),                                                       ## the green event token
+    0x6 : create_token_texture(Token_BlueEvent),                                                        ## the blue event token
+    0x7 : create_token_texture(Token_FireofEidolon),                                                    ## the Fire of Eidolon token
+    0x8: create_token_texture(Token_RedEvent_Broken),                                                   ## the broken red event token
+    0x9: create_token_texture(Token_GreenEvent_Broken),                                                 ## the broken green event token
+    0xa: create_token_texture(Token_BlueEvent_Broken),                                                  ## the broken blue event token
 }
 
-token_list = [0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa]                        ## reference list for the token dictionary
+token_list = [0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa]                                    ## reference list for the token dictionary
 
 ''' 
 30 total tile types
@@ -84,179 +84,198 @@ Entrance Directions: U: Up
 
 ## Creates a class for the tiles
 class Tile:                                                                 
-    def __init__(self, filepath, parent=None):                                      ## initalizes the tile class with the path to the file
+    def __init__(self, filepath, parent=None):                                                  ## initalizes the tile class with the path to the file
         ## Gets the image so it can display
-        self.image = pygame.image.load(filepath)                                    ## loads the image in
-        self.texture = create_texture(self.image)                                   ## creates the appropriate texture for the image
-        self.children = []                                                          ## inializes the children of said tile
-        self.parent = parent                                                        ## indicates the parent of said tile
+        self.image = pygame.image.load(filepath)                                                ## loads the image in
+        self.texture = create_texture(self.image)                                               ## creates the appropriate texture for the image
+        self.children = []                                                                      ## inializes the children of said tile
+        self.parent = parent                                                                    ## indicates the parent of said tile
         
         ## Gets the information hardwritten in the file's name
-        filename = filepath.split("/")                                              ## Cuts out all but the name of the image
-        title = filename[2].split(".")                                              ## Cuts out the .jpg or .png
-        self.info = title[0].split("_")                                             ## Breaks the name into useful information
-        self.id = self.info[0]                                                      ## Gets the info from the image name
-        self.type = self.info[1]                                                    ## Determine what type of tile this is 
-        self.name = self.info[2]                                                    ## Determine the name of the tile
-        self.doors = self.info[3]                                                   ## Gets the data on the doors
-        self.token = self.Token_grabber()                                           ## grab the token texture
-        self.row = 0                                                                ## initializes the row
-        self.column = 0                                                             ## initializes the column
+        self.quickinfo = []                                                                     ## a quick determine which doors are possible to go through
+        filename = filepath.split("/")                                                          ## Cuts out all but the name of the image
+        title = filename[2].split(".")                                                          ## Cuts out the .jpg or .png
+        self.info = title[0].split("_")                                                         ## Breaks the name into useful information
+        self.id = self.info[0]                                                                  ## Gets the info from the image name
+        self.type = self.info[1]                                                                ## Determine what type of tile this is 
+        self.name = self.info[2]                                                                ## Determine the name of the tile
+        self.doors = self.info[3]                                                               ## Gets the data on the doors
+        self.token = self.Token_grabber()                                                       ## grab the token texture
+        self.row = 0                                                                            ## initializes the row
+        self.column = 0                                                                         ## initializes the column
+        self.secret()
 
-        ## Establishes the Doors
-        self.up = False                                                             ## default no door up
-        self.down = False                                                           ## default no door down
-        self.left = False                                                           ## default no door left
-        self.right = False                                                          ## default no door right
+        match self.doors:                                                                       ## determines which doors it has
+            case "UDLR":                                                                        ## if it has all doors 
+                self.quickinfo.append('u')
+                self.quickinfo.append('d')
+                self.quickinfo.append('l')
+                self.quickinfo.append('r')
 
-        match self.doors:                                                           ## determines which doors it has
-            case "UDLR":                                                            ## if it has all doors 
-                self.up = True                                                      ## indicate there is an up door
-                self.down = True                                                    ## indicate door is a down door 
-                self.left = True                                                    ## indicate door is a left door
-                self.right = True                                                   ## indicate door is a right door
             
-            case "UDL":                                                             ## if it has the three doors with UDL
-                self.up = True                                                      ## indicate door is a up door
-                self.down = True                                                    ## indicate door is a down door
-                self.left = True                                                    ## indicate door is a left door
+            case "UDL":                                                                         ## if it has the three doors with UDL
+                self.quickinfo.append('u')
+                self.quickinfo.append('d')
+                self.quickinfo.append('l')
             
-            case "UDR":                                                             ## if it has the three doors with UDR
-                self.up = True                                                      ## indicate door is a up door
-                self.down = True                                                    ## indicate door is a down door
-                self.right = True                                                   ## indicate door is a right door
+            case "UDR":                                                                         ## if it has the three doors with UDR
+                self.quickinfo.append('u')
+                self.quickinfo.append('d')
+                self.quickinfo.append('r')
 
-            case "DLR":                                                             ## if it has the three doors with DLR
-                self.down = True                                                    ## indicate door is a down door
-                self.left = True                                                    ## indicate door is a left door
-                self.right = True                                                   ## indicate door is a right door
+            case "DLR":                                                                         ## if it has the three doors with DLR
+                self.quickinfo.append('d')
+                self.quickinfo.append('l')
+                self.quickinfo.append('r')
 
-            case "UD":                                                              ## if it has the two doors with UD
-                self.up = True                                                      ## indicate door is a up door
-                self.down = True                                                    ## indicate door is a down door
+            case "UD":                                                                          ## if it has the two doors with UD
+                self.quickinfo.append('u')
+                self.quickinfo.append('d')
 
-            case "DL":                                                              ## if it has the two doors with DL
-                self.down = True                                                    ## indicate door is a down door
-                self.left = True                                                    ## indicate door is a left door
+            case "DL":                                                                          ## if it has the two doors with DL
+                self.quickinfo.append('d')
+                self.quickinfo.append('l')
 
-            case "DR":                                                              ## if it has the two doors with DR
-                self.down = True                                                    ## indicate door is a down door
-                self.right = True                                                   ## indicate door is a right door
+            case "DR":                                                                          ## if it has the two doors with DR
+                self.quickinfo.append('d')
+                self.quickinfo.append('r')
 
-            case "D":                                                               ## if it has the two doors with D
-                self.down = True                                                    ## indicate door is a down door
+            case "D":                                                                           ## if it has the two doors with D
+                self.quickinfo.append('d')
 
 
     ## adds a tile as a cild of said token    
-    def add_child(self, child):                                                     ## adds a child node to the tile
+    def add_child(self, child):                                                                 ## adds a child node to the tile
         '''
         Add a child node
         '''
-        self.children.append(child)                                                 ## adds a connecting tile
+        self.children.append(child)                                                             ## adds a connecting tile
 
     ## Determines what token the tile has    
-    def Token_grabber(self):                                                        ## Determines which token the tile should have
-        match self.type:                                                            ## checks the type listed in the tile's name
-            case "Red":                                                             ## if it's listed as red
-                token_number = int(hex(token_list[1]), 16)                          ## grab the red token
-            case "Green":                                                           ## if it's listed as green
-                token_number = int(hex(token_list[2]), 16)                          ## grab the green token
-            case "Blue":                                                            ## if it's listed as blue
-                token_number = int(hex(token_list[3]), 16)                          ## grab the blue token
-            case "RedEvent":                                                        ## if it's listed as red event
-                token_number = int(hex(token_list[4]), 16)                          ## grab the red event token
-            case "GreenEvent":                                                      ## if it's listed as green event 
-                token_number = int(hex(token_list[5]), 16)                          ## grab the green event token
-            case "BlueEvent":                                                       ## if it's listed as blue event
-                token_number = int(hex(token_list[6]), 16)                          ## grab the blue event token
-            case "FireofEidolon":                                                   ## if it's listed as Fire of Eidolon
-                token_number = int(hex(token_list[7]), 16)                          ## grab the Fire of Eidolon token
-            case "Broken_RedEvent":                                                 ## if it's listed as broken red event
-                token_number = int(hex(token_list[8]), 16)                          ## grab the broken red event token
-            case "Broken_GreenEvent":                                               ## if it's listed as broken green event 
-                token_number = int(hex(token_list[9]), 16)                          ## grab the broken green event token
-            case "Broken_BlueEvent":                                                ## if it's listed as broken blue event
-                token_number = int(hex(token_list[10]), 16)                         ## grab the broken blue event token
-            case _:                                                                 ## if no tile is listed
-                token_number = None                                                 ## it does not have a token number
-        if token_number == None:                                                    ## if there is no token number
-            token = None                                                            ## there is no token
-        else:                                                                       ## otherwise
-            token = token_texture[token_number]                                     ## grab the texture for the token
-        return token                                                                ## return the texture for the token
+    def Token_grabber(self):                                                                    ## Determines which token the tile should have
+        match self.type:                                                                        ## checks the type listed in the tile's name
+            case "Red":                                                                         ## if it's listed as red
+                token_number = int(hex(token_list[1]), 16)                                      ## grab the red token
+                self.quickinfo.append("rt")                                                     ## adds red token to the quick info
+            case "Green":                                                                       ## if it's listed as green
+                token_number = int(hex(token_list[2]), 16)                                      ## grab the green token
+                self.quickinfo.append("gt")                                                     ## adds red token to the quick info
+            case "Blue":                                                                        ## if it's listed as blue
+                token_number = int(hex(token_list[3]), 16)                                      ## grab the blue token
+                self.quickinfo.append("bt")                                                     ## adds red token to the quick info
+            case "RedEvent":                                                                    ## if it's listed as red event
+                token_number = int(hex(token_list[4]), 16)                                      ## grab the red event token
+                self.quickinfo.append("ret")                                                    ## adds red event token to the quick info
+            case "GreenEvent":                                                                  ## if it's listed as green event 
+                token_number = int(hex(token_list[5]), 16)                                      ## grab the green event token
+                self.quickinfo.append("get")                                                    ## adds red event token to the quick info
+            case "BlueEvent":                                                                   ## if it's listed as blue event
+                token_number = int(hex(token_list[6]), 16)                                      ## grab the blue event token
+                self.quickinfo.append("bet")                                                    ## adds blue event token to the quick info
+            case "FireofEidolon":                                                               ## if it's listed as Fire of Eidolon
+                token_number = int(hex(token_list[7]), 16)                                      ## grab the Fire of Eidolon token
+                self.quickinfo.append("foe")                                                    ## adds Fire of Eidolon token to the quick info
+            case "Broken_RedEvent":                                                             ## if it's listed as broken red event
+                token_number = int(hex(token_list[8]), 16)                                      ## grab the broken red event token
+            case "Broken_GreenEvent":                                                           ## if it's listed as broken green event 
+                token_number = int(hex(token_list[9]), 16)                                      ## grab the broken green event token
+            case "Broken_BlueEvent":                                                            ## if it's listed as broken blue event
+                token_number = int(hex(token_list[10]), 16)                                     ## grab the broken blue event token
+            case _:                                                                             ## if no tile is listed
+                token_number = None                                                             ## it does not have a token number
+        if token_number == None:                                                                ## if there is no token number
+            token = None                                                                        ## there is no token
+        else:                                                                                   ## otherwise
+            token = token_texture[token_number]                                                 ## grab the texture for the token
+        return token                                                                            ## return the texture for the token
 
     ## Rotates the image and the doors clockwise
-    def rotate_clockwise(self):                                                     ## rotates the image and doors clockwise
+    def rotate_clockwise(self):                                                                 ## rotates the image and doors clockwise
         ## rotate image
-        self.image = pygame.transform.rotate(self.image, -90)                       ## takes the existing image and rotates it by 90 degrees clockwise
-        self.texture = create_texture(self.image)                                   ## creates the appropriate texture for the image
+        self.image = pygame.transform.rotate(self.image, -90)                                   ## takes the existing image and rotates it by 90 degrees clockwise
+        self.texture = create_texture(self.image)                                               ## creates the appropriate texture for the image
         
         ## rotate doors (Doesn't need to rotate if its "UDLR" or None doors)
-        if self.doors == "UDL" or self.doors == "UDR" or self.doors == "DLR":       ## if it has three doors
-            if self.up == True and self.left == True and self.down == True:         ## if in the UDL position
-                self.down = False                                                   ## move to the URL position
-                self.right = True
-            elif self.right == True and self.up == True and self.left == True:      ## if in the URL position
-                self.left = False                                                   ## move to the UDR position
-                self.down = True
-            elif self.down == True and self.right == True and self.up == True:      ## if in the UDR position
-                self.up = False                                                     ## move to the DLR position
-                self.left = True
-            elif self.left == True and self.down == True and self.right == True:    ## if in the DLR position
-                self.right = False                                                  ## move to the UDL position
-                self.up = True
-        elif self.doors == "UD" or self.doors == "DL" or self.doors == "DR":        ## if it has two doors
-            if self.up == True and self.down == True:                               ## if in the UD position
-                self.up = False                                                     ## move to the LR position
-                self.down = False
-                self.left = True
-                self.right = True
-            elif self.left == True and self.right == True:                          ## if in the LR position
-                self.left = False                                                   ## move to the UD position
-                self.right = False
-                self.down = True
-                self.up = True
-            elif self.down == True and self.left == True:                           ## if in DL position
-                self.down = False                                                   ## move to the UL position
-                self.up = True
-            elif self.left == True and self.up == True:                             ## if in UL position
-                self.left = False                                                   ## move to the UR position
-                self.right = True
-            elif self.up == True and self.right == True:                            ## if in UP position
-                self.up = False                                                     ## move to the DR position
-                self.down = True
-            elif self.right == True and self.down == True:                          ## if in DR position
-                self.right = False                                                  ## move to the DL position
-                self.left = True
-        elif self.doors == "D":                                                     ## if it has one door
-            if self.down == True:                                                   ## if in D position
-                self.down = False                                                   ## move to the L position
-                self.left = True                            
-            elif self.left == True:                                                 ## if in L positon
-                self.left = False                                                   ## move to the U position
-                self.up = True
-            elif self.up == True:                                                   ## if in the U position
-                self.up = False                                                     ## move to the R position
-                self.right = True
-            elif self.right == True:                                                ## if in the R position
-                self.right = False                                                  ## move to the D position
-                self.down = True
+        if self.doors == "UDL" or self.doors == "UDR" or self.doors == "DLR":                   ## if it has three doors
+            if "u" in self.quickinfo and "l" in self.quickinfo and "d" in self.quickinfo:       ## if in the UDL position
+                self.quickinfo.remove("d")                                                      ## move to the URL position
+                self.quickinfo.append("r")
+
+            elif "r" in self.quickinfo and "u" in self.quickinfo and "l" in self.quickinfo:     ## if in the URL position
+                self.quickinfo.remove("l")                                                      ## move to the UDR position
+                self.quickinfo.append("d")
+
+            elif "d" in self.quickinfo and "r" in self.quickinfo and "u" in self.quickinfo:     ## if in the UDR position
+                self.quickinfo.remove("u")                                                      ## move to the DLR position
+                self.quickinfo.append("l"
+                                      )
+            elif "l" in self.quickinfo and "d" in self.quickinfo and "r" in self.quickinfo:     ## if in the UDR position
+                self.quickinfo.remove("r")                                                      ## move to the UDL position
+                self.quickinfo.append("u")
+
+        elif self.doors == "UD" or self.doors == "DL" or self.doors == "DR":                    ## if it has two doors
+            if "u" in self.quickinfo and "d" in self.quickinfo:                                 ## if in the UD position
+                self.quickinfo.remove("u")                                                      ## move to the LR position
+                self.quickinfo.remove("d")
+                self.quickinfo.append("l")
+                self.quickinfo.append("r")
+
+            elif "l" in self.quickinfo and "r" in self.quickinfo:                               ## if in the LR position
+                self.quickinfo.remove("l")                                                      ## move to the UD position
+                self.quickinfo.remove("r")
+                self.quickinfo.append("d")
+                self.quickinfo.append("u")
+
+            elif "d" in self.quickinfo and "l" in self.quickinfo:                               ## if in the DL position
+                self.quickinfo.remove("d")                                                      ## move to the UL position
+                self.quickinfo.append("u")
+
+            elif "l" in self.quickinfo and "u" in self.quickinfo:                               ## if in the UL position
+                self.quickinfo.remove("l")                                                      ## move to the UR position
+                self.quickinfo.append("r")
+
+            elif "u" in self.quickinfo and "r" in self.quickinfo:                               ## if in the UR position
+                self.quickinfo.remove("u")                                                      ## move to the DR position
+                self.quickinfo.append("d")
+
+            elif "r" in self.quickinfo and "d" in self.quickinfo:                               ## if in the DR position
+                self.quickinfo.remove("r")                                                      ## move to the DL position
+                self.quickinfo.append("l")
+
+        elif self.doors == "D":                                                                 ## if it has one door
+            if "d" in self.quickinfo:                                                           ## if in the D position
+                self.quickinfo.remove("d")                                                      ## move to the L position
+                self.quickinfo.append("l")
+
+            elif "l" in self.quickinfo:                                                         ## if in the L position
+                self.quickinfo.remove("l")                                                      ## move to the U position
+                self.quickinfo.append("u")
+
+            elif "u" in self.quickinfo:                                                         ## if in the U position
+                self.quickinfo.remove("u")                                                      ## move to the R position
+                self.quickinfo.append("r")
+
+            elif "u" in self.quickinfo:                                                         ## if in the R position
+                self.quickinfo.remove("r")                                                      ## move to the D position
+                self.quickinfo.append("d")
 
     ## checks its neighbors and doors to see if there is a space to build off from
-    def check_neighbors(self, map_data):                                            ## checks if there is a space to build off from
-        if (map_data[self.row+1][self.column] == 0 and self.down == True) or (      ## is there a space that has both a door avaliable and a empty tile space
-            map_data[self.row-1][self.column] == 0 and self.up == True) or (
-            map_data[self.row][self.column+1] == 0 and self.right == True) or (
-            map_data[self.row][self.column-1] == 0 and self.left == True):
+    def check_neighbors(self, map_data):                                                        ## checks if there is a space to build off from
+        if (map_data[self.row+1][self.column] == 0 and "d" in self.quickinfo) or (              ## is there a space that has both a door avaliable and a empty tile space
+            map_data[self.row-1][self.column] == 0 and "u" in self.quickinfo) or (
+            map_data[self.row][self.column+1] == 0 and "r" in self.quickinfo) or (
+            map_data[self.row][self.column-1] == 0 and "l" in self.quickinfo):
 
-            if self.name not in Names_of_Buildable:                                 ## if the working tile isn't already part of the list
-                Buildable.append(self)                                              ## adds the class instance to the list
-                Names_of_Buildable.append(self.name)                                ## adds the name of the class instances in buildable for quick comparison searches
+            if self.name not in Names_of_Buildable:                                             ## if the working tile isn't already part of the list
+                Buildable.append(self)                                                          ## adds the class instance to the list
+                Names_of_Buildable.append(self.name)                                            ## adds the name of the class instances in buildable for quick comparison searches
 
-
-        ## Get Directions: Check against dictionary, otherwise false
-        ## Create a funciton to rotate tile image (and doors)
-        ## save a neighbor Function
+    ## checks if the tile is a secret tile
+    def secret(self):
+        if self.name == "SecretX":                                                              ## if it's the secret X tile
+            self.quickinfo.append("x")                                                          ## save info in quickinfo as x
+        elif self.name == "SecretY":                                                            ## if its the secret y tile
+            self.quickinfo.append("y")                                                          ## save info in quickinfo as y
 
 ## Linking the names of the tiles with the location of the images
 BackTile = Tile("Images/Tile_Scans/0_None_BackTile_None.jpg")
@@ -334,37 +353,24 @@ tiles = [0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0
 ##############################################################################################################################################################################################################################
 
 ## initalizing player builds map as they go
-def initalize_living_map(width, height, tilesize):
+def initalize_living_map(width, height):
     ## initilizing variables                                               
     used = []                                                                                                       ## initializes the list for the tiles already used
     map_data = []                                                                                                   ## Keeps track of what tile is in each location
     
     ## initializes map
-    for i in range(height // tilesize):                                                                             ## This is the row
+    for i in range(height):                                                                                         ## This is the row
         map_data.append([])                                                                                         ## making the map_data a row x column calling
-        for j in range(width // tilesize):                                                                          ## This is the column
-            if i == (math.trunc((height//tilesize)/2)) and j == (math.trunc((width//tilesize)/2)):                  ## if the tile in question is at the center
+        for j in range(width):                                                                                      ## This is the column
+            if i == (math.trunc((height)/2)) and j == (math.trunc((width)/2)):                                      ## if the tile in question is at the center
                 rand_index = 1                                                                                      ## put the start tile there (setting rand to 1)
             else:                                                                                                   ## if the tile has been used before
                 rand_index = 0                                                                                      ## put in the filler tile to create a blank map
             tile = int(hex(tiles[rand_index]), 16)                                                                  ## get the tile information after converting to hex from intiger value
             map_data[i].append(tile)                                                                                ## add teh tile to the map
 
-    row = math.trunc((height//tilesize)/2)                                                                          ## Start at the center row point
-    column = math.trunc((width//tilesize)/2)                                                                        ## Start at the center column point
-
-    ###### Attemps to zoom in on area.  Still needs work#####
-    max_row = row
-    max_column = column
-    min_row = row
-    min_column = column
-    ###### End of Attemps to zoom in on area.  Still needs work#####
-
-    ## Inializes the working tile and records its location
-    Working_Tile = tile_textures[map_data[row][column]]                                                             ## indicates this is the working tile
-    Working_Tile.row = row                                                                                          ## tells the tile the row its on
-    Working_Tile.column = column                                                                                    ## tells the tile the column its on
-
+    max_mins = [height, width]                                                                                      ## stores the new dimensiosn of the new map in an easy access list
+    return map_data, max_mins
 
 ## building a pre-determined map    
 def building_premade_map(width, height, tile_order, direction_order):
@@ -442,7 +448,7 @@ def building_random_map(width, height):
                 new_row = row - 1                                                                                   ## Move up by one tile
                 new_column = column                                                                                 ## column stays the same
                 direction = "U"                                                                                     ## indciates working tile is one space down
-                if Working_Tile.up == True and map_data[new_row][new_column] == 0:                                  ## if the current tile has an up door and there isn't a tile already there
+                if 'u' in Working_Tile.quickinfo and map_data[new_row][new_column] == 0:                            ## if the current tile has an up door and there isn't a tile already there
                     walled = False                                                                                  ## no longer walled
                 #print("name ", Working_Tile.name)                                                                   ## used for debugging
                 #print("doors_labeled", Working_Tile.doors)                                                          ## used for debugging
@@ -453,7 +459,7 @@ def building_random_map(width, height):
                 new_row = row + 1                                                                                   ## Move down by one tile
                 new_column = column                                                                                 ## column stays the same
                 direction = "D"                                                                                     ## indciates working tile is one space up
-                if Working_Tile.down == True and map_data[new_row][new_column] == 0:                                ## if the current tile has a down door and there isn't a tile already there
+                if 'd' in Working_Tile.quickinfo and map_data[new_row][new_column] == 0:                            ## if the current tile has a down door and there isn't a tile already there
                     walled = False                                                                                  ## no longer walled
                 #print("name ", Working_Tile.name)                                                                   ## used for debugging
                 #print("doors_labeled", Working_Tile.doors)                                                          ## used for debugging
@@ -464,7 +470,7 @@ def building_random_map(width, height):
                 new_row = row                                                                                       ## row stays the same
                 new_column = column - 1                                                                             ## Move left by one tile
                 direction = "L"                                                                                     ## indciates working tile is one space right
-                if Working_Tile.left == True and map_data[new_row][new_column] == 0:                                ## if the current tile has a left door and there isn't a tile already there
+                if 'l' in Working_Tile.quickinfo and map_data[new_row][new_column] == 0:                            ## if the current tile has a left door and there isn't a tile already there
                     walled = False                                                                                  ## no longer walled
                 #print("name ", Working_Tile.name)                                                                   ## used for debugging
                 #print("doors_labeled", Working_Tile.doors)                                                          ## used for debugging
@@ -475,7 +481,7 @@ def building_random_map(width, height):
                 new_row = row                                                                                       ## row stays the same
                 new_column = column + 1                                                                             ## Move right by one tile
                 direction = "R"                                                                                     ## indciates working tile is one space left
-                if Working_Tile.right == True and map_data[new_row][new_column] == 0:                               ## if the current tile has a right door and there isn't a tile already there
+                if 'r' in Working_Tile.quickinfo and map_data[new_row][new_column] == 0:                            ## if the current tile has a right door and there isn't a tile already there
                     walled = False                                                                                  ## no longer walled
                 #print("name ", Working_Tile.name)                                                                   ## used for debugging
                 #print("doors_labeled", Working_Tile.doors)                                                          ## used for debugging
@@ -502,7 +508,7 @@ def building_random_map(width, height):
                     new_row = row - 1                                                                               ## Move up by one tile
                     new_column = column                                                                             ## column stays the same
                     direction = "U"                                                                                 ## indciates working tile is one space down
-                    if Working_Tile.up == True and map_data[new_row][new_column] == 0:                              ## if the current tile has an up door and there isn't a tile already there
+                    if 'u' in Working_Tile.quickinfo and map_data[new_row][new_column] == 0:                        ## if the current tile has an up door and there isn't a tile already there
                         walled = False                                                                              ## no longer walled
                         #print("name ", Working_Tile.name)                                                           ## used for debugging
                         #print("doors_labeled", Working_Tile.doors)                                                  ## used for debugging
@@ -513,7 +519,7 @@ def building_random_map(width, height):
                     new_row = row + 1                                                                               ## Move down by one tile
                     new_column = column                                                                             ## column stays the same
                     direction = "D"                                                                                 ## indciates working tile is one space up
-                    if Working_Tile.down == True and map_data[new_row][new_column] == 0:                            ## if the current tile has a down door and there isn't a tile already there
+                    if 'd' in Working_Tile.quickinfo and map_data[new_row][new_column] == 0:                        ## if the current tile has a down door and there isn't a tile already there
                         walled = False                                                                              ## no longer walled
                         #print("name ", Working_Tile.name)                                                           ## used for debugging
                         #print("doors_labeled", Working_Tile.doors)                                                  ## used for debugging
@@ -524,7 +530,7 @@ def building_random_map(width, height):
                     new_row = row                                                                                   ## row stays the same
                     new_column = column - 1                                                                         ## Move left by one tile
                     direction = "L"                                                                                 ## indciates working tile is one space right
-                    if Working_Tile.left == True and map_data[new_row][new_column] == 0:                            ## if the current tile has a left door and there isn't a tile already there
+                    if 'l' in Working_Tile.quickinfo and map_data[new_row][new_column] == 0:                        ## if the current tile has a left door and there isn't a tile already there
                         walled = False                                                                              ## no longer walled
                         #print("name ", Working_Tile.name)                                                           ## used for debugging
                         #print("doors_labeled", Working_Tile.doors)                                                  ## used for debugging
@@ -535,7 +541,7 @@ def building_random_map(width, height):
                     new_row = row                                                                                   ## row stays the same
                     new_column = column + 1                                                                         ## Move right by one tile
                     direction = "R"                                                                                 ## indciates working tile is one space left
-                    if Working_Tile.right == True and map_data[new_row][new_column] == 0:                           ## if the current tile has a right door and there isn't a tile already there
+                    if 'r' in Working_Tile.quickinfo and map_data[new_row][new_column] == 0:                        ## if the current tile has a right door and there isn't a tile already there
                         walled = False                                                                              ## no longer walled 
                         #print("name ", Working_Tile.name)                                                           ## used for debugging
                         #print("doors_labeled", Working_Tile.doors)                                                  ## used for debugging
@@ -583,16 +589,16 @@ def building_random_map(width, height):
             ## lines up the doors from the current tile and the newly placed tile
             match direction:                                                                                        ## checks where the direction of the new tile is placed
                 case "U":                                                                                           ## if it was upwards
-                    while New_Tile.down == False:                                                                   ## if the new tile doesen't have a down door to enter from
+                    while 'd' not in New_Tile.quickinfo:                                                            ## if the new tile doesen't have a down door to enter from
                         New_Tile.rotate_clockwise()                                                                 ## rotate the tile clockwise
                 case "D":                                                                                           ## if the was downwards
-                    while New_Tile.up == False:                                                                     ## if the new tile has an up door
+                    while 'u' not in New_Tile.quickinfo:                                                            ## if the new tile has an up door
                         New_Tile.rotate_clockwise()                                                                 ## rotate the tile clockwise
                 case "L":                                                                                           ## if it was from the left
-                    while New_Tile.right == False:                                                                  ## if the new tile has a right door
+                    while 'r' not in New_Tile.quickinfo:                                                            ## if the new tile has a right door
                         New_Tile.rotate_clockwise()                                                                 ## rotate the tile clockwise
                 case "R":                                                                                           ## if it was from the right    
-                    while New_Tile.left == False:                                                                   ## if the new tile has a left door
+                    while 'l' not in New_Tile.quickinfo:                                                            ## if the new tile has a left door
                         New_Tile.rotate_clockwise()                                                                 ## rotate the tile clockwise 
             Working_Tile.add_child(New_Tile)                                                                        ## adds the new tile as a child of the working tile 
             New_Tile.parent = Working_Tile                                                                          ## adds the new tile parent as the working title
@@ -659,9 +665,12 @@ def draw_map(screen, map_data, TILE_SIZE):
 
 ## gets the path the player traveled
 def backpaths(Player, screen):                                                                                      ## gets the path the player traveled
-
+    gradiant = []
     path = []                                                                                                       ## initalize the path
     for i in range(len(Player.visited)):                                                                            ## for each state the player visited
         path.append([Player.visited[i][1]*TILE_SIZE+TILE_SIZE//2, Player.visited[i][0]*TILE_SIZE+TILE_SIZE//2])     ## converte the state into a path based on the number of pixels
+    for j in range(len(path)-1):
+        gradiant = (round(255-255*j/len(path)), round(255*(j/len(path))), 0)
+        pygame.draw.aalines(screen, gradiant, False, [path[j], path[j+1]], TILE_SIZE//2)
 
-    pygame.draw.aalines(screen, (0, 0, 255), False, path, TILE_SIZE//2)                                             ## draw the path on the screen
+    #pygame.draw.aalines(screen, (0,255,0,0.2), False, path, TILE_SIZE//2)                                             ## draw the path on the screen
