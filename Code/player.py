@@ -28,7 +28,7 @@ class Player(pygame.sprite.Sprite):
         self.map_data = map_data                                                                                                                                ## stores the map for the player
         self.image = pygame.image.load("Images/Player/GreenKnight.png")                                                                                         ## sets the players image and loads the file
         self.image = create_player_texture(self.image)                                                                                                          ## scales the image for use
-        self.rect = self.image.get_rect()                                                                                                                       ## 
+        self.rect = self.image.get_rect()                                                                                                                       ## get the rectangle angle fo the surface
         self.Strength = 3                                                                                                                                       ## determines the players strength 
         self.Intelligence = 3                                                                                                                                   ## determines the players intelligence
         self.Agility = 3                                                                                                                                        ## determines the players Agility
@@ -178,14 +178,14 @@ class Player(pygame.sprite.Sprite):
 
     ## Calculating the euclidean huristic value between two points
     def euclidean_heuristic(self, tile_num):
-        print("tile_num ", tile_num)
+        #print("tile_num ", tile_num)                                                                                                                            ## used for debugging
         if tile_num != 0:                                                                                                                                       ## skip if the goal is 0
             point = [0,0]                                                                                                                                       ## initalizes the point
             tile = np.where(self.map_data == tile_num)                                                                                                          ## to search by tile type
-            print("tile ", tile)
-            point[0] = int(tile[0][-1])                                                                                                                             ## sets the row of the point
-            point[1] = int(tile[1][-1])                                                                                                                             ## sets the column of the point
-            print("Point ", point)                                                                                                                              ## used for debugging
+            #print("tile ", tile)                                                                                                                                ## used for debugging
+            point[0] = int(tile[0][-1])                                                                                                                         ## sets the row of the point
+            point[1] = int(tile[1][-1])                                                                                                                         ## sets the column of the point
+            #print("Point ", point)                                                                                                                              ## used for debugging
             dis = sqrt((self.row-point[0])**2 + (self.column-point[1])**2)                                                                                      ## cacluate the euclidean huristic between the player point and the tile number goal
         else:                                                                                                                                                   ## if tile looking for is 0
             dis = -1                                                                                                                                            ## just set the distance to -1 (impossible)
