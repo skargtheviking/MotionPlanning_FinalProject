@@ -225,11 +225,11 @@ def astar(player, num_player = 1):
         n_i = frontier.pop() 
         if(n_i.state not in visited):
             visited.append(n_i.state)
-
+            Actions = tile_textures[player.map_data[n_i.state[_X]][n_i.state[_Y]]].quickinfo
             if is_goal(n_i.state):
                return (backpath(n_i), visited)
             else:
-                for a in _ACTIONS:
+                for a in Actions:
                     s_prime = tile_trans(n_i.state, a, player) ## transition funct
                     actions = tile_textures[player.map_data[s_prime[_X]][s_prime[_Y]]].quickinfo
                     n_prime = SearchTile(s_prime, actions, n_i, a) # Go to next column                    
