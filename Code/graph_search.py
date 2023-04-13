@@ -7,6 +7,7 @@ import heapq
 import matplotlib.pyplot as plotter
 from math import hypot, sqrt
 from tilemap import *
+
 # change to be in the form of new game
 _ACTIONS = ['u','d','l','r']
 _T = 2
