@@ -673,4 +673,3 @@ def backpaths(Player, screen):                                                  
         gradiant = (round(255-255*j/len(path)), round(255*(j/len(path))), 0)
         pygame.draw.aalines(screen, gradiant, False, [path[j], path[j+1]], TILE_SIZE//2)
 
-    #pygame.draw.aalines(screen, (0,255,0,0.2), False, path, TILE_SIZE//2)                                             ## draw the path on the screen
