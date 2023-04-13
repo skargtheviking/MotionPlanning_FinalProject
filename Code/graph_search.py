@@ -7,7 +7,6 @@ import heapq
 import matplotlib.pyplot as plotter
 from math import hypot, sqrt
 from tilemap import *
-
 # change to be in the form of new game
 _ACTIONS = ['u','d','l','r']
 _T = 2
@@ -20,7 +19,7 @@ _VISITED_COLOR = 0.9
 
 def cost(tile):
     if tile.parent is not None:
-        if tile.quickinfo in _ACTIONS:
+        if tile.parent in _ACTIONS:
             tile.cost = 1+tile.parent.cost
 
 
@@ -32,9 +31,39 @@ def heur(tile):
 
     return tile + yeppers
 
-def is_goal(player,goal):
-    x=1
+def is_goal(self,s):
+    '''
+    Test if a specifid state is the goal state
 
+    s - tuple describing the state as (row, col) position on the grid.
+
+    Returns - True if s is the goal. False otherwise.
+    '''
+    return (s[_X] == self.goal[_X] and
+            s[_Y] == self.goal[_Y])
+
+
+class SearchTile:
+    def __init__(self, s, A, parent=None, parent_action=None, cost=0):
+        '''
+        s - the state defining the search tile
+        A - list of actions
+        parent - the parent search node
+        parent_action - the action taken from parent to get to s
+        '''
+        self.parent = parent
+        self.cost = cost
+        self.parent_action = parent_action
+        self.state = s[:]
+        self.actions = A[:]
+
+    def __str__(self):
+        '''
+        Return a human readable description of the node
+        '''
+        return str(self.state) + ' ' + str(self.actions)+' '+str(self.parent)+' '+str(self.parent_action)
+    def __lt__(self, other):
+        return self.cost < other.cost
 
 class PriorityQ:
     '''
@@ -111,7 +140,7 @@ class PriorityQ:
         '''
         return str(self.l)
 
-def tile_trans(self, s, a):
+def tile_trans(self, s, a): #ToDo: Needs to be updated!
     '''
     Transition function for the current grid map.
 
@@ -147,9 +176,10 @@ def tile_trans(self, s, a):
         s_prime = tuple(new_pos)
     return s_prime
 
-def astar(player, num_player = 1):
+def astar(map_data,player, num_player = 1):
     empty = []
-    n0 = tile_textures[player.map_data[player.row][player.column]] #tile at rowx coly SearchNode(init_state, _ACTIONS) ## the tile at the init_state location, 
+    #n0 = tile_textures[player.map_data[player.row][player.column]]  
+    n0 = SearchTile((player.row,player.column),player.quickinfo)
     frontier = PriorityQ()
     visited = [] # visited nodes
     n0 = cost(n0) ### add cost to current node
@@ -166,8 +196,8 @@ def astar(player, num_player = 1):
             else:
                 for a in _ACTIONS:
                     s_prime = tile_trans(n_i.state, a) ## transition funct
-                    n_prime = SearchNode(s_prime,actions, n_i, a) # instead of creating a tile, just go to next tile
-                    
+                    actions = tile_textures[map_data[s_prime[_X]][s_prime[_Y]]].quickinfo
+                    n_prime = SearchTile(s_prime, actions, n_i, a) # Go to next column                    
                     n_prime = cost(n_prime)
                     hcost = n_prime.cost + heur(n_prime)
                     curcost = frontier.get_cost(n_prime)
