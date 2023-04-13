@@ -31,6 +31,20 @@ def heur(tile):
 
     return tile + yeppers
 
+def euclidean_heuristic(self, tile_num):
+    #print("tile_num ", tile_num)                                                                                                                            ## used for debugging
+    if tile_num != 0:                                                                                                                                       ## skip if the goal is 0
+        point = [0,0]                                                                                                                                       ## initalizes the point
+        tile = np.where(self.map_data == tile_num)                                                                                                          ## to search by tile type
+        #print("tile ", tile)                                                                                                                                ## used for debugging
+        point[0] = int(tile[0][-1])                                                                                                                         ## sets the row of the point
+        point[1] = int(tile[1][-1])                                                                                                                         ## sets the column of the point
+        #print("Point ", point)                                                                                                                              ## used for debugging
+        dis = sqrt((self.row-point[0])**2 + (self.column-point[1])**2)                                                                                      ## cacluate the euclidean huristic between the player point and the tile number goal
+    else:                                                                                                                                                   ## if tile looking for is 0
+        dis = -1                                                                                                                                            ## just set the distance to -1 (impossible)
+    return dis 
+
 def is_goal(self,s):
     '''
     Test if a specifid state is the goal state
@@ -140,7 +154,7 @@ class PriorityQ:
         '''
         return str(self.l)
 
-def tile_trans(self, s, a): #ToDo: Needs to be updated!
+def tile_trans(self, s, a, player): #ToDo: Needs to be updated!
     '''
     Transition function for the current grid map.
 
@@ -158,25 +172,46 @@ def tile_trans(self, s, a): #ToDo: Needs to be updated!
         if s[_Y] > 0:
             new_pos[_Y] -= 1
     elif a == 'd':
-        if s[_Y] < self.rows - 1:
+        if s[_Y]+1 < len(player.map_data):
             new_pos[_Y] += 1
     elif a == 'l':
         if s[_X] > 0:
             new_pos[_X] -= 1
     elif a == 'r':
-        if s[_X] < self.cols - 1:
+        if s[_X] + 1 < len(player.map_data[0]):
             new_pos[_X] += 1
     else:
         print('Unknown action:', str(a))
 
-    # Test if new position is clear
-    if self.occupancy_grid[new_pos[0], new_pos[1]]:
-        s_prime = tuple(s)
-    else:
-        s_prime = tuple(new_pos)
+    ## Test if new position is clear
+    #if self.occupancy_grid[new_pos[0], new_pos[1]]:
+    #    s_prime = tuple(s)
+    #else:
+    s_prime = tuple(new_pos)
     return s_prime
 
-def astar(map_data,player, num_player = 1):
+def backpath(tile):
+    '''
+    Function to determine the path that lead to the specified search node
+
+    node - the SearchNode that is the end of the path
+
+    returns - a tuple containing (path, action_path) which are lists respectively of the states
+    visited from init to goal (inclusive) and the actions taken to make those transitions.
+    '''
+    path = []
+    action_path = []
+    
+    while tile.parent:
+        path.insert(0,tile.state)
+        action_path.insert(0, tile.parent_action)
+        tile = tile.parent
+    path.insert(0, tile.state)
+    #print (action_path)
+    #print(path)
+    return (path, action_path)
+
+def astar(player, num_player = 1):
     empty = []
     #n0 = tile_textures[player.map_data[player.row][player.column]]  
     n0 = SearchTile((player.row,player.column),player.quickinfo)
@@ -195,8 +230,8 @@ def astar(map_data,player, num_player = 1):
                return (backpath(n_i), visited)
             else:
                 for a in _ACTIONS:
-                    s_prime = tile_trans(n_i.state, a) ## transition funct
-                    actions = tile_textures[map_data[s_prime[_X]][s_prime[_Y]]].quickinfo
+                    s_prime = tile_trans(n_i.state, a, player) ## transition funct
+                    actions = tile_textures[player.map_data[s_prime[_X]][s_prime[_Y]]].quickinfo
                     n_prime = SearchTile(s_prime, actions, n_i, a) # Go to next column                    
                     n_prime = cost(n_prime)
                     hcost = n_prime.cost + heur(n_prime)
