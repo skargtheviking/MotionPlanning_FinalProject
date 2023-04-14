@@ -740,7 +740,7 @@ def backpaths(Player, screen):                                                  
         path.append([Player.visited[i][1]*TILE_SIZE+TILE_SIZE//2, Player.visited[i][0]*TILE_SIZE+TILE_SIZE//2])     ## converte the state into a path based on the number of pixels
     for j in range(len(path)-1):                                                                                    ## for each of the items in the path (minus the last one)    
         gradiant = (round(255-255*j/len(path)), round(255*(j/len(path))), 0)                                        ## determine the color
-        pygame.draw.aalines(screen, gradiant, False, [path[j], path[j+1]])                                          ## draw the lines in a clean color gradiant
+        pygame.draw.lines(screen, gradiant, False, [path[j], path[j+1]], width = TILE_SIZE//12)                     ## draw the lines in a clean color gradiant
 
 ## gets the path the player plans to travel
 def forwardpath(Player, screen):                                                                                    ## gets the path the player plans to travel
