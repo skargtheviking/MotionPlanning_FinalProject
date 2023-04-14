@@ -663,11 +663,11 @@ def draw_map(screen, map_data, TILE_SIZE):
     if settings.Win == True:                                                                                        ## if the player has won
         backpaths(settings.Player_1, screen)                                                                        ## get the path the player had traveled
 
-    if settings.planning == True:
-        forwardpath(settings.Player_1, screen)
+    if settings.planning == True:                                                                                   ## if a planned path was determined
+        forwardpath(settings.Player_1, screen)                                                                      ## gets the planned path for the player to follow
 
-    if settings.seen == True:
-        explored(settings.Player_1, screen)
+    #if settings.seen == True:                                                                                       ## if player has list of explored points in conjunction with planning
+    #    explored(settings.Player_1, screen)                                                                         ## displays which tiles have been explored as part of the plannign process
 
 ## gets the path the player traveled
 def backpaths(Player, screen):                                                                                      ## gets the path the player traveled
@@ -680,14 +680,18 @@ def backpaths(Player, screen):                                                  
         pygame.draw.aalines(screen, gradiant, False, [path[j], path[j+1]])
 
 ## gets the path the player plans to travel
-def forwardpath(Player, screen):                                                                                                                               ## gets the path the player plans to travel
-    gradiant = []
-    path = []                                                                                                                                               ## initalize the path
-    for i in range(len(Player.plans)):                                                                                                                           ## for each state the player plans to visit
-        path.append([Player.plans[i][1]*TILE_SIZE+TILE_SIZE//2, Player.plans[i][0]*TILE_SIZE+TILE_SIZE//2])                                                           ## converte the state into a path based on the number of pixels
-    for j in range(len(path)-1):
-        gradiant = (round(255-255*j/len(path)), 0, round(255*(j/len(path))))
-        pygame.draw.aalines(screen, gradiant, False, [path[j], path[j+1]])
+def forwardpath(Player, screen):                                                                                    ## gets the path the player plans to travel
+    gradiant = []                                                                                                   ## initalize the gradiant value
+    path = []                                                                                                       ## initalize the path
+    for i in range(len(Player.plans)):                                                                              ## for each state the player plans to visit
+        path.append([Player.plans[i][1]*TILE_SIZE+TILE_SIZE//2, Player.plans[i][0]*TILE_SIZE+TILE_SIZE//2])         ## converte the state into a path based on the number of pixels
+    for j in range(len(path)-1):                                                                                    ## for each of the items in the path (minus the last one)
+        gradiant = (round(255-255*j/len(path)), 0, round(255*(j/len(path))))                                        ## detetermine the value of the gradiant
+        if Player.todo[j] == 'x' or Player.todo[j] == 'y':                                                          ##
+            pygame.draw.circle(screen, gradiant, path[j],  TILE_SIZE//8)
+            pygame.draw.circle(screen, gradiant, path[j+1],  TILE_SIZE//8)
+        else:    
+            pygame.draw.aalines(screen, gradiant, False, [path[j], path[j+1]])
 
 ## gets the path the player plans to travel
 def explored(Player, screen):                                                                                                                               ## gets the path the player plans to travel
@@ -697,4 +701,4 @@ def explored(Player, screen):                                                   
         points.append([Player.explored[i][1]*TILE_SIZE+TILE_SIZE//2, Player.explored[i][0]*TILE_SIZE+TILE_SIZE//2])                                                           ## converte the state into a path based on the number of pixels
     for j in range(len(points)):
         gradiant = (255, 0, 0)
-        pygame.draw.circle(screen, gradiant, points[j],  TILE_SIZE//4)
+        pygame.draw.circle(screen, gradiant, points[j],  TILE_SIZE//8)

@@ -13,9 +13,11 @@ TILE_SIZE = settings.TILE_SIZE  ## Gets the size of the tile from the settings f
 ##############################################################################################################################################################################################################################
 #### Things to add to player
 ####    - Have the player build the map as they go
-####    - Use automated system such as Astar
+####    - Have A* work with tokens
+####    - make planned path line to be thicker
 ####    - Add a 2nd player
 ##############################################################################################################################################################################################################################
+
 def create_player_texture(name):
     image = pygame.transform.scale(name,(TILE_SIZE/4,TILE_SIZE/4))                                                                                              ## scales the image to 1/4 of a tile size
     return image                                                                                                                                                ## return the token image
@@ -50,11 +52,11 @@ class Player(pygame.sprite.Sprite):
         self.actions = ["S"]                                                                                                                                    ## keeps track of actions taken (starting with S for Start)
         self.totalcost = 0                                                                                                                                      ## keeps track of the total cost
 
-    def update(self):
-        self.get_event()
+    def update(self):                                                                                                                                           ## update things if a key is presed
+        self.get_event()                                                                                                                                        ## checks if a key was presed
 
-    def get_event(self):
-        keys = pygame.key.get_pressed()
+    def get_event(self):                                                                                                                                        
+        keys = pygame.key.get_pressed()                                                                                                                         ## check what key got pressed
 
         ## Moving Up
         if keys[pygame.K_w]:                                                                                                                                    ## when the "W" button is pressed
@@ -86,92 +88,62 @@ class Player(pygame.sprite.Sprite):
                         self.actions.append("R")                                                                                                                ## remembers it moved right
                         self.move(+TILE_SIZE, 0)
 
-        ## Calculate Heristic of map (using it as a debugger to work in the secret tunnels)
-        if keys[pygame.K_h]:
-            secret_heuristic = []
-            self.heuristic_map = []                                                                                                                ## initalizes the huristic_map
-            for i in range(len(self.map_data)):
-                self.heuristic_map.append([])
-                for j in range(len(self.map_data[0])):
-                    self.heuristic_map[i].append(self.euclidean_heuristic(self.row, self.column, self.map_data[i][j]))
-
-            print("heuristic_map ", self.heuristic_map)                                                                                                               ## used for debugging
-
-            X_heuristic = self.heuristic_map[int(self.X_tile[0])][int(self.X_tile[1])]
-            Y_heuristic = self.heuristic_map[int(self.Y_tile[0])][int(self.Y_tile[1])]
-            print("X_heuristic ", X_heuristic)                                                                                                                        ## used for debugging
-            print("Y_heuristic ", Y_heuristic)                                                                                                               ## used for debugging
-
-            for i in range(len(self.map_data)):
-                secret_heuristic.append([])
-                for j in range(len(self.map_data[0])):
-                    if X_heuristic < Y_heuristic:
-                        secret_heuristic[i].append(self.euclidean_heuristic(int(self.Y_tile[0]), int(self.Y_tile[1]), self.map_data[i][j]) + X_heuristic + 1)
-                    elif X_heuristic > Y_heuristic:
-                        secret_heuristic[i].append(self.euclidean_heuristic(int(self.X_tile[0]), int(self.X_tile[1]), self.map_data[i][j]) + Y_heuristic + 1)
-                    else:
-                        secret_heuristic[i].append(self.heuristic_map[i][j])
-            print("secret_heuristic ", secret_heuristic)                                                                                                               ## used for debugging
-            for i in range(len(self.map_data)):
-                for j in range(len(self.map_data[0])):
-                    if secret_heuristic[i][j] < self.heuristic_map[i][j]:
-                        self.heuristic_map[i][j] = secret_heuristic[i][j]
-
-            print("heuristic_map ", self.heuristic_map)                                                                                                               ## used for debugging
-
-            time.sleep(0.5)                                                                                                                                     ## gives the computer a time before reading the next keystroke
-
        ## set goal
         if keys[pygame.K_g]:
-            self.goal = [self.row,self.column]
+            self.goal = [self.row,self.column]                                                                                                                  ## sets the tile the player is currently at as the goal (used for debugging)
 
         ## A-Star to somewhere
         if keys[pygame.K_p]:
-            settings.Player_1 = None
-            settings.planning = False
-            settings.seen = False
-            ## Makes the 
-            secret_heuristic = []
-            self.heuristic_map = []                                                                                                                ## initalizes the huristic_map
-            for i in range(len(self.map_data)):
-                self.heuristic_map.append([])
-                for j in range(len(self.map_data[0])):
-                    self.heuristic_map[i].append(self.euclidean_heuristic(self.row, self.column, self.map_data[i][j]))
+            settings.Player_1 = None                                                                                                                            ## resets the global Player 1 
+            settings.planning = False                                                                                                                           ## resets the global planning
+            settings.seen = False                                                                                                                               ## resets teh global seen
+            secret_heuristic = []                                                                                                                               ## initalizes the hurisitc_map from the farther secret tile
+            self.heuristic_map = []                                                                                                                             ## initalizes the huristic_map
 
-            #print("heuristic_map ", self.heuristic_map)                                                                                                               ## used for debugging
+            ## creates the initial heuritic map in reference to the player location
+            for i in range(len(self.map_data)):                                                                                                                 ## for each of the rows                                                                 
+                self.heuristic_map.append([])                                                                                                                   ## initalize space for columns
+                for j in range(len(self.map_data[0])):                                                                                                          ## for each column
+                    self.heuristic_map[i].append(self.euclidean_heuristic(self.row, self.column, self.map_data[i][j]))                                          ## determine the euclidean heuristic in reference to the location of the player (use another heurtistic?)
 
-            X_heuristic = self.heuristic_map[int(self.X_tile[0])][int(self.X_tile[1])]
-            Y_heuristic = self.heuristic_map[int(self.Y_tile[0])][int(self.Y_tile[1])]
-            #print("X_heuristic ", X_heuristic)                                                                                                                        ## used for debugging
-            #print("Y_heuristic ", Y_heuristic)                                                                                                               ## used for debugging
+            #print("heuristic_map ", self.heuristic_map)                                                                                                         ## used for debugging
 
-            for i in range(len(self.map_data)):
-                secret_heuristic.append([])
-                for j in range(len(self.map_data[0])):
-                    if X_heuristic < Y_heuristic:
-                        secret_heuristic[i].append(self.euclidean_heuristic(int(self.Y_tile[0]), int(self.Y_tile[1]), self.map_data[i][j]) + X_heuristic + 1)
-                    elif X_heuristic > Y_heuristic:
-                        secret_heuristic[i].append(self.euclidean_heuristic(int(self.X_tile[0]), int(self.X_tile[1]), self.map_data[i][j]) + Y_heuristic + 1)
-                    else:
-                        secret_heuristic[i].append(self.heuristic_map[i][j])
-            #print("secret_heuristic ", secret_heuristic)                                                                                                               ## used for debugging
-            for i in range(len(self.map_data)):
-                for j in range(len(self.map_data[0])):
-                    if secret_heuristic[i][j] < self.heuristic_map[i][j]:
-                        self.heuristic_map[i][j] = secret_heuristic[i][j]
-            #print("map ", self.map_data)
-            #print("heuristic_map ", self.heuristic_map)
-            #print("player location, ", self.row, self.column)
+            X_heuristic = self.heuristic_map[int(self.X_tile[0])][int(self.X_tile[1])]                                                                          ## get the heuristic value for the X_secret tile
+            Y_heuristic = self.heuristic_map[int(self.Y_tile[0])][int(self.Y_tile[1])]                                                                          ## get the heuristic value for the Y_secret tile
+            #print("X_heuristic ", X_heuristic)                                                                                                                  ## used for debugging
+            #print("Y_heuristic ", Y_heuristic)                                                                                                                  ## used for debugging
+
+            ## creates the initial heuritic map in reference to farther secret tile + closer secret tile heuristic + 1
+            for i in range(len(self.map_data)):                                                                                                                 ## for each of the rows                                                                                                                 
+                secret_heuristic.append([])                                                                                                                     ## initalize space for columns
+                for j in range(len(self.map_data[0])):                                                                                                          ## for each column
+                    if X_heuristic < Y_heuristic:                                                                                                               ## if the X_secret heuristic value is less than Y_secret heuristic value (if X_secret tile is closer than Y_secret tile)
+                        secret_heuristic[i].append(self.euclidean_heuristic(int(self.Y_tile[0]), int(self.Y_tile[1]), self.map_data[i][j]) + X_heuristic + 1)   ## create a heuristic map from the Y_secret tile where each value is an additional X_secret heuristic + 1 away
+                    elif X_heuristic > Y_heuristic:                                                                                                             ## if the Y_secret heuristic value is less than X_secret heuristic value (if Y_secret tile is closer than X_secret tile)
+                        secret_heuristic[i].append(self.euclidean_heuristic(int(self.X_tile[0]), int(self.X_tile[1]), self.map_data[i][j]) + Y_heuristic + 1)   ## create a heuristic map from the X_secret tile where each value is an additional Y_secret heuristic + 1 away
+                    else:                                                                                                                                       ## otherwise
+                        secret_heuristic[i].append(self.heuristic_map[i][j])                                                                                    ## have the heuristic value be the heuristic value from the player
+            #print("secret_heuristic ", secret_heuristic)                                                                                                        ## used for debugging
+
+            ## Keep only the smaller heuristic from each matrix of heuristics
+            for i in range(len(self.map_data)):                                                                                                                 ## for each of the rows
+                for j in range(len(self.map_data[0])):                                                                                                          ## for each of the columns
+                    if secret_heuristic[i][j] < self.heuristic_map[i][j]:                                                                                       ## determine which heuristic has the lower value
+                        self.heuristic_map[i][j] = secret_heuristic[i][j]                                                                                       ## keep only the smaller value
+
+            #print("map ", self.map_data)                                                                                                                        ## used for debugging
+            #print("heuristic_map ", self.heuristic_map)                                                                                                         ## used for debugging
+            #print("player location, ", self.row, self.column)                                                                                                   ## used for debugging
 
 
-            self.plans, self.explored = astar(self)
-            print("plans", self.plans)
-            print("explored", self.explored)
-            if self.plans != None:
-                settings.planning = True
+            self.plans, self.todo, self.explored = astar(self)                                                                                                  ## compute the A* algorithm to find the shortest path to the goal
+            print("plans", self.plans)                                                                                                                          ## prints the planned states of path to the goal
+            print("explored", self.explored)                                                                                                                    ## prints the explored (visited) states to find path
+            if self.plans != None:                                                                                                                              ## if a path to the goal is found
+                settings.planning = True                                                                                                                        ## let the global know that a planning path was found
             settings.Player_1 = self                                                                                                                            ## sets player 1 as itself
-            settings.seen = True
-            time.sleep(0.5)                                                                                                                                         ## gives the computer a time before reading the next keystroke   
+            settings.seen = True                                                                                                                                ## lets the global know that it has a set of explored (visited) points
+            time.sleep(0.5)                                                                                                                                     ## gives the computer a time before reading the next keystroke   
 
         ## Grabs tokens
         if keys[pygame.K_e]:                                                                                                                                    ## when the "E" button is pressed
@@ -270,8 +242,8 @@ class Player(pygame.sprite.Sprite):
             point[0] = int(tile[0][-1])                                                                                                                         ## sets the row of the point
             point[1] = int(tile[1][-1])                                                                                                                         ## sets the column of the point
             #print("Point ", point)                                                                                                                              ## used for debugging
-            dis = sqrt((row-point[0])**2 + (column-point[1])**2)                                                                                      ## cacluate the euclidean huristic between the player point and the tile number goal
+            dis = sqrt((row-point[0])**2 + (column-point[1])**2)                                                                                                ## cacluate the euclidean huristic between the player point and the tile number goal
         else:                                                                                                                                                   ## if tile looking for is 0
-            dis = 10000000                                                                                                                                            ## just set the distance to 10000000 (impossible)
+            dis = 10000000                                                                                                                                      ## just set the distance to 10000000 (impossible)
         return dis                                                                                                                                              ## return the distance calculated
 

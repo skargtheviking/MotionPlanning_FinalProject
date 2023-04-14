@@ -31,6 +31,7 @@ def heur(tile):
 
     return tile + yeppers
 
+## checks if the goal is the same as the state checking
 def is_goal(goal,s):
     '''
     Test if a specifid state is the goal state
@@ -41,7 +42,7 @@ def is_goal(goal,s):
     '''
     s = list(s)                                                                     ## turns this into a list so the two sides can compare
 
-    return (s[_X] == goal[_X] and
+    return (s[_X] == goal[_X] and                                                   ## if the state's row and column equals the goal state and column return True, otherwise return False
             s[_Y] == goal[_Y])
 
 
@@ -202,9 +203,9 @@ def getting_path(tile):
         action_path.insert(0, tile.parent_action)
         tile = tile.parent
     path.insert(0, tile.state)
-    print (action_path)
-    print(path)
-    return path
+    print ("action_path", action_path)
+    print("path", path)
+    return path, action_path
 
 def astar(player, num_player = 1):
     #empty = []
@@ -227,7 +228,8 @@ def astar(player, num_player = 1):
             if is_goal(player.goal, n_i.state):
                 #print("made it here")
                 #print("quickinfo", empty)
-                return getting_path(n_i), visited
+                path, action_path = getting_path(n_i)
+                return path, action_path, visited
             else:
                 for a in Actions:
                     s_prime = tile_trans(n_i.state, a, player) ## transition funct
@@ -241,4 +243,4 @@ def astar(player, num_player = 1):
 
     #print("no path found")
     #print("quickinfo", empty)
-    return None, visited
+    return None, None, visited
