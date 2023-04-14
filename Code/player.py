@@ -28,7 +28,7 @@ class Player(pygame.sprite.Sprite):
         self.groups = sprites_group                                                                                                                             ##
         pygame.sprite.Sprite.__init__(self, self.groups)                                                                                                        ##
         self.map_data = map_data                                                                                                                                ## stores the map for the player
-        self.image = pygame.image.load("Images/Other/magic_meeple_games_makshift_token.png")                                                                    ## sets the players image and loads the file
+        self.image = pygame.image.load("Images/Other/magic_meeple_games_makshift_token.png")                                                                                         ## sets the players image and loads the file
         self.image = create_player_texture(self.image)                                                                                                          ## scales the image for use
         self.rect = self.image.get_rect()                                                                                                                       ## get the rectangle angle fo the surface
         self.Strength = 3                                                                                                                                       ## determines the players strength 
