@@ -670,7 +670,8 @@ def building_random_map(width, height):
 
 ## This function places all the tiles and tokens for the user to see
 def draw_map(screen, map_data, TILE_SIZE):
-   
+    font_size = TILE_SIZE//4
+    font = pygame.font.Font(None, font_size)
     MAP_HEIGHT = len(map_data)                                                                                      ## gets the map height
     MAP_WIDTH = len(map_data[0])                                                                                    ## gest the width of the map
     for row in range(MAP_HEIGHT):                                                                                   ## cycle through each row
@@ -680,8 +681,36 @@ def draw_map(screen, map_data, TILE_SIZE):
             if tile_textures[map_data[row][col]].token != None:                                                     ## if the tile has a token
                 screen.blit(tile_textures[map_data[row][col]].token,                                                ## display the token at about a 3rd of a TILE_SIZE down and right from the upper left of the tile location
                         (col*TILE_SIZE+TILE_SIZE/3, row*TILE_SIZE+TILE_SIZE/3))                                     ## the token will be placed about a 1/3rd of the way down and a 1/3rd of the way to the right from the upper left corner of the tile
+    totalcost_text = font.render(f'Cost: {settings.Player_1.totalcost}', True, (0, 0, 0))
+    screen.blit(totalcost_text, (10, MAP_HEIGHT*TILE_SIZE))                                           
 
-    if settings.Win == True:                                                                                        ## if the player has won
+    Red_Token_text = font.render(f'Red_Token: {settings.Player_1.Red_Token}', True, (0, 0, 0))
+    if settings.Player_1.Red_Token != 0:
+        if settings.Red_Event_Broken == False:
+            for i in range(settings.Player_1.Red_Token):
+                screen.blit(token_texture[1],(font_size*6+(font_size/3)*i, MAP_HEIGHT*TILE_SIZE+font_size//1.5))
+        else:
+            screen.blit(token_texture[8],(font_size*6+(font_size/3), MAP_HEIGHT*TILE_SIZE+font_size//1.5))            
+    screen.blit(Red_Token_text, (10, MAP_HEIGHT*TILE_SIZE+font_size))
+    Green_Token_text = font.render(f'Green_Token: {settings.Player_1.Green_Token}', True, (0, 0, 0))
+    if settings.Player_1.Green_Token != 0:
+        if settings.Green_Event_Broken == False:
+            for i in range(settings.Player_1.Green_Token):
+                screen.blit(token_texture[2],(font_size*6+(font_size/3)*i, MAP_HEIGHT*TILE_SIZE+1.5*font_size))
+        else:
+            screen.blit(token_texture[9],(font_size*6+(font_size/3), MAP_HEIGHT*TILE_SIZE+1.5*font_size))  
+    screen.blit(Green_Token_text, (10, MAP_HEIGHT*TILE_SIZE+font_size*2))
+    Blue_Token_text = font.render(f'Blue_Token: {settings.Player_1.Blue_Token}', True, (0, 0, 0))
+    if settings.Player_1.Blue_Token != 0:
+        if settings.Blue_Event_Broken == False:
+            for i in range(settings.Player_1.Blue_Token):
+                screen.blit(token_texture[3],(font_size*6+(font_size/3)*i, MAP_HEIGHT*TILE_SIZE+2.5*font_size))
+        else:
+            screen.blit(token_texture[10],(font_size*6+(font_size/3), MAP_HEIGHT*TILE_SIZE+2.5*font_size))  
+    screen.blit(Blue_Token_text, (10, MAP_HEIGHT*TILE_SIZE+font_size*3))
+    if settings.FireofEidolon_Grabbed == True:
+        screen.blit(token_texture[7],(TILE_SIZE*MAP_WIDTH//2, MAP_HEIGHT*TILE_SIZE))                          
+    if settings.Win == True:                                                                                       ## if the player has won
         backpaths(settings.Player_1, screen)                                                                        ## get the path the player had traveled
 
     if settings.planning == True:                                                                                   ## if a planned path was determined

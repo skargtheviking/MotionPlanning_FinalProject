@@ -18,7 +18,7 @@ TILE_SIZE = settings.TILE_SIZE  ## Gets the size of the tile from the settings f
 ##############################################################################################################################################################################################################################
 
 def create_player_texture(name):
-    image = pygame.transform.scale(name,(TILE_SIZE/4,TILE_SIZE/4))                                                                                              ## scales the image to 1/4 of a tile size
+    image = pygame.transform.scale(name,(TILE_SIZE/2,TILE_SIZE/2))                                                                                              ## scales the image to 1/4 of a tile size
     return image                                                                                                                                                ## return the token image
 
 
@@ -28,7 +28,7 @@ class Player(pygame.sprite.Sprite):
         self.groups = sprites_group                                                                                                                             ##
         pygame.sprite.Sprite.__init__(self, self.groups)                                                                                                        ##
         self.map_data = map_data                                                                                                                                ## stores the map for the player
-        self.image = pygame.image.load("Images/Player/GreenKnight.png")                                                                                         ## sets the players image and loads the file
+        self.image = pygame.image.load("Images/Other/magic_meeple_games_makshift_token.png")                                                                                         ## sets the players image and loads the file
         self.image = create_player_texture(self.image)                                                                                                          ## scales the image for use
         self.rect = self.image.get_rect()                                                                                                                       ## get the rectangle angle fo the surface
         self.Strength = 3                                                                                                                                       ## determines the players strength 
@@ -50,7 +50,7 @@ class Player(pygame.sprite.Sprite):
         self.visited = [[self.row, self.column]]                                                                                                                ## keeps track of the locations visited (starting with the starting points)
         self.actions = ["S"]                                                                                                                                    ## keeps track of actions taken (starting with S for Start)
         self.totalcost = 0                                                                                                                                      ## keeps track of the total cost
-
+        settings.Player_1 = self                                                                                                                                ## sets player 1 as itself
     def update(self):                                                                                                                                           ## update things if a key is presed
         self.get_event()                                                                                                                                        ## checks if a key was presed
 
@@ -93,13 +93,11 @@ class Player(pygame.sprite.Sprite):
 
         ## ressts everything
         if keys[pygame.K_r]:
-            settings.Player_1 = None                                                                                                                            ## resets the global Player 1 
             settings.planning = False                                                                                                                           ## resets the global planning
             settings.seen = False                                                                                                                               ## resets teh global seen
 
         ## A-Star to somewhere
         if keys[pygame.K_p]:
-            settings.Player_1 = None                                                                                                                            ## resets the global Player 1 
             settings.planning = False                                                                                                                           ## resets the global planning
             settings.seen = False                                                                                                                               ## resets teh global seen
             secret_heuristic = []                                                                                                                               ## initalizes the hurisitc_map from the farther secret tile
