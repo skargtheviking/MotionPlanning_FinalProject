@@ -7,6 +7,7 @@ Blue_Event_Broken = False           ## has the blue_event token been broken yet
 FireofEidolon_Grabbed = False       ## no one has grabbed the Fire of Eidolon yet
 Win = False                         ## did the player win?
 planning = False                    ## is the player planning the next move
+seen = False                    ## did the player at least try to explore
 Player_1 = None                     ## records Player_1
 Red_Tiles = []                      ## these tiles have red tokens
 Green_Tiles = []                    ## these tiles have green tokens
