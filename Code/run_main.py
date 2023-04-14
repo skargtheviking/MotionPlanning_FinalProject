@@ -22,6 +22,21 @@ clock = pygame.time.Clock()
 ################################################
 ################################################
 
+##################################################
+############# Premade Map ########################
+##################################################
+### enter the tile number (base 10) into tile_order
+#tile_order = [[ 3, 10, 13,  1, 26,  0], [ 0,  0,  0, 18, 21,  0], [ 0,  0,  0,  6, 19,  0], [ 0,  0, 27, 11, 23,  0], [ 0, 29,  9, 16, 14, 0], [0, 17, 7, 24, 15, 0], [0, 0, 25, 12, 20, 22], [0, 0, 0, 2, 8, 28], [0, 0, 0, 0, 4, 5]]
+
+### enter the where you want the top of the tile to be at (U at top, D at bottom, L on the left, and R on the right)
+#rotations = [[3, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 2, 0, 0, 1], [0, 0, 0, 2, 0, 1], [0, 0, 0, 0, 2, 2]]
+
+### Determines where each tile is on the map
+#map_data, max_mins = building_premade_map(tile_order, rotations)   
+
+##################################################
+############# End Of Premade Map #################
+##################################################
 
 #################################################
 ############# Random Map ########################
@@ -33,22 +48,6 @@ map_data, max_mins = building_random_map(width, height)
 #################################################
 ############# End Of Random Map #################
 #################################################
-
-##################################################
-############# Premade Map ########################
-##################################################
-### enter the tile number (base 10) into tile_order
-#tile_order = [[16, 20, 4], [2, 1, 6], [23, 12, 15]]
-
-### enter the where you want the top of the tile to be at (U at top, D at bottom, L on the left, and R on the right)
-#direction_order = [["U", "U", "D"], ["L", "R", "D"], ["U", "U", "U"]]
-
-### Determines where each tile is on the map
-#map_data, max_mins = building_premade_map(height, width, tile_order, direction_order)   
-
-##################################################
-############# End Of Premade Map #################
-##################################################
 
 ## create a surface represent our window
 screen = pygame.display.set_mode((max_mins[1]*TILE_SIZE, max_mins[0]*TILE_SIZE))

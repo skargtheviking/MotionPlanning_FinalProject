@@ -8,7 +8,7 @@ import matplotlib.pyplot as plotter
 from math import hypot, sqrt
 from tilemap import *
 # change to be in the form of new game
-_ACTIONS = ['u','d','l','r']
+_ACTIONS = ['x', 'y', 'u','d','l','r']
 _T = 2
 _X = 0                                                                          ## 0 is row
 _Y = 1                                                                          ## 1 is column
@@ -24,12 +24,6 @@ def cost(tile):
 
 
     return tile
-
-def heur(tile):
-    
-    yeppers = 2
-
-    return tile + yeppers
 
 ## checks if the goal is the same as the state checking
 def is_goal(goal,s):
@@ -155,37 +149,39 @@ def tile_trans(s, a, player):
     If the action is not valid (e.g. moves off the grid or into an obstacle)
     returns the current state.
     '''
-    new_pos = list(s[:])                                                                            ## makes a copy of the state point and turns it into a list
+    new_pos = list(s[:])                                                                                                ## makes a copy of the state point and turns it into a list
 
-    #print("a", a)                                                                                  ## used for debugging
-    if a == 'x':                                                                                    ## if it goes into the X secret tunnel
-        new_pos[_X] = int(player.Y_tile[_X])                                                        ## appear on the Y secret tunnel tile
+    #print("a", a)                                                                                                      ## used for debugging
+    if a == 'x':                                                                                                        ## if it goes into the X secret tunnel
+        new_pos[_X] = int(player.Y_tile[_X])                                                                            ## appear on the Y secret tunnel tile
         new_pos[_Y] = int(player.Y_tile[_Y])
-    elif a == 'y':                                                                                  ## if it goes into the Y secret tunnel
-        new_pos[_X] = int(player.X_tile[_X])                                                        ## appears on the X secret tunnel tile
+    elif a == 'y':                                                                                                      ## if it goes into the Y secret tunnel
+        new_pos[_X] = int(player.X_tile[_X])                                                                            ## appears on the X secret tunnel tile
         new_pos[_Y] = int(player.X_tile[_Y])
-    elif a == 'u':                                                                                  ## if it goes up
-        if s[_X] > 0:                                                                               ## make sure it doesn't go off the board
-            if 'd' in tile_textures[player.map_data[new_pos[_X]-1][new_pos[_Y]]].quickinfo:         ## if the new tile has a down door to enter through
-                new_pos[_X] -= 1                                                                    ## move up a tile
-    elif a == 'd':                                                                                  ## if it goes down
-        if s[_X] + 1 < len(player.map_data):                                                        ## make sure it doesn't go off the board
-            if 'u' in tile_textures[player.map_data[new_pos[_X]+1][new_pos[_Y]]].quickinfo:         ## if the new tile has an up door to enter through    
-                new_pos[_X] += 1                                                                    ## move down a tile
+    elif a == 'u':                                                                                                      ## if it goes up
+        if s[_X] > 0:                                                                                                   ## make sure it doesn't go off the board
+            if 'd' in tile_textures[player.map_data[new_pos[_X]-1][new_pos[_Y]]].quickinfo:                             ## if the new tile has a down door to enter through
+                new_pos[_X] -= 1                                                                                        ## move up a tile
+    elif a == 'd':                                                                                                      ## if it goes down
+        if s[_X] + 1 < len(player.map_data):                                                                            ## make sure it doesn't go off the board
+            if 'u' in tile_textures[player.map_data[new_pos[_X]+1][new_pos[_Y]]].quickinfo:                             ## if the new tile has an up door to enter through    
+                new_pos[_X] += 1                                                                                        ## move down a tile
     elif a == 'l':
-        if s[_Y] > 0:                                                                               ## make sure it doesn't go off the board
-            if 'r' in tile_textures[player.map_data[new_pos[_X]][new_pos[_Y]-1]].quickinfo:         ## if the new tile has a right door to enter through     
-                new_pos[_Y] -= 1                                                                    ## move right a tile
+        if s[_Y] > 0:                                                                                                   ## make sure it doesn't go off the board
+            if 'r' in tile_textures[player.map_data[new_pos[_X]][new_pos[_Y]-1]].quickinfo:                             ## if the new tile has a right door to enter through     
+                new_pos[_Y] -= 1                                                                                        ## move right a tile
     elif a == 'r':
-        if s[_Y] + 1 < len(player.map_data[0]):                                                     ## make sure it doesn't go off the board
-            if 'l' in tile_textures[player.map_data[new_pos[_X]][new_pos[_Y]+1]].quickinfo:         ## if the new tile has a left door to enter through  
-                new_pos[_Y] += 1                                                                    ## move left a tile
-    else:                                                                                           ## if the action is not listed
-        print('Unknown action:', str(a))                                                            ## let the user know what action it didn't understand
+        if s[_Y] + 1 < len(player.map_data[0]):                                                                         ## make sure it doesn't go off the board
+            if 'l' in tile_textures[player.map_data[new_pos[_X]][new_pos[_Y]+1]].quickinfo:                             ## if the new tile has a left door to enter through  
+                new_pos[_Y] += 1                                                                                        ## move left a tile
+    else:                                                                                                               ## if the action is not listed
+        print('Unknown action:', str(a))                                                                                ## let the user know what action it didn't understand
     
-    s_prime = tuple(new_pos)                                                                        ## save the new position as a tuple
-    return s_prime                                                                                  ## return the new position
+    s_prime = tuple(new_pos)                                                                                            ## save the new position as a tuple
+    return s_prime                                                                                                      ## return the new position
 
+
+## determines the path to the goal and the actions taken to get there
 def getting_path(tile):
     '''
     Function to determine the path that lead to the specified search node
@@ -195,21 +191,22 @@ def getting_path(tile):
     returns - a tuple containing (path, action_path) which are lists respectively of the states
     visited from init to goal (inclusive) and the actions taken to make those transitions.
     '''
-    path = []
-    action_path = []
+    path = []                                                                                                           ## initalizes the path
+    action_path = []                                                                                                    ## inializes the order of actiosn
     
-    while tile.parent:
-        path.insert(0,tile.state)
-        action_path.insert(0, tile.parent_action)
-        tile = tile.parent
-    path.insert(0, tile.state)
-    print ("action_path", action_path)
-    print("path", path)
-    return path, action_path
+    while tile.parent:                                                                                                  ## if the tile has a parent
+        path.insert(0,tile.state)                                                                                       ## adds the tile.state to the path
+        action_path.insert(0, tile.parent_action)                                                                       ## adds the action take to get to tile state
+        tile = tile.parent                                                                                              ## sets the next tile to be the tile's parent
+    path.insert(0, tile.state)                                                                                          ## adds the tile wihtout a parent to the path
+    print ("action_path", action_path)                                                                                  ## prints out the action's taken (used fod debugging)
+    print("path", path)                                                                                                 ## prints out the planned path (used fod debugging)
+    return path, action_path                                                                                            ## returns the planned path and the actions taken
 
+
+## uses A* planning in order to determine the shortest path to a goal
 def astar(player, num_player = 1):
-    #empty = []
-    #n0 = tile_textures[player.map_data[player.row][player.column]]  
+ 
     n0 = SearchTile((player.row,player.column),tile_textures[player.map_data[player.row][player.column]].quickinfo)
     print("n0", n0)
     frontier = PriorityQ()
@@ -224,10 +221,7 @@ def astar(player, num_player = 1):
         if(n_i.state not in visited):
             visited.append(n_i.state)
             Actions = tile_textures[player.map_data[n_i.state[_X]][n_i.state[_Y]]].quickinfo
-            #empty.append(Actions)
             if is_goal(player.goal, n_i.state):
-                #print("made it here")
-                #print("quickinfo", empty)
                 path, action_path = getting_path(n_i)
                 return path, action_path, visited
             else:

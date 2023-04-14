@@ -88,9 +88,15 @@ class Player(pygame.sprite.Sprite):
                         self.actions.append("R")                                                                                                                ## remembers it moved right
                         self.move(+TILE_SIZE, 0)
 
-       ## set goal
+        ## set goal
         if keys[pygame.K_g]:
             self.goal = [self.row,self.column]                                                                                                                  ## sets the tile the player is currently at as the goal (used for debugging)
+
+        ## ressts everything
+        if keys[pygame.K_r]:
+            settings.Player_1 = None                                                                                                                            ## resets the global Player 1 
+            settings.planning = False                                                                                                                           ## resets the global planning
+            settings.seen = False                                                                                                                               ## resets teh global seen
 
         ## A-Star to somewhere
         if keys[pygame.K_p]:

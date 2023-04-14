@@ -372,29 +372,29 @@ def initalize_living_map(width, height):
     max_mins = [height, width]                                                                                      ## stores the new dimensiosn of the new map in an easy access list
     return map_data, max_mins
 
+##################################################
+############# Pre-Determined Map #################
+##################################################
+
 ## building a pre-determined map    
-def building_premade_map(width, height, tile_order, direction_order):
+def building_premade_map(tile_order, rotations):
+    height = len(tile_order)                                                                                        ## determine height of the map
+    width = len(tile_order[0])                                                                                      ## determine width of the map
+    #print(height, width)                                                                                            ## used for debugging
     map_data = np.empty((height, width))                                                                            ## Keeps track of what tile is in each location
+    map_rotations = np.zeros((height, width), dtype = int)                                                          ## Keeps track of the direction each tile is facing in each location
 
     for row in range(height):                                                                                       ## goes over each row
         for column in range(width):                                                                                 ## goes over each column
-            direction = direction_order[row][column]                                                                ## gets the determined direction
-            map_data[row][column] = tile = int(hex(tiles[tile_order[row][column]]), 16)                             ## stores the tile varilable in its location in the map data
+            spins = rotations[row][column]                                                                          ## gets the number of times it was clockwise rotated
+            map_data[row][column] = int(hex(tiles[tile_order[row][column]]), 16)                                    ## stores the tile varilable in its location in the map data
             New_Tile = tile_textures[map_data[row][column]]                                                         ## Calls forth the new tile
             New_Tile.row = row                                                                                      ## tells tile where its row is located in the map
             New_Tile.column = column                                                                                ## tells tile where its column is located in the map
-            match direction:                                                                                        ## reads in the direction
-                #case "U":                                                                                          ## if wanted to point Up nothing happens
-                #    print("none")                                                   
-                case "D":                                                                                           ## rotate so the top of the tile points down
-                    New_Tile.rotate_clockwise()
-                    New_Tile.rotate_clockwise()
-                case "L":                                                                                           ## rotate so the top of the tile points left 
-                    New_Tile.rotate_clockwise()
-                    New_Tile.rotate_clockwise()
-                    New_Tile.rotate_clockwise()
-                case "R":                                                                                           ## rotate so the top of the tile points right 
-                    New_Tile.rotate_clockwise()
+            map_rotations[row][column] = spins                                                                      ## adds direction to the map_rotations                
+            while spins > 0:                                                                                        ## reads in the direction
+                New_Tile.rotate_clockwise()                                                                         ## rotates the tile clockwise
+                spins -= 1                                                                                          ## counts down the number of spins needed
 
     new_height = len(map_data)                                                                                      ## determines the new_height of the new map
     new_width = len(map_data[0])                                                                                    ## determines the new_wideth of the new map
@@ -402,12 +402,22 @@ def building_premade_map(width, height, tile_order, direction_order):
     max_mins = [new_height, new_width]                                                                              ## stores the new dimensiosn of the new map in an easy access list
     return map_data, max_mins                                                                                       ## returns the map data
 
+##################################################
+############# End of Pre-Determined Map ##########
+##################################################
+
+#################################################
+############# Random Map ########################
+#################################################
+
 ## building a randomly generated map from center point
 def building_random_map(width, height):
     ## initilizing variables                                               
     used = []                                                                                                       ## initializes the list for the tiles already used
     map_data = []                                                                                                   ## Keeps track of what tile is in each location
-    
+
+    map_rotations = np.zeros((height, width), dtype = int)                                                          ## Keeps track of the direction each tile is facing in each location
+
     ## initializes map
     for i in range(height):                                                                                         ## This is the row
         map_data.append([])                                                                                         ## making the map_data a row x column calling
@@ -489,7 +499,7 @@ def building_random_map(width, height):
                 #print("Door? ", Working_Tile.up)                                                                    ## used for debugging
         if new_row < 0 or new_column < 0:                                                                           ## if it goes negative
             walled = True                                                                                           ## prevents from wrapping around
-        checked_directions.append(rand_direction)                                                                   ## Marks taht we checked that direction
+        checked_directions.append(rand_direction)                                                                   ## Marks that we checked that direction
         #testing = [11, 3, 4, 16]                                                                                    ## used for debugging tiles
         ##print("checked_direction ", checked_directions)                                                            ## debug checks to see if all surrounding tiles are taken
         #print("walled '", walled)                                                                                   ## used for deubbing
@@ -585,21 +595,26 @@ def building_random_map(width, height):
             row = new_row                                                                                           ## sets the row as the new row
             column = new_column                                                                                     ## sets the column as the new column
             used.append(rand_index)                                                                                 ## add the rand_index to the used list
-
+            clockwise_count = 0                                                                                        ## counts how many times the tile was rotated clockwise
             ## lines up the doors from the current tile and the newly placed tile
             match direction:                                                                                        ## checks where the direction of the new tile is placed
                 case "U":                                                                                           ## if it was upwards
                     while 'd' not in New_Tile.quickinfo:                                                            ## if the new tile doesen't have a down door to enter from
                         New_Tile.rotate_clockwise()                                                                 ## rotate the tile clockwise
+                        clockwise_count += 1                                                                        ## increases clockwise_count by 1
                 case "D":                                                                                           ## if the was downwards
                     while 'u' not in New_Tile.quickinfo:                                                            ## if the new tile has an up door
                         New_Tile.rotate_clockwise()                                                                 ## rotate the tile clockwise
+                        clockwise_count += 1                                                                        ## increases clockwise_count by 1
                 case "L":                                                                                           ## if it was from the left
                     while 'r' not in New_Tile.quickinfo:                                                            ## if the new tile has a right door
                         New_Tile.rotate_clockwise()                                                                 ## rotate the tile clockwise
+                        clockwise_count += 1                                                                        ## increases clockwise_count by 1
                 case "R":                                                                                           ## if it was from the right    
                     while 'l' not in New_Tile.quickinfo:                                                            ## if the new tile has a left door
-                        New_Tile.rotate_clockwise()                                                                 ## rotate the tile clockwise 
+                        New_Tile.rotate_clockwise()                                                                 ## rotate the tile clockwise
+                        clockwise_count += 1                                                                        ## increases clockwise_count by 1                        
+            map_rotations[row][column] = clockwise_count                                                            ## adds the number of times it was rotated clockwise to the map_rotations    
             Working_Tile.add_child(New_Tile)                                                                        ## adds the new tile as a child of the working tile 
             New_Tile.parent = Working_Tile                                                                          ## adds the new tile parent as the working title
             Working_Tile.check_neighbors(map_data)                                                                  ## records if there is an open neighbor
@@ -629,18 +644,24 @@ def building_random_map(width, height):
         delete_rows.append(i)                                                                                       ## adds the number of the rows at the bottom of the map that needs to be deleted to the list
     for j in range(0, min_row):                                                                                     ## determines the numbers of the rows at the top of the map that needs to be deleted 
         delete_rows.append(j)                                                                                       ## adds the number of the rows at the top of the map that needs to be deleted to the list
-    map_data = np.delete(map_data, delete_rows, 0)                                                                  ## deletes the unnessisary rows 
+    map_data = np.delete(map_data, delete_rows, 0)                                                                  ## deletes the unnessisary rows from map_data
+    map_rotations = np.delete(map_rotations, delete_rows, 0)                                                        ## deletes the unnessisary rows from map_rotations
     #print("mapdata_mid", map_data)                                                                                  ## used for debugging
     for k in range(max_column+1, width):                                                                            ## determines the columns from the right edge of the map that eeed to be deleted
         delete_columns.append(k)                                                                                    ## adds the numbers of the columns at thte right of the map that needs to be deleted to the list
     for p in range(0, min_column):                                                                                  ## determines the columns from the left edge of the map that eeed to be deleted
         delete_columns.append(p)                                                                                    ## adds the numbers of the columns at thte left of the map that needs to be deleted to the list
-    map_data = np.delete(map_data, delete_columns, 1)                                                               ## deletes the unnessisary columns
+    map_data = np.delete(map_data, delete_columns, 1)                                                               ## deletes the unnessisary columns from map_data
     #print("new ", map_data)                                                                                         ## used for debugging
+    map_rotations = np.delete(map_rotations, delete_columns, 1)                                                     ## deletes the unnessisary columns from map_rotations
+
     new_height = len(map_data)                                                                                      ## determines the new_height of the new map
     new_width = len(map_data[0])                                                                                    ## determines the new_wideth of the new map
 
     max_mins = [new_height, new_width]                                                                              ## stores the new dimensiosn of the new map in an easy access list
+
+    print("map_data", map_data)                                                                                     ## prints out so can copy and regenerate the map
+    print("map_rotations", map_rotations)                                                                           ## prints out so you can copy and regenerate the map
     #print("max_mins ", max_mins)                                                                                    ## used for debugging
     #print("placed, ", placed)                                                                                       ## used for debugging
     #print("Names of Buildable ", Names_of_Buildable)                                                                ## used for debugging
@@ -686,12 +707,13 @@ def forwardpath(Player, screen):                                                
     for i in range(len(Player.plans)):                                                                              ## for each state the player plans to visit
         path.append([Player.plans[i][1]*TILE_SIZE+TILE_SIZE//2, Player.plans[i][0]*TILE_SIZE+TILE_SIZE//2])         ## converte the state into a path based on the number of pixels
     for j in range(len(path)-1):                                                                                    ## for each of the items in the path (minus the last one)
-        gradiant = (round(255-255*j/len(path)), 0, round(255*(j/len(path))))                                        ## detetermine the value of the gradiant
-        if Player.todo[j] == 'x' or Player.todo[j] == 'y':                                                          ##
-            pygame.draw.circle(screen, gradiant, path[j],  TILE_SIZE//8)
-            pygame.draw.circle(screen, gradiant, path[j+1],  TILE_SIZE//8)
-        else:    
-            pygame.draw.aalines(screen, gradiant, False, [path[j], path[j+1]])
+        gradiant = (round(255-255*j/len(path)), round(255*(j/len(path))), 0)                                        ## detetermine the value of the gradiant
+        if Player.todo[j] == 'x' or Player.todo[j] == 'y':                                                          ## if the player used the secret tunnel
+            pygame.draw.circle(screen, gradiant, path[j],  TILE_SIZE//8)                                            ## make a dot at the exntrance of the tunnel
+            pygame.draw.circle(screen, gradiant, path[j+1],  TILE_SIZE//8)                                          ## make a dot at the exit of the tunnel
+        else:                                                                                                       ## other
+            #pygame.draw.aalines(screen, gradiant, False, [path[j], path[j+1]])
+            pygame.draw.lines(screen, gradiant, False, [path[j], path[j+1]], width = TILE_SIZE//12)
 
 ## gets the path the player plans to travel
 def explored(Player, screen):                                                                                                                               ## gets the path the player plans to travel
