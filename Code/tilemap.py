@@ -663,6 +663,9 @@ def draw_map(screen, map_data, TILE_SIZE):
     if settings.Win == True:                                                                                        ## if the player has won
         backpaths(settings.Player_1, screen)                                                                        ## get the path the player had traveled
 
+    if settings.planning == True:
+        forwardpath(settings.Player_1, screen)
+
 ## gets the path the player traveled
 def backpaths(Player, screen):                                                                                      ## gets the path the player traveled
     gradiant = []
@@ -671,5 +674,14 @@ def backpaths(Player, screen):                                                  
         path.append([Player.visited[i][1]*TILE_SIZE+TILE_SIZE//2, Player.visited[i][0]*TILE_SIZE+TILE_SIZE//2])     ## converte the state into a path based on the number of pixels
     for j in range(len(path)-1):
         gradiant = (round(255-255*j/len(path)), round(255*(j/len(path))), 0)
-        pygame.draw.aalines(screen, gradiant, False, [path[j], path[j+1]], TILE_SIZE//2)
+        pygame.draw.aalines(screen, gradiant, False, [path[j], path[j+1]])
 
+## gets the path the player plans to travel
+def forwardpath(Player, screen):                                                                                                                               ## gets the path the player plans to travel
+    gradiant = []
+    path = []                                                                                                                                               ## initalize the path
+    for i in range(len(Player.plans)):                                                                                                                           ## for each state the player plans to visit
+        path.append([Player.plans[i][1]*TILE_SIZE+TILE_SIZE//2, Player.plans[i][0]*TILE_SIZE+TILE_SIZE//2])                                                           ## converte the state into a path based on the number of pixels
+    for j in range(len(path)-1):
+        gradiant = (round(255-255*j/len(path)), 0, round(255*(j/len(path))))
+        pygame.draw.aalines(screen, gradiant, False, [path[j], path[j+1]])

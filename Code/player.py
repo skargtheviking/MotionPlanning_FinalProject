@@ -6,7 +6,7 @@ import numpy as np
 from tilemap import *
 import matplotlib.pyplot as plotter
 from math import hypot, sqrt
-#from graph_search import astar
+from graph_search import astar
 
 TILE_SIZE = settings.TILE_SIZE  ## Gets the size of the tile from the settings file and sets it as a global variable
 
@@ -35,7 +35,7 @@ class Player(pygame.sprite.Sprite):
         self.Agility = 3                                                                                                                                        ## determines the players Agility
         self.start_point = np.where(map_data == 1)                                                                                                              ## determines where the starting point is on the map
         self.end = np.where(map_data == 6)                                                                                                                      ## determines where the end tile is
-        self.goal = self.end                                                                                                                                    ## determien a goal tile
+        self.goal = [int(self.end[0]),int(self.end[1])]                                                                                                         ## determien a goal tile
         self.X_tile = np.where(map_data == 7)                                                                                                                   ## determines where the secret X tile is on the map
         self.Y_tile = np.where(map_data == 8)                                                                                                                   ## determines where the secret Y tile is on the map
         self.row = int(self.start_point[0])                                                                                                                     ## This is the row the player is at
@@ -104,16 +104,23 @@ class Player(pygame.sprite.Sprite):
 
         ## A-Star to somewhere
         if keys[pygame.K_p]:
-            #astar(self.map_data,[self.row, self.column],tiles, )
-            self.huristic_map = []                                                                                                                ## initalizes the huristic_map
+            ## Makes the 
+            self.heuristic_map = []                                                                                                                ## initalizes the huristic_map
             for i in range(len(self.map_data)):
-                self.huristic_map.append([])
+                self.heuristic_map.append([])
                 for j in range(len(self.map_data[0])):
-                    self.huristic_map[i].append(self.euclidean_heuristic(self.map_data[i][j]))
-            print("map ", self.map_data)
-            print("huristic ", self.huristic_map)
-            print("player location, ", self.row, self.column)
-            time.sleep(0.5)      
+                    self.heuristic_map[i].append(self.euclidean_heuristic(self.map_data[i][j]))
+            #print("map ", self.map_data)
+            #print("huristic ", self.heuristic_map)
+            #print("player location, ", self.row, self.column)
+
+
+            self.plans = astar(self)
+            print("plans", self.plans)
+            if self.plans != None:
+                settings.Player_1 = self                                                                                                                            ## sets player 1 as itself
+                settings.planning = True
+            time.sleep(0.5)                                                                                                                                         ## gives the computer a time before reading the next keystroke   
 
         ## Grabs tokens
         if keys[pygame.K_e]:                                                                                                                                    ## when the "E" button is pressed
@@ -214,7 +221,6 @@ class Player(pygame.sprite.Sprite):
             #print("Point ", point)                                                                                                                              ## used for debugging
             dis = sqrt((self.row-point[0])**2 + (self.column-point[1])**2)                                                                                      ## cacluate the euclidean huristic between the player point and the tile number goal
         else:                                                                                                                                                   ## if tile looking for is 0
-            dis = -1                                                                                                                                            ## just set the distance to -1 (impossible)
+            dis = 10000000                                                                                                                                            ## just set the distance to 10000000 (impossible)
         return dis                                                                                                                                              ## return the distance calculated
-
 

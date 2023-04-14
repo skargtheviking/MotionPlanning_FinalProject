@@ -10,8 +10,8 @@ from tilemap import *
 # change to be in the form of new game
 _ACTIONS = ['u','d','l','r']
 _T = 2
-_X = 1
-_Y = 0
+_X = 0
+_Y = 1
 _GOAL_COLOR = 0.75
 _INIT_COLOR = 0.25
 _PATH_COLOR_RANGE = _GOAL_COLOR-_INIT_COLOR
@@ -31,21 +31,7 @@ def heur(tile):
 
     return tile + yeppers
 
-def euclidean_heuristic(self, tile_num):
-    #print("tile_num ", tile_num)                                                                                                                            ## used for debugging
-    if tile_num != 0:                                                                                                                                       ## skip if the goal is 0
-        point = [0,0]                                                                                                                                       ## initalizes the point
-        tile = np.where(self.map_data == tile_num)                                                                                                          ## to search by tile type
-        #print("tile ", tile)                                                                                                                                ## used for debugging
-        point[0] = int(tile[0][-1])                                                                                                                         ## sets the row of the point
-        point[1] = int(tile[1][-1])                                                                                                                         ## sets the column of the point
-        #print("Point ", point)                                                                                                                              ## used for debugging
-        dis = sqrt((self.row-point[0])**2 + (self.column-point[1])**2)                                                                                      ## cacluate the euclidean huristic between the player point and the tile number goal
-    else:                                                                                                                                                   ## if tile looking for is 0
-        dis = -1                                                                                                                                            ## just set the distance to -1 (impossible)
-    return dis 
-
-def is_goal(self,s):
+def is_goal(goal,s):
     '''
     Test if a specifid state is the goal state
 
@@ -53,8 +39,10 @@ def is_goal(self,s):
 
     Returns - True if s is the goal. False otherwise.
     '''
-    return (s[_X] == self.goal[_X] and
-            s[_Y] == self.goal[_Y])
+    s = list(s)                                                                     ## turns this into a list so the two sides can compare
+
+    return (s[_X] == goal[_X] and
+            s[_Y] == goal[_Y])
 
 
 class SearchTile:
@@ -154,7 +142,7 @@ class PriorityQ:
         '''
         return str(self.l)
 
-def tile_trans(self, s, a, player): #ToDo: Needs to be updated!
+def tile_trans(s, a, player): #ToDo: Needs to be updated!
     '''
     Transition function for the current grid map.
 
@@ -170,16 +158,16 @@ def tile_trans(self, s, a, player): #ToDo: Needs to be updated!
 
     if a == 'u':
         if s[_Y] > 0:
-            new_pos[_Y] -= 1
+            new_pos[_X] -= 1
     elif a == 'd':
         if s[_Y]+1 < len(player.map_data):
-            new_pos[_Y] += 1
+            new_pos[_X] += 1
     elif a == 'l':
         if s[_X] > 0:
-            new_pos[_X] -= 1
+            new_pos[_Y] -= 1
     elif a == 'r':
         if s[_X] + 1 < len(player.map_data[0]):
-            new_pos[_X] += 1
+            new_pos[_Y] += 1
     else:
         print('Unknown action:', str(a))
 
@@ -190,7 +178,7 @@ def tile_trans(self, s, a, player): #ToDo: Needs to be updated!
     s_prime = tuple(new_pos)
     return s_prime
 
-def backpath(tile):
+def getting_path(tile):
     '''
     Function to determine the path that lead to the specified search node
 
@@ -207,37 +195,40 @@ def backpath(tile):
         action_path.insert(0, tile.parent_action)
         tile = tile.parent
     path.insert(0, tile.state)
-    #print (action_path)
-    #print(path)
-    return (path, action_path)
+    print (action_path)
+    print(path)
+    return path
 
 def astar(player, num_player = 1):
     empty = []
     #n0 = tile_textures[player.map_data[player.row][player.column]]  
-    n0 = SearchTile((player.row,player.column),player.quickinfo)
+    n0 = SearchTile((player.row,player.column),tile_textures[player.map_data[player.row][player.column]].quickinfo)
+    print("n0", n0)
     frontier = PriorityQ()
     visited = [] # visited nodes
     n0 = cost(n0) ### add cost to current node
-    hcost = n0.cost + heur(n0) #### need to write heuristic function, use Mark's from player.py
+    hcost = n0.cost + player.heuristic_map[n0.state[0]][n0.state[1]]
     frontier.push(n0, hcost)
 
     while len(frontier) > 0:
+        print("frontier", frontier)
         n_i = frontier.pop() 
         if(n_i.state not in visited):
             visited.append(n_i.state)
             Actions = tile_textures[player.map_data[n_i.state[_X]][n_i.state[_Y]]].quickinfo
-            if is_goal(n_i.state):
-               return (backpath(n_i), visited)
+            if is_goal(player.goal, n_i.state):
+                print("made it here")
+                return getting_path(n_i)
             else:
                 for a in Actions:
                     s_prime = tile_trans(n_i.state, a, player) ## transition funct
                     actions = tile_textures[player.map_data[s_prime[_X]][s_prime[_Y]]].quickinfo
                     n_prime = SearchTile(s_prime, actions, n_i, a) # Go to next column                    
                     n_prime = cost(n_prime)
-                    hcost = n_prime.cost + heur(n_prime)
+                    hcost = n_prime.cost +  player.heuristic_map[n_prime.state[0]][n_prime.state[1]]
                     curcost = frontier.get_cost(n_prime)
                     if curcost == None or curcost > hcost:
                         frontier.push(n_prime,hcost)
 
-
-    return ((empty, empty),visited)
+    print("no path found")
+    return None
