@@ -9,13 +9,10 @@ from math import hypot, sqrt
 from tilemap import *
 # change to be in the form of new game
 _ACTIONS = ['x', 'y', 'u','d','l','r']
-_T = 2
-_X = 0                                                                          ## 0 is row
-_Y = 1                                                                          ## 1 is column
-_GOAL_COLOR = 0.75
-_INIT_COLOR = 0.25
-_PATH_COLOR_RANGE = _GOAL_COLOR-_INIT_COLOR
-_VISITED_COLOR = 0.9
+
+_X = 0                                                                          ## _X and 0 is row
+_Y = 1                                                                          ## _Y and 1 is column
+
 
 def cost(tile):
     if tile.parent is not None:
@@ -207,34 +204,34 @@ def getting_path(tile):
 ## uses A* planning in order to determine the shortest path to a goal
 def astar(player, num_player = 1):
  
-    n0 = SearchTile((player.row,player.column),tile_textures[player.map_data[player.row][player.column]].quickinfo)
-    print("n0", n0)
-    frontier = PriorityQ()
-    visited = [] # visited nodes
-    n0 = cost(n0) ### add cost to current node
-    hcost = n0.cost + player.heuristic_map[n0.state[0]][n0.state[1]]
-    frontier.push(n0, hcost)
+    n0 = SearchTile((player.row,player.column),tile_textures[player.map_data[player.row][player.column]].quickinfo)     ## sets the SearchTile as the quickinfo from the tile in question
+    print("n0", n0)                                                                                                     ## used for debugggin
+    frontier = PriorityQ()                                                                                              ## 
+    visited = []                                                                                                        ## initalizes visited nodes    
+    n0 = cost(n0)                                                                                                       ## add cost to current node
+    hcost = n0.cost + player.heuristic_map[n0.state[0]][n0.state[1]]                                                    ## combines the heuristic value and the cost
+    frontier.push(n0, hcost)                                                                                            ## 
 
-    while len(frontier) > 0:
-        #print("frontier", frontier)
-        n_i = frontier.pop() 
-        if(n_i.state not in visited):
-            visited.append(n_i.state)
-            Actions = tile_textures[player.map_data[n_i.state[_X]][n_i.state[_Y]]].quickinfo
-            if is_goal(player.goal, n_i.state):
-                path, action_path = getting_path(n_i)
-                return path, action_path, visited
-            else:
-                for a in Actions:
-                    s_prime = tile_trans(n_i.state, a, player) ## transition funct
-                    actions = tile_textures[player.map_data[s_prime[_X]][s_prime[_Y]]].quickinfo
-                    n_prime = SearchTile(s_prime, actions, n_i, a) # Go to next column                    
-                    n_prime = cost(n_prime)
-                    hcost = n_prime.cost +  player.heuristic_map[n_prime.state[0]][n_prime.state[1]]
-                    curcost = frontier.get_cost(n_prime)
-                    if curcost == None or curcost > hcost:
-                        frontier.push(n_prime,hcost)
+    while len(frontier) > 0:                                                                                            ##
+        #print("frontier", frontier)                                                                                     ## used for debugging
+        n_i = frontier.pop()                                                                                            ## 
+        if(n_i.state not in visited):                                                                                   ## if the state hasen't been visited before
+            visited.append(n_i.state)                                                                                   ## adds the state to the visited states
+            Actions = tile_textures[player.map_data[n_i.state[_X]][n_i.state[_Y]]].quickinfo                            ## grabs the possible actions
+            if is_goal(player.goal, n_i.state):                                                                         ## if we are at the goal
+                path, action_path = getting_path(n_i)                                                                   ## gets the planned path and the actions to take to that path
+                return path, action_path, visited                                                                       ## returns the planned path, the actions to take, and the visited lists
+            else:                                                                                                       ## otherwise
+                for a in Actions:                                                                                       ## for each actions 
+                    s_prime = tile_trans(n_i.state, a, player)                                                          ## transition funct
+                    actions = tile_textures[player.map_data[s_prime[_X]][s_prime[_Y]]].quickinfo                        ## 
+                    n_prime = SearchTile(s_prime, actions, n_i, a)                                                      ##                     
+                    n_prime = cost(n_prime)                                                                             ## gets the cost of the action
+                    hcost = n_prime.cost +  player.heuristic_map[n_prime.state[0]][n_prime.state[1]]                    ## combines the heuristic value and the cost
+                    curcost = frontier.get_cost(n_prime)                                                                ## get the current cost of the action
+                    if curcost == None or curcost > hcost:                                                              ## if there isn't a current cost or if the new cost is less than the current cost
+                        frontier.push(n_prime,hcost)                                                                    ## make the cost of the action the new cost
 
-    #print("no path found")
-    #print("quickinfo", empty)
-    return None, None, visited
+    #print("no path found")                                                                                              ## used for debugging
+    #print("quickinfo", empty)                                                                                           ## used for debugging
+    return None, None, visited                                                                                          ## return only the visted points

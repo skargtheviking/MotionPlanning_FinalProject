@@ -14,7 +14,6 @@ TILE_SIZE = settings.TILE_SIZE  ## Gets the size of the tile from the settings f
 #### Things to add to player
 ####    - Have the player build the map as they go
 ####    - Have A* work with tokens
-####    - make planned path line to be thicker
 ####    - Add a 2nd player
 ##############################################################################################################################################################################################################################
 
