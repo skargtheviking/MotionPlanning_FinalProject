@@ -709,7 +709,7 @@ def draw_map(screen, map_data, TILE_SIZE):
             screen.blit(token_texture[10],(font_size*6+(font_size/3), MAP_HEIGHT*TILE_SIZE+2.5*font_size))  
     screen.blit(Blue_Token_text, (10, MAP_HEIGHT*TILE_SIZE+font_size*3))
     if settings.FireofEidolon_Grabbed == True:
-        screen.blit(token_texture[7],(TILE_SIZE*MAP_WIDTH//2, MAP_HEIGHT*TILE_SIZE))                          
+        screen.blit(pygame.transform.scale(token_texture[7],(TILE_SIZE/1.5,TILE_SIZE/1.5)),(TILE_SIZE*MAP_WIDTH//2, MAP_HEIGHT*TILE_SIZE))                          
     if settings.Win == True:                                                                                       ## if the player has won
         backpaths(settings.Player_1, screen)                                                                        ## get the path the player had traveled
 
