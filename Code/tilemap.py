@@ -1,7 +1,7 @@
 ## Source: https://github.com/gurb/rpg-game-tutorials/blob/main/004-Generating%20Tile%20Map/tilemap.py
 from asyncio.windows_events import NULL
 from distutils.command.check import check
-from this import d
+#from this import d
 import settings
 import pygame
 import random

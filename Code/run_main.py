@@ -1,9 +1,21 @@
 ## Source: https://www.letsdevelopgames.com/2021/02/generating-tile-map.html
 ## Source: https://github.com/gurb/rpg-game-tutorials/blob/main/004-Generating%20Tile%20Map/main.py
-import pygame
+# PYGAME_HIDE_SUPPORT_PROMPT  = 1
+# import os
+# os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+# # PYGAME_HIDE_SUPPORT_PROMPT= ./my_code.py
+# from os import environ
+# environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
+# import pygame
+
+import contextlib
+with contextlib.redirect_stdout(None):
+    import pygame
+
 from player import Player
 from tilemap import *
 import settings
+# os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 
 
 # dimension of each tiles
