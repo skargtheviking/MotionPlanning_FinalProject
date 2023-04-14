@@ -38,11 +38,20 @@ clock = pygame.time.Clock()
 ############# Premade Map ########################
 ##################################################
 ### enter the tile number (base 10) into tile_order
-#tile_order = [[ 3, 10, 13,  1, 26,  0], [ 0,  0,  0, 18, 21,  0], [ 0,  0,  0,  6, 19,  0], [ 0,  0, 27, 11, 23,  0], [ 0, 29,  9, 16, 14, 0], [0, 17, 7, 24, 15, 0], [0, 0, 25, 12, 20, 22], [0, 0, 0, 2, 8, 28], [0, 0, 0, 0, 4, 5]]
+##tile_order = [[ 0  0 12  7 24 22  8  0]
+# [ 0  0  1 28  3  0 19 26]
+# [27 11 25 10  9  2 17 15]
+# [ 5  0 16 23 14  0 18  0]
+# [ 0  0 13 20 21  6 29  0]
+# [ 0  0  0  4  0  0  0  0]]
 
-### enter the where you want the top of the tile to be at (U at top, D at bottom, L on the left, and R on the right)
-#rotations = [[3, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 2, 0, 0, 1], [0, 0, 0, 2, 0, 1], [0, 0, 0, 0, 2, 2]]
-
+#### enter the where you want the top of the tile to be at (U at top, D at bottom, L on the left, and R on the right)
+##rotations = [[0 0 0 0 1 1 0 0]
+# [0 0 0 1 0 0 1 0]
+# [0 0 0 0 0 1 0 0]
+# [2 0 0 1 0 0 0 0]
+# [0 0 0 0 1 0 1 0]
+# [0 0 0 2 0 0 0 0]]
 ### Determines where each tile is on the map
 #map_data, max_mins = building_premade_map(tile_order, rotations)   
 
@@ -62,7 +71,7 @@ map_data, max_mins = building_random_map(width, height)
 #################################################
 
 ## create a surface represent our window
-screen = pygame.display.set_mode((max_mins[1]*TILE_SIZE, max_mins[0]*TILE_SIZE))
+screen = pygame.display.set_mode((max_mins[1]*TILE_SIZE, max_mins[0]*TILE_SIZE+TILE_SIZE))
 
 sprites_group = pygame.sprite.Group()
 
