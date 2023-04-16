@@ -107,7 +107,7 @@ class Player(pygame.sprite.Sprite):
             for i in range(len(self.map_data)):                                                                                                                 ## for each of the rows                                                                 
                 self.heuristic_map.append([])                                                                                                                   ## initalize space for columns
                 for j in range(len(self.map_data[0])):                                                                                                          ## for each column
-                    self.heuristic_map[i].append(self.euclidean_heuristic(self.row, self.column, self.map_data[i][j]))                                          ## determine the euclidean heuristic in reference to the location of the player (use another heurtistic?)
+                    self.heuristic_map[i].append(self.manhattan_heuristic(self.row, self.column, self.map_data[i][j]))                                          ## determine the euclidean heuristic in reference to the location of the player (use another heurtistic?)
 
             #print("heuristic_map ", self.heuristic_map)                                                                                                         ## used for debugging
 
@@ -121,9 +121,9 @@ class Player(pygame.sprite.Sprite):
                 secret_heuristic.append([])                                                                                                                     ## initalize space for columns
                 for j in range(len(self.map_data[0])):                                                                                                          ## for each column
                     if X_heuristic < Y_heuristic:                                                                                                               ## if the X_secret heuristic value is less than Y_secret heuristic value (if X_secret tile is closer than Y_secret tile)
-                        secret_heuristic[i].append(self.euclidean_heuristic(int(self.Y_tile[0]), int(self.Y_tile[1]), self.map_data[i][j]) + X_heuristic + 1)   ## create a heuristic map from the Y_secret tile where each value is an additional X_secret heuristic + 1 away
+                        secret_heuristic[i].append(self.manhattan_heuristic(int(self.Y_tile[0]), int(self.Y_tile[1]), self.map_data[i][j]) + X_heuristic + 1)   ## create a heuristic map from the Y_secret tile where each value is an additional X_secret heuristic + 1 away
                     elif X_heuristic > Y_heuristic:                                                                                                             ## if the Y_secret heuristic value is less than X_secret heuristic value (if Y_secret tile is closer than X_secret tile)
-                        secret_heuristic[i].append(self.euclidean_heuristic(int(self.X_tile[0]), int(self.X_tile[1]), self.map_data[i][j]) + Y_heuristic + 1)   ## create a heuristic map from the X_secret tile where each value is an additional Y_secret heuristic + 1 away
+                        secret_heuristic[i].append(self.manhattan_heuristic(int(self.X_tile[0]), int(self.X_tile[1]), self.map_data[i][j]) + Y_heuristic + 1)   ## create a heuristic map from the X_secret tile where each value is an additional Y_secret heuristic + 1 away
                     else:                                                                                                                                       ## otherwise
                         secret_heuristic[i].append(self.heuristic_map[i][j])                                                                                    ## have the heuristic value be the heuristic value from the player
             #print("secret_heuristic ", secret_heuristic)                                                                                                        ## used for debugging
@@ -250,3 +250,16 @@ class Player(pygame.sprite.Sprite):
             dis = 10000000                                                                                                                                      ## just set the distance to 10000000 (impossible)
         return dis                                                                                                                                              ## return the distance calculated
 
+    ## Calculating the euclidean huristic value between two points
+    def manhattan_heuristic(self, row, column,  tile_num):
+        if tile_num != 0:                                                                                                                                       ## skip if the goal is 0
+            point = [0,0]                                                                                                                                       ## initalizes the point
+            tile = np.where(self.map_data == tile_num)                                                                                                          ## to search by tile type
+            #print("tile ", tile)                                                                                                                                ## used for debugging
+            point[0] = int(tile[0][-1])                                                                                                                         ## sets the row of the point
+            point[1] = int(tile[1][-1])                                                                                                                         ## sets the column of the point
+            #print("Point ", point)                                                                                                                              ## used for debugging
+            dis = abs(row-point[0]) + abs(column-point[1])                                                                                                      ## cacluate the manhattan huristic between the player point and the tile number goal
+        else:                                                                                                                                                   ## if tile looking for is 0
+            dis = 10000000                                                                                                                                      ## just set the distance to 10000000 (impossible)
+        return dis                                                                                                                                              ## return the distance calculated
