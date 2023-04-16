@@ -102,6 +102,8 @@ class Player(pygame.sprite.Sprite):
             settings.seen = False                                                                                                                               ## resets teh global seen
             secret_heuristic = []                                                                                                                               ## initalizes the hurisitc_map from the farther secret tile
             self.heuristic_map = []                                                                                                                             ## initalizes the huristic_map
+            secret_goal_heuristic = []
+            goal_heuristic_map = []
 
             ## creates the initial heuritic map in reference to the player location
             for i in range(len(self.map_data)):                                                                                                                 ## for each of the rows                                                                 
@@ -113,6 +115,7 @@ class Player(pygame.sprite.Sprite):
 
             X_heuristic = self.heuristic_map[int(self.X_tile[0])][int(self.X_tile[1])]                                                                          ## get the heuristic value for the X_secret tile
             Y_heuristic = self.heuristic_map[int(self.Y_tile[0])][int(self.Y_tile[1])]                                                                          ## get the heuristic value for the Y_secret tile
+
             #print("X_heuristic ", X_heuristic)                                                                                                                  ## used for debugging
             #print("Y_heuristic ", Y_heuristic)                                                                                                                  ## used for debugging
 
@@ -134,11 +137,52 @@ class Player(pygame.sprite.Sprite):
                     if secret_heuristic[i][j] < self.heuristic_map[i][j]:                                                                                       ## determine which heuristic has the lower value
                         self.heuristic_map[i][j] = secret_heuristic[i][j]                                                                                       ## keep only the smaller value
 
-            #print("map ", self.map_data)                                                                                                                        ## used for debugging
             #print("heuristic_map ", self.heuristic_map)                                                                                                         ## used for debugging
             #print("player location, ", self.row, self.column)                                                                                                   ## used for debugging
 
+            ## creates the initial heuritic map in reference to the goal location
+            for i in range(len(self.map_data)):                                                                                                                 ## for each of the rows                                                                 
+               goal_heuristic_map.append([])                                                                                                                    ## initalize space for columns
+               for j in range(len(self.map_data[0])):                                                                                                           ## for each column
+                   goal_heuristic_map[i].append(self.manhattan_heuristic(self.goal[0], self.goal[1], self.map_data[i][j]))                                      ## determine the manhattan heuristic in reference to the location of the player (use another heurtistic?)
 
+            #print("goal heuristic_map ", goal_heuristic_map)                                                                                                    ## used for debugging
+
+            X_goal_heuristic = goal_heuristic_map[int(self.X_tile[0])][int(self.X_tile[1])]                                                                     ## get the heuristic value for the X_secret tile
+            Y_goal_heuristic = goal_heuristic_map[int(self.Y_tile[0])][int(self.Y_tile[1])]                                                                     ## get the heuristic value for the Y_secret tile
+
+            #print("X_goal_heuristic ", X_goal_heuristic)                                                                                                        ## used for debugging
+            #print("Y_goal_heuristic ", Y_goal_heuristic)                                                                                                        ## used for debugging
+
+            ## creates the initial heuritic map in reference to farther secret tile + closer secret tile heuristic + 1
+            for i in range(len(self.map_data)):                                                                                                                 ## for each of the rows                                                                                                                 
+                secret_goal_heuristic.append([])                                                                                                                ## initalize space for columns
+                for j in range(len(self.map_data[0])):                                                                                                          ## for each column
+                    if X_goal_heuristic < Y_goal_heuristic:                                                                                                     ## if the X_goal_heuristic heuristic value is less than Y_goal_heuristic heuristic value (if X_secret tile is closer than Y_secret tile)
+                        secret_goal_heuristic[i].append(self.manhattan_heuristic(int(self.Y_tile[0]), int(self.Y_tile[1]),                                      ## create a heuristic map from the Y_goal_heuristic tile where each value is an additional X_goal_heuristic + 1 away
+                                                                                 self.map_data[i][j]) + X_goal_heuristic + 1)   
+                    elif X_goal_heuristic > Y_goal_heuristic:                                                                                                   ## if the Y_goal_heuristic heuristic value is less than X_goal_heuristic heuristic value (if Y_secret tile is closer than X_secret tile)
+                        secret_goal_heuristic[i].append(self.manhattan_heuristic(int(self.X_tile[0]), int(self.X_tile[1]),                                      ## create a heuristic map from the X_goal_heuristic tile where each value is an additional Y_goal_heuristic + 1 away
+                                                                               self.map_data[i][j]) + Y_goal_heuristic + 1)  
+                    else:                                                                                                                                       ## otherwise
+                        secret_goal_heuristic[i].append(goal_heuristic_map[i][j])                                                                               ## have the heuristic value be the heuristic value from the player
+            #print("secret_goal_heuristic ", secret_goal_heuristic)                                                                                              ## used for debugging
+
+            ## Keep only the smaller heuristic from each matrix of heuristics
+            for i in range(len(self.map_data)):                                                                                                                 ## for each of the rows
+                for j in range(len(self.map_data[0])):                                                                                                          ## for each of the columns
+                    if secret_goal_heuristic[i][j] < goal_heuristic_map[i][j]:                                                                                  ## determine which heuristic has the lower value
+                        goal_heuristic_map[i][j] = secret_goal_heuristic[i][j]                                                                                  ## keep only the smaller value
+
+
+            #print("goal_heuristic_map ", goal_heuristic_map)                                                                                                    ## used for debugging
+            #print("heuristic_map ", self.heuristic_map)                                                                                                         ## used for debugging
+            for i in range(len(self.map_data)):                                                                                                                 ## for each of the rows
+                for j in range(len(self.map_data[0])):                                                                                                          ## for each of the columns
+                    self.heuristic_map[i][j] = self.heuristic_map[i][j] + goal_heuristic_map[i][j]                                                              ## add the two heuristic values together
+            #print("heuristic_map ", self.heuristic_map)                                                                                                         ## used for debugging 
+
+            ## performs the astar formula
             self.plans, self.todo, self.explored = astar(self)                                                                                                  ## compute the A* algorithm to find the shortest path to the goal
             print("plans", self.plans)                                                                                                                          ## prints the planned states of path to the goal
             print("explored", self.explored)                                                                                                                    ## prints the explored (visited) states to find path
@@ -251,7 +295,7 @@ class Player(pygame.sprite.Sprite):
         return dis                                                                                                                                              ## return the distance calculated
 
     ## Calculating the euclidean huristic value between two points
-    def manhattan_heuristic(self, row, column,  tile_num):
+    def manhattan_heuristic(self, row, column,  tile_num, D =1):
         if tile_num != 0:                                                                                                                                       ## skip if the goal is 0
             point = [0,0]                                                                                                                                       ## initalizes the point
             tile = np.where(self.map_data == tile_num)                                                                                                          ## to search by tile type
@@ -259,7 +303,7 @@ class Player(pygame.sprite.Sprite):
             point[0] = int(tile[0][-1])                                                                                                                         ## sets the row of the point
             point[1] = int(tile[1][-1])                                                                                                                         ## sets the column of the point
             #print("Point ", point)                                                                                                                              ## used for debugging
-            dis = abs(row-point[0]) + abs(column-point[1])                                                                                                      ## cacluate the manhattan huristic between the player point and the tile number goal
+            dis = D*(abs(row-point[0]) + abs(column-point[1]))                                                                                                    ## cacluate the manhattan huristic between the player point and the tile number goal
         else:                                                                                                                                                   ## if tile looking for is 0
             dis = 10000000                                                                                                                                      ## just set the distance to 10000000 (impossible)
         return dis                                                                                                                                              ## return the distance calculated

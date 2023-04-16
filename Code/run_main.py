@@ -38,22 +38,14 @@ clock = pygame.time.Clock()
 ############# Premade Map ########################
 ##################################################
 ### enter the tile number (base 10) into tile_order
-##tile_order = [[ 0  0 12  7 24 22  8  0]
-# [ 0  0  1 28  3  0 19 26]
-# [27 11 25 10  9  2 17 15]
-# [ 5  0 16 23 14  0 18  0]
-# [ 0  0 13 20 21  6 29  0]
-# [ 0  0  0  4  0  0  0  0]]
+tile_order = [[ 0,  3,  0,  0,  0,  0,  0],  [20, 10,  0,  0,  0,  0,  0], [16,  7,  0,  0, 13, 25, 0], [0, 24,  0,  0,  5,  1, 27], [ 0, 15,  0,  0,  4,  9, 29],  [ 0, 18, 26, 12, 14, 21, 0],  [ 0,  2, 22,  8, 19, 28,  0], [ 0,  0,  6, 23,  0,  0,  0], [ 0,  0, 17, 11, 0, 0,  0]]
+
 
 #### enter the where you want the top of the tile to be at (U at top, D at bottom, L on the left, and R on the right)
-##rotations = [[0 0 0 0 1 1 0 0]
-# [0 0 0 1 0 0 1 0]
-# [0 0 0 0 0 1 0 0]
-# [2 0 0 1 0 0 0 0]
-# [0 0 0 0 1 0 1 0]
-# [0 0 0 2 0 0 0 0]]
+rotations = [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 2, 0, 1], [0, 0, 0, 0, 3, 0, 2], [0, 0, 0, 0, 0, 0, 0], [0, 2, 0, 0, 0, 2, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]]
+
 ### Determines where each tile is on the map
-#map_data, max_mins = building_premade_map(tile_order, rotations)   
+map_data, max_mins = building_premade_map(tile_order, rotations)   
 
 ##################################################
 ############# End Of Premade Map #################
@@ -64,7 +56,7 @@ clock = pygame.time.Clock()
 #################################################
 
 #map_data = generate_map(640, 640, TILE_SIZE)
-map_data, max_mins = building_random_map(width, height)
+#map_data, max_mins = building_random_map(width, height)
 
 #################################################
 ############# End Of Random Map #################
