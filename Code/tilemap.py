@@ -690,30 +690,27 @@ def draw_map(screen, map_data, TILE_SIZE):
     ## Red Score
     Red_Token_text = font.render(f'Red Token: {settings.Player_1.Red_Token}', True, (0, 0, 0))                      ## displays the count for the Red Token
     if settings.Player_1.Red_Token != 0:                                                                            ## once a red token has been collected
-        if settings.Red_Event_Broken == False:                                                                      ## if the Red event hasn't been broken yet
-            for i in range(settings.Player_1.Red_Token):                                                            ## add a red token image for each red token collected
-                screen.blit(token_texture[1],(font_size*6+(font_size/3)*i, MAP_HEIGHT*TILE_SIZE+font_size//1.5))    ## displays the token
-        else:                                                                                                       ## otherwise
-            screen.blit(token_texture[8],(font_size*6+(font_size/3), MAP_HEIGHT*TILE_SIZE+font_size//1.5))          ## displays the broken event token            
+        for i in range(settings.Player_1.Red_Token):                                                                ## add a red token image for each red token collected
+            screen.blit(token_texture[1],(font_size*6+(font_size/3)*i, MAP_HEIGHT*TILE_SIZE+font_size//1.5))        ## displays the token
+    if settings.Red_Event_Broken == True:                                                                           ## if the Red event hasn't been broken yet
+        screen.blit(token_texture[8],(font_size*6+(font_size/3), MAP_HEIGHT*TILE_SIZE+font_size//1.5))              ## displays the broken event token            
     screen.blit(Red_Token_text, (10, MAP_HEIGHT*TILE_SIZE+font_size))                                               ## displays the text and where it should be located
 
     ## Green Score
     Green_Token_text = font.render(f'Green Token: {settings.Player_1.Green_Token}', True, (0, 0, 0))                ## displays the count for the Green Token
     if settings.Player_1.Green_Token != 0:                                                                          ## once a green token has been collected
-        if settings.Green_Event_Broken == False:                                                                    ## if the Green event hasn't been broken yet
-            for i in range(settings.Player_1.Green_Token):                                                          ## add a green token image for each green token collected
-                screen.blit(token_texture[2],(font_size*6+(font_size/3)*i, MAP_HEIGHT*TILE_SIZE+1.5*font_size))     ## displays the token
-        else:                                                                                                       ## otherwise
-            screen.blit(token_texture[9],(font_size*6+(font_size/3), MAP_HEIGHT*TILE_SIZE+1.5*font_size))           ## displays the broken event token
+        for i in range(settings.Player_1.Green_Token):                                                              ## add a green token image for each green token collected
+            screen.blit(token_texture[2],(font_size*6+(font_size/3)*i, MAP_HEIGHT*TILE_SIZE+1.5*font_size))         ## displays the token
+    if settings.Green_Event_Broken == True:                                                                         ## if the Green event hasn't been broken yet
+        screen.blit(token_texture[9],(font_size*6+(font_size/3), MAP_HEIGHT*TILE_SIZE+1.5*font_size))               ## displays the broken event token
     screen.blit(Green_Token_text, (10, MAP_HEIGHT*TILE_SIZE+font_size*2))                                           ## displays the text and where it should be located
 
     ## Blue Score
     Blue_Token_text = font.render(f'Blue Token: {settings.Player_1.Blue_Token}', True, (0, 0, 0))                   ## displays the count for the Blue Token
     if settings.Player_1.Blue_Token != 0:                                                                           ## once a blue token has been collected
-        if settings.Blue_Event_Broken == False:                                                                     ## if the Blue event hasn't been broken yet
             for i in range(settings.Player_1.Blue_Token):                                                           ## add a Blue token image for each green token collected
                 screen.blit(token_texture[3],(font_size*6+(font_size/3)*i, MAP_HEIGHT*TILE_SIZE+2.5*font_size))     ## displays the token
-        else:                                                                                                       ## otherwise
+    if settings.Blue_Event_Broken == True:                                                                          ## if the Blue event hasn't been broken yet
             screen.blit(token_texture[10],(font_size*6+(font_size/3), MAP_HEIGHT*TILE_SIZE+2.5*font_size))          ## displays the broken event token  
     screen.blit(Blue_Token_text, (10, MAP_HEIGHT*TILE_SIZE+font_size*3))                                            ## displays the text and where it should be located
 
