@@ -205,7 +205,7 @@ class Player(pygame.sprite.Sprite):
                         self.totalcost = 4 - self.Agility + self.totalcost                                                                                      ## adds cost (1 cost if Agility = 3, 2 cost is Agility = 2, 3 cost is Agility = 1)
                         self.Green_Token = self.Green_Token + 1                                                                                                 ## increase the Green_Token by 1
                         tile_textures[self.map_data[self.row][self.column]].token = None                                                                        ## Removes the token
-                        tile_textures[self.map_data[self.row][self.column]].quickinfo.remove("gt")                                                              ## Removes the token from quick info
+                        tile_textures[self.map_data[self.row][self.column]].quickinfo.remove("gt")                                                              ## Removes the token from quick info  
                     case "Blue":                                                                                                                                ## if it's listed as blue
                         self.totalcost = 4 - self.Intelligence + self.totalcost                                                                                 ## adds cost (1 cost if Intelligence = 3, 2 cost is Intelligence = 2, 3 cost is Intelligence = 1)
                         self.Blue_Token = self.Blue_Token + 1                                                                                                   ## increase the Blue_Token by 1
@@ -218,6 +218,7 @@ class Player(pygame.sprite.Sprite):
                             tile_textures[self.map_data[self.row][self.column]].type = "Broken_RedEvent"                                                        ## displays the broken red event token
                             tile_textures[self.map_data[self.row][self.column]].token = tile_textures[self.map_data[self.row][self.column]].Token_grabber()     ## changes the token visual
                             tile_textures[self.map_data[self.row][self.column]].quickinfo.remove("ret")                                                         ## Removes the token from quick info
+                            self.Red_Token = 0
                     case "GreenEvent":                                                                                                                          ## if it's listed as green event 
                         if self.Green_Token >= 6:                                                                                                               ## do you have enough tokens to break the green event
                             self.totalcost = self.totalcost + 1                                                                                                 ## costs 1 action to break event
@@ -225,6 +226,7 @@ class Player(pygame.sprite.Sprite):
                             tile_textures[self.map_data[self.row][self.column]].type = "Broken_GreenEvent"                                                      ## displays the broken green event token
                             tile_textures[self.map_data[self.row][self.column]].token = tile_textures[self.map_data[self.row][self.column]].Token_grabber()     ## changes the token visual
                             tile_textures[self.map_data[self.row][self.column]].quickinfo.remove("get")                                                         ## Removes the token from quick info
+                            self.Green_Token = 0
                     case "BlueEvent":                                                                                                                           ## if it's listed as blue event
                         if self.Blue_Token >= 6:                                                                                                                ## do you have enough tokens to break the blue event
                             self.totalcost = self.totalcost + 1                                                                                                 ## costs 1 action to break event
@@ -232,6 +234,7 @@ class Player(pygame.sprite.Sprite):
                             tile_textures[self.map_data[self.row][self.column]].type = "Broken_BlueEvent"                                                       ## displays the broken blue event token
                             tile_textures[self.map_data[self.row][self.column]].token = tile_textures[self.map_data[self.row][self.column]].Token_grabber()     ## changes the token visual
                             tile_textures[self.map_data[self.row][self.column]].quickinfo.remove("bet")                                                         ## Removes the token from quick info
+                            self.Blue_Token = 0
                     case "FireofEidolon":                                                                                                                       ## if it's listed as Fire of Eidolon
                         if settings.Red_Event_Broken == True and settings.Green_Event_Broken == True and settings.Blue_Event_Broken == True:                    ## all other events broken?
                             self.totalcost = self.totalcost + 1                                                                                                 ## costs 1 action to grab Fire of Eidolon
@@ -239,6 +242,7 @@ class Player(pygame.sprite.Sprite):
                             self.FireofEidolon = 1                                                                                                              ## indicates that the player has the Fire of Eidolon
                             tile_textures[self.map_data[self.row][self.column]].token = None                                                                    ## Removes the token
                             tile_textures[self.map_data[self.row][self.column]].quickinfo.remove("foe")                                                         ## Removes the token from quick info
+                self.goalUpdate()
                 print(self.totalcost)                                                                                                                           ## used for debugging 
                 self.actions.append("T")                                                                                                                        ## remembers it grabbed a token (or at least tired)
 
@@ -260,6 +264,32 @@ class Player(pygame.sprite.Sprite):
                 self.move(0, 0)                                                                                                                                 ## records where the player went
             print(self.totalcost)                                                                                                                               ## used for debugging 
             time.sleep(0.5)                                                                                                                                     ## gives the computer a time before reading the next keystroke
+    
+    def goalUpdate(self):
+        goal = [0,0]                                                                                                                                       ## initalizes the point
+        if self.Red_Token > 5:
+            tile = np.where(self.map_data == 3)                                                                                                          ## to search by tile type
+            #print("tile ", tile)                                                                                                                                ## used for debugging
+            goal[0] = int(tile[0][-1])                                                                                                                         ## sets the row of the point
+            goal[1] = int(tile[1][-1])
+        if self.Blue_Token > 5:
+            tile = np.where(self.map_data == 5)                                                                                                          ## to search by tile type
+            #print("tile ", tile)                                                                                                                                ## used for debugging
+            goal[0] = int(tile[0][-1])                                                                                                                         ## sets the row of the point
+            goal[1] = int(tile[1][-1])
+        if self.Green_Token > 5:
+            tile = np.where(self.map_data == 4)                                                                                                          ## to search by tile type
+            #print("tile ", tile)                                                                                                                                ## used for debugging
+            goal[0] = int(tile[0][-1])                                                                                                                         ## sets the row of the point
+            goal[1] = int(tile[1][-1])
+        if settings.Red_Event_Broken == True and settings.Green_Event_Broken == True and settings.Blue_Event_Broken == True:
+            tile = np.where(self.map_data == 2)                                                                                                          ## to search by tile type
+            #print("tile ", tile)                                                                                                                                ## used for debugging
+            goal[0] = int(tile[0][-1])                                                                                                                         ## sets the row of the point
+            goal[1] = int(tile[1][-1])
+        if settings.FireofEidolon_Grabbed:
+            goal = [int(self.end[0]),int(self.end[1])] 
+        self.goal = goal
 
     ## moves the player on the screen and where the player is on the map
     def move(self, dx, dy):
@@ -279,7 +309,7 @@ class Player(pygame.sprite.Sprite):
             settings.Player_1 = self                                                                                                                            ## sets player 1 as itself
         time.sleep(0.5)                                                                                                                                         ## gives the computer a time before reading the next keystroke
 
-    ## Calculating the euclidean huristic value between two points
+    ## Calculating the euclidean heuristic value between two points
     def euclidean_heuristic(self, row, column,  tile_num, D = 1):
         #print("tile_num ", tile_num)                                                                                                                            ## used for debugging
         if tile_num != 0:                                                                                                                                       ## skip if the goal is 0
@@ -294,7 +324,7 @@ class Player(pygame.sprite.Sprite):
             dis = 10000000                                                                                                                                      ## just set the distance to 10000000 (impossible)
         return dis                                                                                                                                              ## return the distance calculated
 
-    ## Calculating the euclidean huristic value between two points
+    ## Calculating the manhattan heuristic value between two points
     def manhattan_heuristic(self, row, column,  tile_num, D = 1):
         if tile_num != 0:                                                                                                                                       ## skip if the goal is 0
             point = [0,0]                                                                                                                                       ## initalizes the point
