@@ -303,7 +303,7 @@ class Player(pygame.sprite.Sprite):
             point[0] = int(tile[0][-1])                                                                                                                         ## sets the row of the point
             point[1] = int(tile[1][-1])                                                                                                                         ## sets the column of the point
             #print("Point ", point)                                                                                                                              ## used for debugging
-            dis = D*(abs(row-point[0]) + abs(column-point[1]))                                                                                                    ## cacluate the manhattan huristic between the player point and the tile number goal
+            dis = D*(abs(row-point[0]) + abs(column-point[1]))                                                                                                  ## cacluate the manhattan huristic between the player point and the tile number goal
         else:                                                                                                                                                   ## if tile looking for is 0
             dis = 10000000                                                                                                                                      ## just set the distance to 10000000 (impossible)
         return dis                                                                                                                                              ## return the distance calculated
