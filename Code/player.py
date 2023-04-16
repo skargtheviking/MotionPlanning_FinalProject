@@ -280,7 +280,7 @@ class Player(pygame.sprite.Sprite):
         time.sleep(0.5)                                                                                                                                         ## gives the computer a time before reading the next keystroke
 
     ## Calculating the euclidean huristic value between two points
-    def euclidean_heuristic(self, row, column,  tile_num):
+    def euclidean_heuristic(self, row, column,  tile_num, D = 1):
         #print("tile_num ", tile_num)                                                                                                                            ## used for debugging
         if tile_num != 0:                                                                                                                                       ## skip if the goal is 0
             point = [0,0]                                                                                                                                       ## initalizes the point
@@ -289,13 +289,13 @@ class Player(pygame.sprite.Sprite):
             point[0] = int(tile[0][-1])                                                                                                                         ## sets the row of the point
             point[1] = int(tile[1][-1])                                                                                                                         ## sets the column of the point
             #print("Point ", point)                                                                                                                              ## used for debugging
-            dis = sqrt((row-point[0])**2 + (column-point[1])**2)                                                                                                ## cacluate the euclidean huristic between the player point and the tile number goal
+            dis = D*(sqrt((row-point[0])**2 + (column-point[1])**2))                                                                                                ## cacluate the euclidean huristic between the player point and the tile number goal
         else:                                                                                                                                                   ## if tile looking for is 0
             dis = 10000000                                                                                                                                      ## just set the distance to 10000000 (impossible)
         return dis                                                                                                                                              ## return the distance calculated
 
     ## Calculating the euclidean huristic value between two points
-    def manhattan_heuristic(self, row, column,  tile_num, D =1):
+    def manhattan_heuristic(self, row, column,  tile_num, D = 1):
         if tile_num != 0:                                                                                                                                       ## skip if the goal is 0
             point = [0,0]                                                                                                                                       ## initalizes the point
             tile = np.where(self.map_data == tile_num)                                                                                                          ## to search by tile type
