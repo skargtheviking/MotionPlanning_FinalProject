@@ -14,11 +14,36 @@ _X = 0                                                                          
 _Y = 1                                                                          ## _Y and 1 is column
 
 
-def cost(tile):
+def cost(player, tile):
     if tile.parent is not None:
         if tile.parent in _ACTIONS:
-            tile.cost = 1+tile.parent.cost
-
+            match tile.parent:                                                                                                                                  ## check the action item
+                case "u":                                                                                                                                       ## if it was move up
+                    tile.cost = 1+tile.parent.cost                                                                                                              ## add one to the cost
+                case "d":                                                                                                                                       ## if it was move down
+                    tile.cost = 1+tile.parent.cost                                                                                                              ## add one to the cost
+                case "l":                                                                                                                                       ## if it was move left
+                    tile.cost = 1+tile.parent.cost                                                                                                              ## add one to the cost
+                case "r":                                                                                                                                       ## if it was move right
+                    tile.cost = 1+tile.parent.cost                                                                                                              ## add one to the cost
+                case "x":                                                                                                                                       ## if it was go through the x secret tunnel
+                    tile.cost = 1+tile.parent.cost                                                                                                              ## add one to the cost
+                case "y":                                                                                                                                       ## if it was go through the y secret tunnel
+                    tile.cost = 1+tile.parent.cost                                                                                                              ## add one to the cost
+                case "rt":                                                                                                                                      ## it was pick up a red token
+                    tile.cost = 4 - player.Strength+tile.parent.cost                                                                                            ## adds cost (1 cost if Strength = 3, 2 cost is Strength = 2, 3 cost is Strength = 1)
+                case "gt":                                                                                                                                      ## if it was pick up a red token
+                    tile.cost = 4 - player.Agility+tile.parent.cost                                                                                             ## adds cost (1 cost if Agility = 3, 2 cost is Agility = 2, 3 cost is Agility = 1)
+                case "bt":                                                                                                                                      ## if it was pick up blue token
+                    tile.cost = 4 - player.Intelligence+tile.parent.cost                                                                                        ## adds cost (1 cost if Intelligence = 3, 2 cost is Intelligence = 2, 3 cost is Intelligence = 1)
+                case "ret":                                                                                                                                     ## if it was break the red event token
+                    tile.cost = 1+tile.parent.cost                                                                                                              ## add one to the cost
+                case "get":                                                                                                                                     ## if it was break the green event token
+                    tile.cost = 1+tile.parent.cost                                                                                                              ## add one to the cost
+                case "bet":                                                                                                                                     ## if it was break the blue event token
+                    tile.cost = 1+tile.parent.cost                                                                                                              ## add one to the cost
+                case "foe":                                                                                                                                     ## if it was grab the fire of eidolon
+                    tile.cost = 1+tile.parent.cost                                                                                                              ## add one to the cost
 
     return tile
 
@@ -215,7 +240,7 @@ def astar(player, goal, num_player = 1):
     print("n0", n0)                                                                                                     ## used for debugggin
     frontier = PriorityQ()                                                                                              ## 
     visited = []                                                                                                        ## initalizes visited nodes    
-    n0 = cost(n0)                                                                                                       ## add cost to current node
+    n0 = cost(player, n0)                                                                                               ## add cost to current node
     hcost = n0.cost + player.heuristic_map[n0.state[0]][n0.state[1]]                                                    ## combines the heuristic value and the cost
     frontier.push(n0, hcost)                                                                                            ## 
 
@@ -232,10 +257,10 @@ def astar(player, goal, num_player = 1):
                 for a in Actions:                                                                                       ## for each actions 
                     s_prime, temp_token = tile_trans(n_i.state, a, token, player)                                       ## transition funct
                     actions = tile_textures[player.map_data[s_prime[_X]][s_prime[_Y]]].quickinfo                        ## 
-                    n_prime = SearchTile(s_prime, actions, n_i, a)                                                      ##                     
-                    n_prime = cost(n_prime)                                                                             ## gets the cost of the action
+                    n_prime = SearchTile(s_prime, actions, n_i, a)                                                      ## determines the cost it would be to get to this tile                    
+                    n_prime = cost(player, n_prime)                                                                     ## gets the cost of the action
                     hcost = n_prime.cost +  player.heuristic_map[n_prime.state[0]][n_prime.state[1]]                    ## combines the heuristic value and the cost
-                    curcost = frontier.get_cost(n_prime)                                                                ## get the current cost of the action
+                    curcost = frontier.get_cost(player, n_prime)                                                        ## get the current cost of the action
                     if curcost == None or curcost > hcost:                                                              ## if there isn't a current cost or if the new cost is less than the current cost
                         frontier.push(n_prime,hcost)                                                                    ## make the cost of the action the new cost
                         token = temp_token
