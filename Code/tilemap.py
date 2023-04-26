@@ -722,6 +722,10 @@ def draw_map(screen, map_data, TILE_SIZE):
     ## Determineing Pathing
     if settings.Win == True:                                                                                        ## if the player has won
         backpaths(settings.Player_1, screen)                                                                        ## get the path the player had traveled
+        win_font_size = TILE_SIZE//4                                                                                ## make the font size 1/4th of the actual size
+        win_font = pygame.font.Font(None, win_font_size)                                                            ## set the font for the scoreboard
+        Win_text = win_font.render(f'YOU WIN!!!', True, (139, 128, 0))                                              ## Tells the player they won!
+        screen.blit(Win_text, (TILE_SIZE*MAP_WIDTH//2, MAP_HEIGHT*TILE_SIZE+font_size*3))                           ## displays the text and where it should be located
 
     if settings.planning == True:                                                                                   ## if a planned path was determined
         forwardpath(settings.Player_1, screen)                                                                      ## gets the planned path for the player to follow
