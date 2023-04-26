@@ -50,6 +50,7 @@ class Player(pygame.sprite.Sprite):
         self.visited = [[self.row, self.column]]                                                                                                                ## keeps track of the locations visited (starting with the starting points)
         self.actions = ["S"]                                                                                                                                    ## keeps track of actions taken (starting with S for Start)
         self.totalcost = 0                                                                                                                                      ## keeps track of the total cost
+        self.heuristic_map_maker(self.goal)                                                                                                                     ## sets up the heruistic map
         settings.Player_1 = self                                                                                                                                ## sets player 1 as itself
     def update(self):                                                                                                                                           ## update things if a key is presed
         self.get_event()                                                                                                                                        ## checks if a key was presed
@@ -82,14 +83,15 @@ class Player(pygame.sprite.Sprite):
         ## Moving Right
         if keys[pygame.K_d]:
             if 'r' in tile_textures[self.map_data[self.row][self.column]].quickinfo:
-                if self.column+1 < len(self.map_data[0]):                                                                                                      ## makes sure player doesn't walk off edge
+                if self.column+1 < len(self.map_data[0]):                                                                                                       ## makes sure player doesn't walk off edge
                     if 'l' in tile_textures[self.map_data[self.row][self.column+1]].quickinfo:
                         self.actions.append("R")                                                                                                                ## remembers it moved right
                         self.move(+TILE_SIZE, 0)
 
         ## set goal
         if keys[pygame.K_g]:
-            self.goal = [self.row,self.column]                                                                                                                  ## sets the tile the player is currently at as the goal (used for debugging)
+            #self.goal = [self.row,self.column]                                                                                                                  ## sets the tile the player is currently at as the goal (used for debugging)
+            self.goalUpdate()                                                                                                                                   ## updates on what your next goal should be
 
         ## ressts everything
         if keys[pygame.K_r]:
@@ -100,90 +102,10 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_p]:
             settings.planning = False                                                                                                                           ## resets the global planning
             settings.seen = False                                                                                                                               ## resets teh global seen
-            secret_heuristic = []                                                                                                                               ## initalizes the hurisitc_map from the farther secret tile
-            self.heuristic_map = []                                                                                                                             ## initalizes the huristic_map
-            secret_goal_heuristic = []
-            goal_heuristic_map = []
-
-            ## creates the initial heuritic map in reference to the player location
-            for i in range(len(self.map_data)):                                                                                                                 ## for each of the rows                                                                 
-                self.heuristic_map.append([])                                                                                                                   ## initalize space for columns
-                for j in range(len(self.map_data[0])):                                                                                                          ## for each column
-                    self.heuristic_map[i].append(self.manhattan_heuristic(self.row, self.column, self.map_data[i][j]))                                          ## determine the euclidean heuristic in reference to the location of the player (use another heurtistic?)
-
-            #print("heuristic_map ", self.heuristic_map)                                                                                                         ## used for debugging
-
-            X_heuristic = self.heuristic_map[int(self.X_tile[0])][int(self.X_tile[1])]                                                                          ## get the heuristic value for the X_secret tile
-            Y_heuristic = self.heuristic_map[int(self.Y_tile[0])][int(self.Y_tile[1])]                                                                          ## get the heuristic value for the Y_secret tile
-
-            #print("X_heuristic ", X_heuristic)                                                                                                                  ## used for debugging
-            #print("Y_heuristic ", Y_heuristic)                                                                                                                  ## used for debugging
-
-            ## creates the initial heuritic map in reference to farther secret tile + closer secret tile heuristic + 1
-            for i in range(len(self.map_data)):                                                                                                                 ## for each of the rows                                                                                                                 
-                secret_heuristic.append([])                                                                                                                     ## initalize space for columns
-                for j in range(len(self.map_data[0])):                                                                                                          ## for each column
-                    if X_heuristic < Y_heuristic:                                                                                                               ## if the X_secret heuristic value is less than Y_secret heuristic value (if X_secret tile is closer than Y_secret tile)
-                        secret_heuristic[i].append(self.manhattan_heuristic(int(self.Y_tile[0]), int(self.Y_tile[1]), self.map_data[i][j]) + X_heuristic + 1)   ## create a heuristic map from the Y_secret tile where each value is an additional X_secret heuristic + 1 away
-                    elif X_heuristic > Y_heuristic:                                                                                                             ## if the Y_secret heuristic value is less than X_secret heuristic value (if Y_secret tile is closer than X_secret tile)
-                        secret_heuristic[i].append(self.manhattan_heuristic(int(self.X_tile[0]), int(self.X_tile[1]), self.map_data[i][j]) + Y_heuristic + 1)   ## create a heuristic map from the X_secret tile where each value is an additional Y_secret heuristic + 1 away
-                    else:                                                                                                                                       ## otherwise
-                        secret_heuristic[i].append(self.heuristic_map[i][j])                                                                                    ## have the heuristic value be the heuristic value from the player
-            #print("secret_heuristic ", secret_heuristic)                                                                                                        ## used for debugging
-
-            ## Keep only the smaller heuristic from each matrix of heuristics
-            for i in range(len(self.map_data)):                                                                                                                 ## for each of the rows
-                for j in range(len(self.map_data[0])):                                                                                                          ## for each of the columns
-                    if secret_heuristic[i][j] < self.heuristic_map[i][j]:                                                                                       ## determine which heuristic has the lower value
-                        self.heuristic_map[i][j] = secret_heuristic[i][j]                                                                                       ## keep only the smaller value
-
-            #print("heuristic_map ", self.heuristic_map)                                                                                                         ## used for debugging
-            #print("player location, ", self.row, self.column)                                                                                                   ## used for debugging
-
-            ## creates the initial heuritic map in reference to the goal location
-            for i in range(len(self.map_data)):                                                                                                                 ## for each of the rows                                                                 
-               goal_heuristic_map.append([])                                                                                                                    ## initalize space for columns
-               for j in range(len(self.map_data[0])):                                                                                                           ## for each column
-                   goal_heuristic_map[i].append(self.manhattan_heuristic(self.goal[0], self.goal[1], self.map_data[i][j]))                                      ## determine the manhattan heuristic in reference to the location of the player (use another heurtistic?)
-
-            #print("goal heuristic_map ", goal_heuristic_map)                                                                                                    ## used for debugging
-
-            X_goal_heuristic = goal_heuristic_map[int(self.X_tile[0])][int(self.X_tile[1])]                                                                     ## get the heuristic value for the X_secret tile
-            Y_goal_heuristic = goal_heuristic_map[int(self.Y_tile[0])][int(self.Y_tile[1])]                                                                     ## get the heuristic value for the Y_secret tile
-
-            #print("X_goal_heuristic ", X_goal_heuristic)                                                                                                        ## used for debugging
-            #print("Y_goal_heuristic ", Y_goal_heuristic)                                                                                                        ## used for debugging
-
-            ## creates the initial heuritic map in reference to farther secret tile + closer secret tile heuristic + 1
-            for i in range(len(self.map_data)):                                                                                                                 ## for each of the rows                                                                                                                 
-                secret_goal_heuristic.append([])                                                                                                                ## initalize space for columns
-                for j in range(len(self.map_data[0])):                                                                                                          ## for each column
-                    if X_goal_heuristic < Y_goal_heuristic:                                                                                                     ## if the X_goal_heuristic heuristic value is less than Y_goal_heuristic heuristic value (if X_secret tile is closer than Y_secret tile)
-                        secret_goal_heuristic[i].append(self.manhattan_heuristic(int(self.Y_tile[0]), int(self.Y_tile[1]),                                      ## create a heuristic map from the Y_goal_heuristic tile where each value is an additional X_goal_heuristic + 1 away
-                                                                                 self.map_data[i][j]) + X_goal_heuristic + 1)   
-                    elif X_goal_heuristic > Y_goal_heuristic:                                                                                                   ## if the Y_goal_heuristic heuristic value is less than X_goal_heuristic heuristic value (if Y_secret tile is closer than X_secret tile)
-                        secret_goal_heuristic[i].append(self.manhattan_heuristic(int(self.X_tile[0]), int(self.X_tile[1]),                                      ## create a heuristic map from the X_goal_heuristic tile where each value is an additional Y_goal_heuristic + 1 away
-                                                                               self.map_data[i][j]) + Y_goal_heuristic + 1)  
-                    else:                                                                                                                                       ## otherwise
-                        secret_goal_heuristic[i].append(goal_heuristic_map[i][j])                                                                               ## have the heuristic value be the heuristic value from the player
-            #print("secret_goal_heuristic ", secret_goal_heuristic)                                                                                              ## used for debugging
-
-            ## Keep only the smaller heuristic from each matrix of heuristics
-            for i in range(len(self.map_data)):                                                                                                                 ## for each of the rows
-                for j in range(len(self.map_data[0])):                                                                                                          ## for each of the columns
-                    if secret_goal_heuristic[i][j] < goal_heuristic_map[i][j]:                                                                                  ## determine which heuristic has the lower value
-                        goal_heuristic_map[i][j] = secret_goal_heuristic[i][j]                                                                                  ## keep only the smaller value
-
-
-            #print("goal_heuristic_map ", goal_heuristic_map)                                                                                                    ## used for debugging
-            #print("heuristic_map ", self.heuristic_map)                                                                                                         ## used for debugging
-            for i in range(len(self.map_data)):                                                                                                                 ## for each of the rows
-                for j in range(len(self.map_data[0])):                                                                                                          ## for each of the columns
-                    self.heuristic_map[i][j] = self.heuristic_map[i][j] + goal_heuristic_map[i][j]                                                              ## add the two heuristic values together
-            #print("heuristic_map ", self.heuristic_map)                                                                                                         ## used for debugging 
+            self.goalUpdate()                                                                                                                                   ## updates on what your next goal should be along with the A* planning to get to said goal
+            self.heuristic_map_maker(self.goal)                                                                                                                 ## updates the heruistic map
 
             ## performs the astar formula
-            self.plans, self.todo, self.explored = astar(self)                                                                                                  ## compute the A* algorithm to find the shortest path to the goal
             print("plans", self.plans)                                                                                                                          ## prints the planned states of path to the goal
             print("explored", self.explored)                                                                                                                    ## prints the explored (visited) states to find path
             if self.plans != None:                                                                                                                              ## if a path to the goal is found
@@ -242,7 +164,7 @@ class Player(pygame.sprite.Sprite):
                             self.FireofEidolon = 1                                                                                                              ## indicates that the player has the Fire of Eidolon
                             tile_textures[self.map_data[self.row][self.column]].token = None                                                                    ## Removes the token
                             tile_textures[self.map_data[self.row][self.column]].quickinfo.remove("foe")                                                         ## Removes the token from quick info
-                self.goalUpdate()
+                #self.goalUpdate()                                                                                                                               ## updates on what your next goal should be
                 print(self.totalcost)                                                                                                                           ## used for debugging 
                 self.actions.append("T")                                                                                                                        ## remembers it grabbed a token (or at least tired)
 
@@ -262,34 +184,75 @@ class Player(pygame.sprite.Sprite):
                 self.rect.centery = self.row*TILE_SIZE + TILE_SIZE/2                                                                                            ## places the player at the Secret Y's y position
                 self.actions.append("Y")                                                                                                                        ## Used the secret Y tunnel
                 self.move(0, 0)                                                                                                                                 ## records where the player went
-            print(self.totalcost)                                                                                                                               ## used for debugging 
+            print(self.totalcost)                                                                                                                               ## used for debugging fro
             time.sleep(0.5)                                                                                                                                     ## gives the computer a time before reading the next keystroke
-    
+ 
     def goalUpdate(self):
-        goal = [0,0]                                                                                                                                       ## initalizes the point
-        if self.Red_Token > 5:
-            tile = np.where(self.map_data == 3)                                                                                                          ## to search by tile type
+        goal = [0,0]                                                                                                                                            ## initalizes the goal
+        red = np.where(self.map_data == 3)                                                                                                                      ## gets the red event tile 
+        green = np.where(self.map_data == 4)                                                                                                                    ## gets the green event tile 
+        blue = np.where(self.map_data == 5)                                                                                                                     ## gets the blue event tile 
+        red_cal_cost = 1000000                                                                                                                                  ## initalizes the red calculated costs
+        green_cal_cost = 1000000                                                                                                                                ## initalizes the green calculated costs
+        blue_cal_cost = 1000000                                                                                                                                 ## initalizes the blue calculated costs
+        if settings.Red_Event_Broken == True and settings.Green_Event_Broken == True and settings.Blue_Event_Broken == True:                                    ## if all the event tokens were grabbed
+            tile = np.where(self.map_data == 2)                                                                                                                 ## to search by tile type
             #print("tile ", tile)                                                                                                                                ## used for debugging
-            goal[0] = int(tile[0][-1])                                                                                                                         ## sets the row of the point
+            goal[0] = int(tile[0][-1])                                                                                                                          ## sets the row of the point
             goal[1] = int(tile[1][-1])
-        if self.Blue_Token > 5:
-            tile = np.where(self.map_data == 5)                                                                                                          ## to search by tile type
-            #print("tile ", tile)                                                                                                                                ## used for debugging
-            goal[0] = int(tile[0][-1])                                                                                                                         ## sets the row of the point
-            goal[1] = int(tile[1][-1])
-        if self.Green_Token > 5:
-            tile = np.where(self.map_data == 4)                                                                                                          ## to search by tile type
-            #print("tile ", tile)                                                                                                                                ## used for debugging
-            goal[0] = int(tile[0][-1])                                                                                                                         ## sets the row of the point
-            goal[1] = int(tile[1][-1])
-        if settings.Red_Event_Broken == True and settings.Green_Event_Broken == True and settings.Blue_Event_Broken == True:
-            tile = np.where(self.map_data == 2)                                                                                                          ## to search by tile type
-            #print("tile ", tile)                                                                                                                                ## used for debugging
-            goal[0] = int(tile[0][-1])                                                                                                                         ## sets the row of the point
-            goal[1] = int(tile[1][-1])
-        if settings.FireofEidolon_Grabbed:
-            goal = [int(self.end[0]),int(self.end[1])] 
-        self.goal = goal
+            self.heuristic_map_maker(goal)                                                                                                                      ## makes a heuristic map for the Fire of Eidolon tile
+            self.plans, self.todo, self.explored = astar(self, goal)                                                                                            ## compute the A* algorithm to find the shortest path to the goal
+        else:
+            if settings.Red_Event_Broken == False:                                                                                                                  ## red event broken false
+                goal[0] = int(red[0][-1])                                                                                                                           ## sets the row of the potential goal point
+                goal[1] = int(red[1][-1])
+                self.heuristic_map_maker(goal)                                                                                                                      ## makes a heuristic map for the red event tile
+                red_states, red_actionpath, red_explored = astar(self, goal)                                                                                        ## compute the A* algorithm for red_event tile
+                red_cal_cost, red_planned_r, red_planned_g, red_planned_b = self.cost_calulator(red_actionpath)                                                     ## calculates the cost of the shortest path
+
+            if settings.Green_Event_Broken == False:                                                                                                                ## green event broken false
+                goal[0] = int(green[0][-1])                                                                                                                         ## sets the row of the potential goal point
+                goal[1] = int(green[1][-1])
+                self.heuristic_map_maker(goal)                                                                                                                      ## makes a heuristic map for the green event tile
+                green_states, green_actionpath, green_explored = astar(self, goal)                                                                                  ## compute the A* algorithm for green_event tile
+                green_cal_cost, green_planned_r, green_planned_g, green_planned_b = self.cost_calulator(green_actionpath)                                           ## calculates the cost of the shortest path
+            if settings.Blue_Event_Broken == False:                                                                                                                 ## blue event broken false
+                goal[0] = int(blue[0][-1])                                                                                                                          ## sets the row of the potential goal point
+                goal[1] = int(blue[1][-1])
+                self.heuristic_map_maker(goal)                                                                                                                      ## makes a heuristic map for the blue event tile
+                blue_states, blue_actionpath, blue_explored = astar(self, goal)                                                                                     ## compute the A* algorithm for green_event tile
+                blue_cal_cost, blue_planned_r, blue_planned_g, blue_planned_b = self.cost_calulator(blue_actionpath)                                                ## calculates the cost of the shortest path
+
+            print("red_cal_cost, green_cal_cost, blue_cal_cost", red_cal_cost, green_cal_cost, blue_cal_cost)
+            comparer = (red_cal_cost, green_cal_cost, blue_cal_cost)                                                                                                ## preps to compare the three calculated costs
+            small_index = comparer.index(min(comparer))                                                                                                             ## what is the index number of the smallest  calculated costs
+            print("small_index", comparer[small_index])
+            if red_cal_cost == comparer[small_index]:                                                                                                               ## if the value of the red_cal_cost is equal to the smallest recorded
+                    goal[0] = int(red[0][-1])                                                                                                                       ## sets the row of the point
+                    goal[1] = int(red[1][-1])
+                    self.plans = red_states                                                                                                                         ## sets the plans to be the list of red states
+                    self.todo = red_actionpath                                                                                                                      ## sets the todo list to be the planned red actionpath
+                    self.explored = red_explored                                                                                                                    ## sets the list of explored to the list of red explored
+            elif green_cal_cost == comparer[small_index]:                                                                                                           ## else if the value of the green_heuristic is equal to the smallest recorded
+                    goal[0] = int(green[0][-1])                                                                                                                     ## sets the row of the point
+                    goal[1] = int(green[1][-1])
+                    self.plans = green_states                                                                                                                       ## sets the plans to be the list of green states
+                    self.todo = green_actionpath                                                                                                                    ## sets the todo list to be the planned green actionpath
+                    self.explored = green_explored                                                                                                                  ## sets the list of explored to the list of green explored
+            elif blue_cal_cost == comparer[small_index]:                                                                                                            ## else if the value of the blue_cal_cost is equal to the smallest recorded
+                    goal[0] = int(blue[0][-1])                                                                                                                      ## sets the row of the point
+                    goal[1] = int(blue[1][-1])
+                    self.plans = blue_states                                                                                                                        ## sets the plans to be the list of blue states
+                    self.todo = blue_actionpath                                                                                                                     ## sets the todo list to be the planned blue actionpath
+                    self.explored = blue_explored                                                                                                                   ## sets the list of explored to the list of blue explored
+
+
+        if settings.FireofEidolon_Grabbed:                                                                                                                      ## If the Fire of Eidolon was Grabbed
+            goal = [int(self.end[0]),int(self.end[1])]                                                                                                          ## set the goal to be the end tile
+            self.heuristic_map_maker(goal)                                                                                                                      ## makes a heuristic map for the End tile
+            self.plans, self.todo, self.explored = astar(self, goal)                                                                                            ## compute the A* algorithm to find the shortest path to the goal  
+        self.goal = goal                                                                                                                                        ## sets the players goal to the new goal
+        self.heuristic_map_maker(goal)                                                                                                                          ## reset the heuristic map
 
     ## moves the player on the screen and where the player is on the map
     def move(self, dx, dy):
@@ -301,6 +264,8 @@ class Player(pygame.sprite.Sprite):
         self.column = self.column + dx//TILE_SIZE                                                                                                               ## sets the new column
         self.visited.append([self.row, self.column])                                                                                                            ## saves the tile visited
         if tile_textures[self.map_data[self.row][self.column]].name == "EndTile" and self.FireofEidolon == 1:                                                   ## if the player is on the End Tile and has the Fire of Eidolon
+            settings.planning = False                                                                                                                           ## turns off planning path so it doesn't overlap with final backpath
+            settings.seen = False                                                                                                                               ## turns off visted so it doesn't overlap with final backpath
             settings.Win = True
             print("You Win!")                                                                                                                                   ## let the player know they won
             print("Vistied ", self.visited)                                                                                                                     ## displays the visited tiles in order of vist
@@ -337,3 +302,124 @@ class Player(pygame.sprite.Sprite):
         else:                                                                                                                                                   ## if tile looking for is 0
             dis = 10000000                                                                                                                                      ## just set the distance to 10000000 (impossible)
         return dis                                                                                                                                              ## return the distance calculated
+
+    def heuristic_map_maker(self, goal):
+        secret_heuristic = []                                                                                                                                   ## initalizes the hurisitc_map from the farther secret tile
+        self.heuristic_map = []                                                                                                                                 ## initalizes the huristic_map
+        secret_goal_heuristic = []
+        goal_heuristic_map = []
+
+        ## creates the initial heuritic map in reference to the player location
+        for i in range(len(self.map_data)):                                                                                                                     ## for each of the rows                                                                 
+            self.heuristic_map.append([])                                                                                                                       ## initalize space for columns
+            for j in range(len(self.map_data[0])):                                                                                                              ## for each column
+                self.heuristic_map[i].append(self.manhattan_heuristic(self.row, self.column, self.map_data[i][j]))                                              ## determine the euclidean heuristic in reference to the location of the player (use another heurtistic?)
+
+        #print("heuristic_map ", self.heuristic_map)                                                                                                             ## used for debugging
+
+        X_heuristic = self.heuristic_map[int(self.X_tile[0])][int(self.X_tile[1])]                                                                              ## get the heuristic value for the X_secret tile
+        Y_heuristic = self.heuristic_map[int(self.Y_tile[0])][int(self.Y_tile[1])]                                                                              ## get the heuristic value for the Y_secret tile
+
+        #print("X_heuristic ", X_heuristic)                                                                                                                      ## used for debugging
+        #print("Y_heuristic ", Y_heuristic)                                                                                                                      ## used for debugging
+
+        ## creates the initial heuritic map in reference to farther secret tile + closer secret tile heuristic + 1
+        for i in range(len(self.map_data)):                                                                                                                     ## for each of the rows                                                                                                                 
+            secret_heuristic.append([])                                                                                                                         ## initalize space for columns
+            for j in range(len(self.map_data[0])):                                                                                                              ## for each column
+                if X_heuristic < Y_heuristic:                                                                                                                   ## if the X_secret heuristic value is less than Y_secret heuristic value (if X_secret tile is closer than Y_secret tile)
+                    secret_heuristic[i].append(self.manhattan_heuristic(int(self.Y_tile[0]), int(self.Y_tile[1]), self.map_data[i][j]) + X_heuristic + 1)       ## create a heuristic map from the Y_secret tile where each value is an additional X_secret heuristic + 1 away
+                elif X_heuristic > Y_heuristic:                                                                                                                 ## if the Y_secret heuristic value is less than X_secret heuristic value (if Y_secret tile is closer than X_secret tile)
+                    secret_heuristic[i].append(self.manhattan_heuristic(int(self.X_tile[0]), int(self.X_tile[1]), self.map_data[i][j]) + Y_heuristic + 1)       ## create a heuristic map from the X_secret tile where each value is an additional Y_secret heuristic + 1 away
+                else:                                                                                                                                           ## otherwise
+                    secret_heuristic[i].append(self.heuristic_map[i][j])                                                                                        ## have the heuristic value be the heuristic value from the player
+        #print("secret_heuristic ", secret_heuristic)                                                                                                            ## used for debugging
+
+        ## Keep only the smaller heuristic from each matrix of heuristics
+        for i in range(len(self.map_data)):                                                                                                                     ## for each of the rows
+            for j in range(len(self.map_data[0])):                                                                                                              ## for each of the columns
+                if secret_heuristic[i][j] < self.heuristic_map[i][j]:                                                                                           ## determine which heuristic has the lower value
+                    self.heuristic_map[i][j] = secret_heuristic[i][j]                                                                                           ## keep only the smaller value
+
+        #print("heuristic_map ", self.heuristic_map)                                                                                                             ## used for debugging
+        #print("player location, ", self.row, self.column)                                                                                                       ## used for debugging
+
+        ## creates the initial heuritic map in reference to the goal location
+        for i in range(len(self.map_data)):                                                                                                                     ## for each of the rows                                                                 
+            goal_heuristic_map.append([])                                                                                                                       ## initalize space for columns
+            for j in range(len(self.map_data[0])):                                                                                                              ## for each column
+                goal_heuristic_map[i].append(self.manhattan_heuristic(goal[0], goal[1], self.map_data[i][j]))                                                   ## determine the manhattan heuristic in reference to the location of the player
+        #print("goal heuristic_map ", goal_heuristic_map)                                                                                                        ## used for debugging
+
+        X_goal_heuristic = goal_heuristic_map[int(self.X_tile[0])][int(self.X_tile[1])]                                                                         ## get the heuristic value for the X_secret tile
+        Y_goal_heuristic = goal_heuristic_map[int(self.Y_tile[0])][int(self.Y_tile[1])]                                                                         ## get the heuristic value for the Y_secret tile
+
+        #print("X_goal_heuristic ", X_goal_heuristic)                                                                                                            ## used for debugging
+        #print("Y_goal_heuristic ", Y_goal_heuristic)                                                                                                            ## used for debugging
+
+        ## creates the initial heuritic map in reference to farther secret tile + closer secret tile heuristic + 1
+        for i in range(len(self.map_data)):                                                                                                                     ## for each of the rows                                                                                                                 
+            secret_goal_heuristic.append([])                                                                                                                    ## initalize space for columns
+            for j in range(len(self.map_data[0])):                                                                                                              ## for each column
+                if X_goal_heuristic < Y_goal_heuristic:                                                                                                         ## if the X_goal_heuristic heuristic value is less than Y_goal_heuristic heuristic value (if X_secret tile is closer than Y_secret tile)
+                    secret_goal_heuristic[i].append(self.manhattan_heuristic(int(self.Y_tile[0]), int(self.Y_tile[1]),                                          ## create a heuristic map from the Y_goal_heuristic tile where each value is an additional X_goal_heuristic + 1 away
+                                                                                self.map_data[i][j]) + X_goal_heuristic + 1)   
+                elif X_goal_heuristic > Y_goal_heuristic:                                                                                                       ## if the Y_goal_heuristic heuristic value is less than X_goal_heuristic heuristic value (if Y_secret tile is closer than X_secret tile)
+                    secret_goal_heuristic[i].append(self.manhattan_heuristic(int(self.X_tile[0]), int(self.X_tile[1]),                                          ## create a heuristic map from the X_goal_heuristic tile where each value is an additional Y_goal_heuristic + 1 away
+                                                                            self.map_data[i][j]) + Y_goal_heuristic + 1)  
+                else:                                                                                                                                           ## otherwise
+                    secret_goal_heuristic[i].append(goal_heuristic_map[i][j])                                                                                   ## have the heuristic value be the heuristic value from the player
+        #print("secret_goal_heuristic ", secret_goal_heuristic)                                                                                                  ## used for debugging
+
+        ## Keep only the smaller heuristic from each matrix of heuristics
+        for i in range(len(self.map_data)):                                                                                                                     ## for each of the rows
+            for j in range(len(self.map_data[0])):                                                                                                              ## for each of the columns
+                if secret_goal_heuristic[i][j] < goal_heuristic_map[i][j]:                                                                                      ## determine which heuristic has the lower value
+                    goal_heuristic_map[i][j] = secret_goal_heuristic[i][j]                                                                                      ## keep only the smaller value
+
+
+        #print("goal_heuristic_map ", goal_heuristic_map)                                                                                                        ## used for debugging
+        #print("heuristic_map ", self.heuristic_map)                                                                                                             ## used for debugging
+        for i in range(len(self.map_data)):                                                                                                                     ## for each of the rows
+            for j in range(len(self.map_data[0])):                                                                                                              ## for each of the columns
+                self.heuristic_map[i][j] = self.heuristic_map[i][j] + goal_heuristic_map[i][j]                                                                  ## add the two heuristic values together
+        #print("heuristic_map ", self.heuristic_map)                                                                                                             ## used for debugging 
+
+    def cost_calulator(self, action_path):
+        cal_cost = 0
+        planned_r = 0
+        planned_g = 0
+        planned_b = 0
+        for i in range(len(action_path)):                                                                                                                       ## check each item in the action path
+            match action_path[i]:                                                                                                                               ## check the action item
+                case "u":                                                                                                                                       ## if it was move up
+                    cal_cost += 1                                                                                                                               ## add one to the cost
+                case "d":                                                                                                                                       ## if it was move down
+                    cal_cost += 1                                                                                                                               ## add one to the cost
+                case "l":                                                                                                                                       ## if it was move left
+                    cal_cost += 1                                                                                                                               ## add one to the cost
+                case "r":                                                                                                                                       ## if it was move right
+                    cal_cost += 1                                                                                                                               ## add one to the cost
+                case "x":                                                                                                                                       ## if it was go through the x secret tunnel
+                    cal_cost += 1                                                                                                                               ## add one to the cost
+                case "y":                                                                                                                                       ## if it was go through the y secret tunnel
+                    cal_cost += 1                                                                                                                               ## add one to the cost
+                case "rt":                                                                                                                                      ## it was pick up a red token
+                    cal_cost = 4 - self.Strength                                                                                                                ## adds cost (1 cost if Strength = 3, 2 cost is Strength = 2, 3 cost is Strength = 1)
+                    planned_r += 1                                                                                                                              ## adds 1 to the planned red tokens
+                case "gt":                                                                                                                                      ## if it was pick up a red token
+                    cal_cost = 4 - self.Agility                                                                                                                 ## adds cost (1 cost if Agility = 3, 2 cost is Agility = 2, 3 cost is Agility = 1)
+                    planned_g += 1                                                                                                                              ## adds 1 to the planned red tokens
+                case "bt":                                                                                                                                      ## if it was pick up blue token
+                    planned_b += 1                                                                                                                              ## adds 1 to the planned red tokens
+                    cal_cost = 4 - self.Intelligence                                                                                                            ## adds cost (1 cost if Intelligence = 3, 2 cost is Intelligence = 2, 3 cost is Intelligence = 1)
+                case "ret":                                                                                                                                     ## if it was break the red event token
+                    cal_cost += 1                                                                                                                               ## add one to the cost
+                case "get":                                                                                                                                     ## if it was break the green event token
+                    cal_cost += 1                                                                                                                               ## add one to the cost
+                case "bet":                                                                                                                                     ## if it was break the blue event token
+                    cal_cost += 1                                                                                                                               ## add one to the cost
+                case "foe":                                                                                                                                     ## if it was grab the fire of eidolon
+                    cal_cost += 1                                                                                                                               ## add one to the cost
+
+        return cal_cost, planned_r, planned_g, planned_b                                                                                                        ## returns the calculated cost and the amounts of tokens planned to grab

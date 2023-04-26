@@ -727,7 +727,7 @@ def draw_map(screen, map_data, TILE_SIZE):
         forwardpath(settings.Player_1, screen)                                                                      ## gets the planned path for the player to follow
 
     #if settings.seen == True:                                                                                       ## if player has list of explored points in conjunction with planning
-    #    explored(settings.Player_1, screen)                                                                         ## displays which tiles have been explored as part of the plannign process
+    #    explored(settings.Player_1, screen)                                                                         ## displays which tiles have been explored as part of the planning process
 
 ## gets the path the player traveled
 def backpaths(Player, screen):                                                                                      ## gets the path the player traveled

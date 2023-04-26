@@ -8,7 +8,7 @@ import matplotlib.pyplot as plotter
 from math import hypot, sqrt
 from tilemap import *
 # change to be in the form of new game
-_ACTIONS = ['x', 'y', 'u','d','l','r']
+_ACTIONS = ['x', 'y', 'u','d','l','r', 'rt', 'bt', 'gt']
 
 _X = 0                                                                          ## _X and 0 is row
 _Y = 1                                                                          ## _Y and 1 is column
@@ -135,7 +135,7 @@ class PriorityQ:
         return str(self.l)
 
 ## determines what to do with the action
-def tile_trans(s, a, player):
+def tile_trans(s, a, token, player):
     '''
     Transition function for the current grid map.
 
@@ -149,33 +149,40 @@ def tile_trans(s, a, player):
     new_pos = list(s[:])                                                                                                ## makes a copy of the state point and turns it into a list
 
     #print("a", a)                                                                                                      ## used for debugging
-    if a == 'x':                                                                                                        ## if it goes into the X secret tunnel
-        new_pos[_X] = int(player.Y_tile[_X])                                                                            ## appear on the Y secret tunnel tile
-        new_pos[_Y] = int(player.Y_tile[_Y])
-    elif a == 'y':                                                                                                      ## if it goes into the Y secret tunnel
-        new_pos[_X] = int(player.X_tile[_X])                                                                            ## appears on the X secret tunnel tile
-        new_pos[_Y] = int(player.X_tile[_Y])
-    elif a == 'u':                                                                                                      ## if it goes up
-        if s[_X] > 0:                                                                                                   ## make sure it doesn't go off the board
-            if 'd' in tile_textures[player.map_data[new_pos[_X]-1][new_pos[_Y]]].quickinfo:                             ## if the new tile has a down door to enter through
-                new_pos[_X] -= 1                                                                                        ## move up a tile
-    elif a == 'd':                                                                                                      ## if it goes down
-        if s[_X] + 1 < len(player.map_data):                                                                            ## make sure it doesn't go off the board
-            if 'u' in tile_textures[player.map_data[new_pos[_X]+1][new_pos[_Y]]].quickinfo:                             ## if the new tile has an up door to enter through    
-                new_pos[_X] += 1                                                                                        ## move down a tile
-    elif a == 'l':
-        if s[_Y] > 0:                                                                                                   ## make sure it doesn't go off the board
-            if 'r' in tile_textures[player.map_data[new_pos[_X]][new_pos[_Y]-1]].quickinfo:                             ## if the new tile has a right door to enter through     
-                new_pos[_Y] -= 1                                                                                        ## move right a tile
-    elif a == 'r':
-        if s[_Y] + 1 < len(player.map_data[0]):                                                                         ## make sure it doesn't go off the board
-            if 'l' in tile_textures[player.map_data[new_pos[_X]][new_pos[_Y]+1]].quickinfo:                             ## if the new tile has a left door to enter through  
-                new_pos[_Y] += 1                                                                                        ## move left a tile
-    else:                                                                                                               ## if the action is not listed
-        print('Unknown action:', str(a))                                                                                ## let the user know what action it didn't understand
+    match a:
+        case 'x':                                                                                                       ## if it goes into the X secret tunnel
+            new_pos[_X] = int(player.Y_tile[_X])                                                                        ## appear on the Y secret tunnel tile
+            new_pos[_Y] = int(player.Y_tile[_Y])
+        case 'y':                                                                                                       ## if it goes into the Y secret tunnel
+            new_pos[_X] = int(player.X_tile[_X])                                                                        ## appears on the X secret tunnel tile
+            new_pos[_Y] = int(player.X_tile[_Y])
+        case 'u':                                                                                                       ## if it goes up
+            if s[_X] > 0:                                                                                               ## make sure it doesn't go off the board
+                if 'd' in tile_textures[player.map_data[new_pos[_X]-1][new_pos[_Y]]].quickinfo:                         ## if the new tile has a down door to enter through
+                    new_pos[_X] -= 1                                                                                    ## move up a tile
+        case 'd':                                                                                                       ## if it goes down
+            if s[_X] + 1 < len(player.map_data):                                                                        ## make sure it doesn't go off the board
+                if 'u' in tile_textures[player.map_data[new_pos[_X]+1][new_pos[_Y]]].quickinfo:                         ## if the new tile has an up door to enter through    
+                    new_pos[_X] += 1                                                                                    ## move down a tile
+        case 'l':
+            if s[_Y] > 0:                                                                                               ## make sure it doesn't go off the board
+                if 'r' in tile_textures[player.map_data[new_pos[_X]][new_pos[_Y]-1]].quickinfo:                         ## if the new tile has a right door to enter through     
+                    new_pos[_Y] -= 1                                                                                    ## move right a tile
+        case 'r':
+            if s[_Y] + 1 < len(player.map_data[0]):                                                                     ## make sure it doesn't go off the board
+                if 'l' in tile_textures[player.map_data[new_pos[_X]][new_pos[_Y]+1]].quickinfo:                         ## if the new tile has a left door to enter through  
+                    new_pos[_Y] += 1                                                                                    ## move left a tile
+        case 'rt':                                                                                                      ## if pick up red token
+            token[0] += 1                                                                                               ## increase the collected red tokens by 1
+        case 'gt':                                                                                                      ## if pick up green token
+            token[1] += 1                                                                                               ## increase the collected green tokens by 1
+        case 'bt':                                                                                                      ## if pick up blue token
+            token[2] += 1                                                                                               ## increase the collected blue tokens by 1
+        case _:                                                                                                         ## if the action is not listed
+            print('Unknown action:', str(a))                                                                            ## let the user know what action it didn't understand
     
     s_prime = tuple(new_pos)                                                                                            ## save the new position as a tuple
-    return s_prime                                                                                                      ## return the new position
+    return s_prime, token                                                                                               ## return the new position
 
 
 ## determines the path to the goal and the actions taken to get there
@@ -202,8 +209,8 @@ def getting_path(tile):
 
 
 ## uses A* planning in order to determine the shortest path to a goal
-def astar(player, num_player = 1):
- 
+def astar(player, goal, num_player = 1):
+    token = [player.Red_Token, player.Green_Token, player.Blue_Token]
     n0 = SearchTile((player.row,player.column),tile_textures[player.map_data[player.row][player.column]].quickinfo)     ## sets the SearchTile as the quickinfo from the tile in question
     print("n0", n0)                                                                                                     ## used for debugggin
     frontier = PriorityQ()                                                                                              ## 
@@ -218,12 +225,12 @@ def astar(player, num_player = 1):
         if(n_i.state not in visited):                                                                                   ## if the state hasen't been visited before
             visited.append(n_i.state)                                                                                   ## adds the state to the visited states
             Actions = tile_textures[player.map_data[n_i.state[_X]][n_i.state[_Y]]].quickinfo                            ## grabs the possible actions
-            if is_goal(player.goal, n_i.state):                                                                         ## if we are at the goal
+            if is_goal(goal, n_i.state):                                                                                ## if we are at the goal
                 path, action_path = getting_path(n_i)                                                                   ## gets the planned path and the actions to take to that path
                 return path, action_path, visited                                                                       ## returns the planned path, the actions to take, and the visited lists
             else:                                                                                                       ## otherwise
                 for a in Actions:                                                                                       ## for each actions 
-                    s_prime = tile_trans(n_i.state, a, player)                                                          ## transition funct
+                    s_prime, temp_token = tile_trans(n_i.state, a, token, player)                                       ## transition funct
                     actions = tile_textures[player.map_data[s_prime[_X]][s_prime[_Y]]].quickinfo                        ## 
                     n_prime = SearchTile(s_prime, actions, n_i, a)                                                      ##                     
                     n_prime = cost(n_prime)                                                                             ## gets the cost of the action
@@ -231,6 +238,7 @@ def astar(player, num_player = 1):
                     curcost = frontier.get_cost(n_prime)                                                                ## get the current cost of the action
                     if curcost == None or curcost > hcost:                                                              ## if there isn't a current cost or if the new cost is less than the current cost
                         frontier.push(n_prime,hcost)                                                                    ## make the cost of the action the new cost
+                        token = temp_token
 
     #print("no path found")                                                                                              ## used for debugging
     #print("quickinfo", empty)                                                                                           ## used for debugging
