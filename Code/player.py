@@ -293,17 +293,17 @@ class Player(pygame.sprite.Sprite):
             match step:
                 case 'u':
                     print('U')
-                    keyboard.press('u')
-                    keyboard.release('u')
-                case 'd':
+                    keyboard.press('w')
+                    keyboard.release('w')
+                case 'r':
                     print('R')
                     keyboard.press('d')
                     keyboard.release('d')
-                case 's':
+                case 'd':
                     print('D')
                     keyboard.press('s')
                     keyboard.release('s')
-                case 'a':
+                case 'l':
                     print('L')
                     keyboard.press('a')
                     keyboard.release('a')
