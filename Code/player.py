@@ -7,7 +7,9 @@ from tilemap import *
 import matplotlib.pyplot as plotter
 from math import hypot, sqrt
 from graph_search import astar
+from pynput.keyboard import Key, Controller
 
+keyboard = Controller()
 TILE_SIZE = settings.TILE_SIZE  ## Gets the size of the tile from the settings file and sets it as a global variable
 
 ##############################################################################################################################################################################################################################
@@ -188,6 +190,11 @@ class Player(pygame.sprite.Sprite):
             print(self.totalcost)                                                                                                                               ## used for debugging fro
             time.sleep(0.5)                                                                                                                                     ## gives the computer a time before reading the next keystroke
  
+        ## automove
+        if keys[pygame.K_b]:
+            print('Automoving...')
+            self.automove()
+
     def goalUpdate(self):
         goal = [-1,-1]                                                                                                                                            ## initalizes the goal
         red = np.where(self.map_data == 3)                                                                                                                      ## gets the red event tile 
@@ -281,6 +288,39 @@ class Player(pygame.sprite.Sprite):
             settings.Player_1 = self                                                                                                                            ## sets player 1 as itself
         time.sleep(0.5)                                                                                                                                         ## gives the computer a time before reading the next keystroke
 
+    def automove(self):
+        for step in self.todo:
+            match step:
+                case 'u':
+                    print('U')
+                    keyboard.press('u')
+                    keyboard.release('u')
+                case 'd':
+                    print('R')
+                    keyboard.press('d')
+                    keyboard.release('d')
+                case 's':
+                    print('D')
+                    keyboard.press('s')
+                    keyboard.release('s')
+                case 'a':
+                    print('L')
+                    keyboard.press('a')
+                    keyboard.release('a')
+                case 'x':
+                    print('TUNNEL')
+                    keyboard.press('q')
+                    keyboard.release('q')
+                case 'y':
+                    print('TUNNEL')
+                    keyboard.press('q')
+                    keyboard.release('q')
+            time.sleep(0.5)
+        keyboard.press('e')
+        keyboard.release('e')
+        print('AUTOMOVE DONE!')
+        return None
+    
     ## Calculating the euclidean heuristic value between two points
     def euclidean_heuristic(self, row, column,  tile_num, D = 1):
         if tile_num != 0:                                                                                                                                       ## skip if the goal is 0
