@@ -51,6 +51,7 @@ class Player(pygame.sprite.Sprite):
         self.actions = ["S"]                                                                                                                                    ## keeps track of actions taken (starting with S for Start)
         self.totalcost = 0                                                                                                                                      ## keeps track of the total cost
         self.heuristic_map_maker(self.goal)                                                                                                                     ## sets up the heruistic map
+        self.plans = []
         settings.Player_1 = self                                                                                                                                ## sets player 1 as itself
     def update(self):                                                                                                                                           ## update things if a key is presed
         self.get_event()                                                                                                                                        ## checks if a key was presed
@@ -106,8 +107,8 @@ class Player(pygame.sprite.Sprite):
             self.heuristic_map_maker(self.goal)                                                                                                                 ## updates the heruistic map
 
             ## performs the astar formula
-            print("plans", self.plans)                                                                                                                          ## prints the planned states of path to the goal
-            print("explored", self.explored)                                                                                                                    ## prints the explored (visited) states to find path
+            #print("plans", self.plans)                                                                                                                          ## prints the planned states of path to the goal
+            #print("explored", self.explored)                                                                                                                    ## prints the explored (visited) states to find path
             if self.plans != None:                                                                                                                              ## if a path to the goal is found
                 settings.planning = True                                                                                                                        ## let the global know that a planning path was found
             settings.Player_1 = self                                                                                                                            ## sets player 1 as itself
@@ -164,8 +165,8 @@ class Player(pygame.sprite.Sprite):
                             self.FireofEidolon = 1                                                                                                              ## indicates that the player has the Fire of Eidolon
                             tile_textures[self.map_data[self.row][self.column]].token = None                                                                    ## Removes the token
                             tile_textures[self.map_data[self.row][self.column]].quickinfo.remove("foe")                                                         ## Removes the token from quick info
-                #self.goalUpdate()                                                                                                                              ## updates on what your next goal should be
-                print(self.totalcost)                                                                                                                           ## used for debugging 
+                self.goalUpdate()                                                                                                                               ## updates on what your next goal should be
+                #print(self.totalcost)                                                                                                                           ## used for debugging 
                 self.actions.append("T")                                                                                                                        ## remembers it grabbed a token (or at least tired)
 
         ## Use Tunnel
@@ -188,7 +189,7 @@ class Player(pygame.sprite.Sprite):
             time.sleep(0.5)                                                                                                                                     ## gives the computer a time before reading the next keystroke
  
     def goalUpdate(self):
-        goal = [0,0]                                                                                                                                            ## initalizes the goal
+        goal = [-1,-1]                                                                                                                                            ## initalizes the goal
         red = np.where(self.map_data == 3)                                                                                                                      ## gets the red event tile 
         green = np.where(self.map_data == 4)                                                                                                                    ## gets the green event tile 
         blue = np.where(self.map_data == 5)                                                                                                                     ## gets the blue event tile 
@@ -215,30 +216,37 @@ class Player(pygame.sprite.Sprite):
                 self.heuristic_map_maker(goal)                                                                                                                  ## makes a heuristic map for the green event tile
                 green_states, green_actionpath, green_explored = astar(self, goal)                                                                              ## compute the A* algorithm for green_event tile
                 green_cal_cost, green_planned_r, green_planned_g, green_planned_b = self.cost_calulator(green_actionpath)                                       ## calculates the cost of the shortest path
+
             if settings.Blue_Event_Broken == False:                                                                                                             ## blue event broken false
                 goal[0] = int(blue[0][-1])                                                                                                                      ## sets the row of the potential goal point
                 goal[1] = int(blue[1][-1])
                 self.heuristic_map_maker(goal)                                                                                                                  ## makes a heuristic map for the blue event tile
                 blue_states, blue_actionpath, blue_explored = astar(self, goal)                                                                                 ## compute the A* algorithm for green_event tile
                 blue_cal_cost, blue_planned_r, blue_planned_g, blue_planned_b = self.cost_calulator(blue_actionpath)                                            ## calculates the cost of the shortest path
-
-            print("red_cal_cost, green_cal_cost, blue_cal_cost", red_cal_cost, green_cal_cost, blue_cal_cost)
+            
+            if self.Red_Token < 6:
+                red_cal_cost = 100000
+            if self.Green_Token < 6:
+                green_cal_cost = 100000
+            if self.Blue_Token < 6:
+                blue_cal_cost = 100000
+            #print("red_cal_cost, green_cal_cost, blue_cal_cost", red_cal_cost, green_cal_cost, blue_cal_cost)
             comparer = (red_cal_cost, green_cal_cost, blue_cal_cost)                                                                                            ## preps to compare the three calculated costs
             small_index = comparer.index(min(comparer))                                                                                                         ## what is the index number of the smallest  calculated costs
-            print("small_index", comparer[small_index])
-            if red_cal_cost == comparer[small_index]:                                                                                                           ## if the value of the red_cal_cost is equal to the smallest recorded
+            #print("small_index", comparer[small_index])
+            if red_cal_cost == comparer[small_index] and red_cal_cost != 100000:                                                                                                           ## if the value of the red_cal_cost is equal to the smallest recorded
                     goal[0] = int(red[0][-1])                                                                                                                   ## sets the row of the point
                     goal[1] = int(red[1][-1])
                     self.plans = red_states                                                                                                                     ## sets the plans to be the list of red states
                     self.todo = red_actionpath                                                                                                                  ## sets the todo list to be the planned red actionpath
                     self.explored = red_explored                                                                                                                ## sets the list of explored to the list of red explored
-            elif green_cal_cost == comparer[small_index]:                                                                                                       ## else if the value of the green_heuristic is equal to the smallest recorded
+            elif green_cal_cost == comparer[small_index] and green_cal_cost != 100000:                                                                                                       ## else if the value of the green_heuristic is equal to the smallest recorded
                     goal[0] = int(green[0][-1])                                                                                                                 ## sets the row of the point
                     goal[1] = int(green[1][-1])
                     self.plans = green_states                                                                                                                   ## sets the plans to be the list of green states
                     self.todo = green_actionpath                                                                                                                ## sets the todo list to be the planned green actionpath
                     self.explored = green_explored                                                                                                              ## sets the list of explored to the list of green explored
-            elif blue_cal_cost == comparer[small_index]:                                                                                                        ## else if the value of the blue_cal_cost is equal to the smallest recorded
+            elif blue_cal_cost == comparer[small_index] and blue_cal_cost != 100000:                                                                                                        ## else if the value of the blue_cal_cost is equal to the smallest recorded
                     goal[0] = int(blue[0][-1])                                                                                                                  ## sets the row of the point
                     goal[1] = int(blue[1][-1])
                     self.plans = blue_states                                                                                                                    ## sets the plans to be the list of blue states
