@@ -595,6 +595,7 @@ def building_random_map(width, height):
             column = new_column                                                                                     ## sets the column as the new column
             used.append(rand_index)                                                                                 ## add the rand_index to the used list
             clockwise_count = 0                                                                                        ## counts how many times the tile was rotated clockwise
+
             ## lines up the doors from the current tile and the newly placed tile
             match direction:                                                                                        ## checks where the direction of the new tile is placed
                 case "U":                                                                                           ## if it was upwards
@@ -630,13 +631,6 @@ def building_random_map(width, height):
             if new_column < min_column:                                                                             ## if the new column is smaller than the previously recorded min column
                 min_column = new_column                                                                             ## the the new column to be the new min column
 
-    ## Gets rid of excess rows and columns
-    #print("min_row", min_row)                                                                                       ## used for debugging
-    #print("max_row", max_row)                                                                                       ## used for debugging
-    #print("min_column", min_column)                                                                                 ## used for debugging
-    #print("max_column", max_column)                                                                                 ## used for debugging
-    #print("mapdata", map_data)                                                                                      ## used for debugging
-
     delete_rows = []                                                                                                ## initalizing list of rows that need to be deleated
     delete_columns = []                                                                                             ## initalizing list of columns that need to be deleated
     for i in range(max_row+1, height):                                                                              ## determines the numbers of the rows at the bottom of the map that needs to be deleted 
@@ -661,9 +655,6 @@ def building_random_map(width, height):
 
     print("map_data", map_data)                                                                                     ## prints out so can copy and regenerate the map
     print("map_rotations", map_rotations)                                                                           ## prints out so you can copy and regenerate the map
-    #print("max_mins ", max_mins)                                                                                    ## used for debugging
-    #print("placed, ", placed)                                                                                       ## used for debugging
-    #print("Names of Buildable ", Names_of_Buildable)                                                                ## used for debugging
     return map_data, max_mins                                                                                       ## returns the map data and size of the new map
 
 
