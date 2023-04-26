@@ -260,7 +260,7 @@ def astar(player, goal, num_player = 1):
                     n_prime = SearchTile(s_prime, actions, n_i, a)                                                      ## determines the cost it would be to get to this tile                    
                     n_prime = cost(player, n_prime)                                                                     ## gets the cost of the action
                     hcost = n_prime.cost +  player.heuristic_map[n_prime.state[0]][n_prime.state[1]]                    ## combines the heuristic value and the cost
-                    curcost = frontier.get_cost(player, n_prime)                                                        ## get the current cost of the action
+                    curcost = frontier.get_cost(n_prime)                                                                ## get the current cost of the action
                     if curcost == None or curcost > hcost:                                                              ## if there isn't a current cost or if the new cost is less than the current cost
                         frontier.push(n_prime,hcost)                                                                    ## make the cost of the action the new cost
                         token = temp_token
