@@ -7,9 +7,9 @@ from tilemap import *
 import matplotlib.pyplot as plotter
 from math import hypot, sqrt
 from graph_search import astar
-from pynput.keyboard import Key, Controller
+from pynput import keyboard
 
-keyboard = Controller()
+# controller = Controller()
 
 TILE_SIZE = settings.TILE_SIZE  ## Gets the size of the tile from the settings file and sets it as a global variable
 
@@ -48,7 +48,7 @@ class Player(pygame.sprite.Sprite):
         self.Green_Token = 0                                                                                                                                    ## initalizes the green token count
         self.Red_Token = 0                                                                                                                                      ## initalizes the red token count
         self.Blue_Token = 0                                                                                                                                     ## initalizes the blue token count
-        self.FireofEidolon = 1                                                                                                                                  ## initalizes the grabbing of the Fire of Eidolon
+        self.FireofEidolon = 0                                                                                                                                  ## initalizes the grabbing of the Fire of Eidolon
         self.visited = [[self.row, self.column]]                                                                                                                ## keeps track of the locations visited (starting with the starting points)
         self.actions = ["S"]                                                                                                                                    ## keeps track of actions taken (starting with S for Start)
         self.totalcost = 0                                                                                                                                      ## keeps track of the total cost
@@ -65,12 +65,6 @@ class Player(pygame.sprite.Sprite):
         self.get_event()                                                                                                                                        ## checks if a key was presed
 
     def get_event(self):
-        #if switchactive == True:
-        #    if self.active == True:
-        #        self.active = False
-        #    else:
-        #        self.active  = True
-        #    switchactive = False
         keys = pygame.key.get_pressed() 
         if self.active == True:
             #keys = pygame.key.get_pressed()                                                                                                                         ## check what key got pressed
@@ -342,37 +336,43 @@ class Player(pygame.sprite.Sprite):
         time.sleep(0.5)                                                                                                                                         ## gives the computer a time before reading the next keystroke
     
     def automove(self):
+        controller = keyboard.Controller()
         for step in self.todo:
-            match step:
-                case 'u':
-                    print('U')
-                    keyboard.press('w')
-                    keyboard.release('w')
-                case 'r':
-                    print('R')
-                    keyboard.press('d')
-                    keyboard.release('d')
-                case 'd':
-                    print('D')
-                    keyboard.press('s')
-                    keyboard.release('s')
-                case 'l':
-                    print('L')
-                    keyboard.press('a')
-                    keyboard.release('a')
-                case 'x':
-                    print('TUNNEL')
-                    keyboard.press('q')
-                    keyboard.release('q')
-                case 'y':
-                    print('TUNNEL')
-                    keyboard.press('q')
-                    keyboard.release('q')
+            if step == 'u':
+                print('U')
+                controller.press('w')
+                time.sleep(0.1)
+                controller.release('w')
+            elif step == 'r':
+                print('R')
+                controller.press('d')
+                time.sleep(0.1)
+                controller.release('d')
+            elif step == 'd':
+                print('D')
+                controller.press('s')
+                time.sleep(0.1)
+                controller.release('s')
+            elif step == 'l':
+                print('L')
+                controller.press('a')
+                time.sleep(0.1)
+                controller.release('a')
+            elif step == 'x':
+                print('TUNNEL')
+                controller.press('q')
+                time.sleep(0.1)
+                controller.release('q')
+            elif step == 'y':
+                print('TUNNEL')
+                controller.press('q')
+                time.sleep(0.1)
+                controller.release('q')
             time.sleep(0.5)
-        keyboard.press('e')
-        keyboard.release('e')
+        controller.press('e')
+        time.sleep(0.1)
+        controller.release('e')
         print('AUTOMOVE DONE!')
-        return None
 
     ## Calculating the euclidean heuristic value between two points
     def euclidean_heuristic(self, row, column,  tile_num, D = 1):
