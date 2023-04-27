@@ -87,12 +87,12 @@ Player 2  = player2, once a second player is added, must manually set all player
 #player2.otherplayer = player
 
 ### 3 Player
-player = Player(sprites_group, map_data)
-player2 = Player(sprites_group, map_data)
+player = Player(sprites_group, map_data, 2, 3, 1)
+player2 = Player(sprites_group, map_data, 3, 1, 2)
 player2.active = False
 player2.image = pygame.image.load("Images/Other/magic_meeple_games_makshift_token2.png") 
 player2.image = create_player_texture(player2.image)
-player3 = Player(sprites_group, map_data)
+player3 = Player(sprites_group, map_data, 1, 2, 3)
 player3.active = False
 player3.image = pygame.image.load("Images/Other/magic_meeple_games_makshift_token3.png") 
 player3.image = create_player_texture(player3.image)
@@ -103,16 +103,16 @@ player3.otherplayer = player
 
 
 ### 4 Player
-#player = Player(sprites_group, map_data)
-#player2 = Player(sprites_group, map_data)
+#player = Player(sprites_group, map_data, 2, 3, 1)
+#player2 = Player(sprites_group, map_data, 3, 1, 2)
 #player2.active = False
 #player2.image = pygame.image.load("Images/Other/magic_meeple_games_makshift_token2.png") 
 #player2.image = create_player_texture(player2.image)
-#player3 = Player(sprites_group, map_data)
+#player3 = Player(sprites_group, map_data, 1, 2, 3)
 #player3.active = False
 #player3.image = pygame.image.load("Images/Other/magic_meeple_games_makshift_token3.png") 
 #player3.image = create_player_texture(player3.image)
-#player4 = Player(sprites_group, map_data)
+#player4 = Player(sprites_group, map_data, 3, 3, 3)
 #player4.active = False
 #player4.image = pygame.image.load("Images/Other/magic_meeple_games_makshift_token4.png") 
 #player4.image = create_player_texture(player4.image)

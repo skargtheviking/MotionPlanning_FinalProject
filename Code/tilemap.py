@@ -675,64 +675,82 @@ def draw_map(screen, map_data, TILE_SIZE):
     font_size = TILE_SIZE//4                                                                                        ## make the font size 1/4th of the actual size
     font = pygame.font.Font(None, font_size)                                                                        ## set the font for the scoreboard
 
-    totalcost_text = font.render(f'Cost: {settings.Player_1.totalcost}', True, (0, 0, 0))                           ## gets the value of the total cost of the actions
+    totalcost_text = font.render(f'Cost: {settings.total_actions_value}', True, (0, 0, 0))                          ## gets the value of the total cost of the actions
     screen.blit(totalcost_text, (10, MAP_HEIGHT*TILE_SIZE))                                                         ## displays the total cost of the actions on the score board
 
     ## Red Score
-    Red_Token_text = font.render(f'Red Token: {settings.Player_1.Red_Token}', True, (0, 0, 0))                      ## displays the count for the Red Token
-    if settings.Player_1.Red_Token != 0:                                                                            ## once a red token has been collected
-        for i in range(settings.Player_1.Red_Token):                                                                ## add a red token image for each red token collected
-            screen.blit(token_texture[1],(font_size*6+(font_size/3)*i, MAP_HEIGHT*TILE_SIZE+font_size//1.5))        ## displays the token
+    Red_Token_text = font.render(f'Red Token: {settings.total_Red_Tokens}', True, (0, 0, 0))                        ## displays the count for the total number of Red Token
     if settings.Red_Event_Broken == True:                                                                           ## if the Red event hasn't been broken yet
         screen.blit(token_texture[8],(font_size*6+(font_size/3), MAP_HEIGHT*TILE_SIZE+font_size//1.5))              ## displays the broken event token            
+    elif settings.total_Red_Tokens != 0:                                                                              ## once a red token has been collected
+        for i in range(settings.total_Red_Tokens):                                                                  ## add a red token image for each red token collected
+            screen.blit(token_texture[1],(font_size*6+(font_size/3)*i, MAP_HEIGHT*TILE_SIZE+font_size//1.5))        ## displays the token
+
     screen.blit(Red_Token_text, (10, MAP_HEIGHT*TILE_SIZE+font_size))                                               ## displays the text and where it should be located
 
     ## Green Score
-    Green_Token_text = font.render(f'Green Token: {settings.Player_1.Green_Token}', True, (0, 0, 0))                ## displays the count for the Green Token
-    if settings.Player_1.Green_Token != 0:                                                                          ## once a green token has been collected
-        for i in range(settings.Player_1.Green_Token):                                                              ## add a green token image for each green token collected
-            screen.blit(token_texture[2],(font_size*6+(font_size/3)*i, MAP_HEIGHT*TILE_SIZE+1.5*font_size))         ## displays the token
+    Green_Token_text = font.render(f'Green Token: {settings.total_Green_Tokens}', True, (0, 0, 0))                  ## displays the count for the total number of Green Token
     if settings.Green_Event_Broken == True:                                                                         ## if the Green event hasn't been broken yet
         screen.blit(token_texture[9],(font_size*6+(font_size/3), MAP_HEIGHT*TILE_SIZE+1.5*font_size))               ## displays the broken event token
+    elif settings.total_Green_Tokens != 0:                                                                            ## once a green token has been collected
+        for i in range(settings.total_Green_Tokens):                                                                ## add a green token image for each green token collected
+            screen.blit(token_texture[2],(font_size*6+(font_size/3)*i, MAP_HEIGHT*TILE_SIZE+1.5*font_size))         ## displays the token
+
     screen.blit(Green_Token_text, (10, MAP_HEIGHT*TILE_SIZE+font_size*2))                                           ## displays the text and where it should be located
 
     ## Blue Score
-    Blue_Token_text = font.render(f'Blue Token: {settings.Player_1.Blue_Token}', True, (0, 0, 0))                   ## displays the count for the Blue Token
-    if settings.Player_1.Blue_Token != 0:                                                                           ## once a blue token has been collected
-            for i in range(settings.Player_1.Blue_Token):                                                           ## add a Blue token image for each green token collected
-                screen.blit(token_texture[3],(font_size*6+(font_size/3)*i, MAP_HEIGHT*TILE_SIZE+2.5*font_size))     ## displays the token
+    Blue_Token_text = font.render(f'Blue Token: {settings.total_Blue_Tokens}', True, (0, 0, 0))                     ## displays the count for the total number of Blue Token
     if settings.Blue_Event_Broken == True:                                                                          ## if the Blue event hasn't been broken yet
             screen.blit(token_texture[10],(font_size*6+(font_size/3), MAP_HEIGHT*TILE_SIZE+2.5*font_size))          ## displays the broken event token  
+
+    elif settings.total_Blue_Tokens != 0:                                                                             ## once a blue token has been collected
+            for i in range(settings.total_Blue_Tokens):                                                             ## add a Blue token image for each green token collected
+                screen.blit(token_texture[3],(font_size*6+(font_size/3)*i, MAP_HEIGHT*TILE_SIZE+2.5*font_size))     ## displays the token
     screen.blit(Blue_Token_text, (10, MAP_HEIGHT*TILE_SIZE+font_size*3))                                            ## displays the text and where it should be located
 
     ## Fire of Eidolon Score
     if settings.FireofEidolon_Grabbed == True:                                                                      ## if the fire of Eidolon has been grabbed
         screen.blit(pygame.transform.scale(token_texture[7],(TILE_SIZE/1.5,TILE_SIZE/1.5)),                         ## display the fire of Eidolon in the center of the score board at a larger scale
                     (TILE_SIZE*MAP_WIDTH//2, MAP_HEIGHT*TILE_SIZE))                                                 ## place it in the center of the score board
-
-    ## Determineing Pathing
+    
+    ## You Win! with backpath
     if settings.Win == True:                                                                                        ## if the player has won
-        backpaths(settings.Player_1, screen)                                                                        ## get the path the player had traveled
+        backpaths(settings.Players, screen)                                                                         ## get the path the players have traveled
         win_font_size = TILE_SIZE//4                                                                                ## make the font size 1/4th of the actual size
         win_font = pygame.font.Font(None, win_font_size)                                                            ## set the font for the scoreboard
         Win_text = win_font.render(f'YOU WIN!!!', True, (139, 128, 0))                                              ## Tells the player they won!
         screen.blit(Win_text, (TILE_SIZE*MAP_WIDTH//2, MAP_HEIGHT*TILE_SIZE+font_size*3))                           ## displays the text and where it should be located
+    else:
+       for i in range(len(settings.Players)):
+           if settings.Players[i].active == True:
+               ind = i
+       players_font_size = TILE_SIZE//4                                                                             ## make the font size 1/4th of the actual size 
+       activeplayer_font = pygame.font.Font(None, players_font_size)                                                ## set the font for the scoreboard
+       activeplayer_text = activeplayer_font.render(f'Player {ind+1}', True, (0, 0, 0))                             ## Tells the player is active
+       screen.blit(activeplayer_text, (TILE_SIZE*MAP_WIDTH//2, MAP_HEIGHT*TILE_SIZE+font_size*3))                   ## displays the text and where it should be located
+
+       activeplayer_text = activeplayer_font.render(f'Actions Left: {3-settings.Players[ind].keycount}',            ## Tells the player how many actions this player has taken this turn
+                                                   True, (0, 0, 0))                                                 
+       screen.blit(activeplayer_text, (1.5*TILE_SIZE*MAP_WIDTH//2, MAP_HEIGHT*TILE_SIZE+font_size*3))               ## displays the text and where it should be located
+
 
     if settings.planning == True:                                                                                   ## if a planned path was determined
-        forwardpath(settings.Player_1, screen)                                                                      ## gets the planned path for the player to follow
+        forwardpath(settings.Active_Player, screen)                                                                       ## gets the planned path for the player to follow
 
     #if settings.seen == True:                                                                                       ## if player has list of explored points in conjunction with planning
-    #    explored(settings.Player_1, screen)                                                                         ## displays which tiles have been explored as part of the planning process
+    #    explored(settings.Active_Player, screen)                                                                         ## displays which tiles have been explored as part of the planning process
 
 ## gets the path the player traveled
-def backpaths(Player, screen):                                                                                      ## gets the path the player traveled
-    gradiant = []
-    path = []                                                                                                       ## initalize the path
-    for i in range(len(Player.visited)):                                                                            ## for each state the player visited
-        path.append([Player.visited[i][1]*TILE_SIZE+TILE_SIZE//2, Player.visited[i][0]*TILE_SIZE+TILE_SIZE//2])     ## converte the state into a path based on the number of pixels
-    for j in range(len(path)-1):                                                                                    ## for each of the items in the path (minus the last one)    
-        gradiant = (round(255-255*j/len(path)), round(255*(j/len(path))), 0)                                        ## determine the color
-        pygame.draw.lines(screen, gradiant, False, [path[j], path[j+1]], width = TILE_SIZE//12)                     ## draw the lines in a clean color gradiant
+def backpaths(Players, screen):                                                                                      ## gets the path the player traveled
+    for p in range(len(Players)):
+        gradiant = []
+        path = []                                                                                                       ## initalize the path
+        for i in range(len(Players[p].visited)):                                                                            ## for each state the player visited
+            path.append([p*10 + Players[p].visited[i][1]*TILE_SIZE+TILE_SIZE//3,                                          ## converte the state into a path based on the number of pixels         
+                         p*10 + Players[p].visited[i][0]*TILE_SIZE+TILE_SIZE//3])     
+        for j in range(len(path)-1):                                                                                    ## for each of the items in the path (minus the last one)    
+            gradiant = (round(255-255*j/len(path)), round(255*(j/len(path))), 0)                                        ## determine the color
+            pygame.draw.lines(screen, gradiant, False, [path[j], path[j+1]], width = TILE_SIZE//12)                     ## draw the lines in a clean color gradiant
 
 ## gets the path the player plans to travel
 def forwardpath(Player, screen):                                                                                    ## gets the path the player plans to travel

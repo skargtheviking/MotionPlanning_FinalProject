@@ -17,7 +17,6 @@ TILE_SIZE = settings.TILE_SIZE  ## Gets the size of the tile from the settings f
 #### Things to add to player
 ####    - Have the player build the map as they go
 ####    - Have A* work with tokens
-####    - Add a 2nd player
 ##############################################################################################################################################################################################################################
 
 def create_player_texture(name):
@@ -27,16 +26,16 @@ def create_player_texture(name):
 
 ## Creates a player
 class Player(pygame.sprite.Sprite):                                                
-    def __init__(self, sprites_group, map_data, living = False):
+    def __init__(self, sprites_group, map_data, STR, INT, DEX, living = False):
         self.groups = sprites_group                                                                                                                             ##
         pygame.sprite.Sprite.__init__(self, self.groups)                                                                                                        ##
         self.map_data = map_data                                                                                                                                ## stores the map for the player
         self.image = pygame.image.load("Images/Other/magic_meeple_games_makshift_token.png")                                                                    ## sets the players image and loads the file
         self.image = create_player_texture(self.image)                                                                                                          ## scales the image for use
         self.rect = self.image.get_rect()                                                                                                                       ## get the rectangle angle fo the surface
-        self.Strength = 3                                                                                                                                       ## determines the players strength 
-        self.Intelligence = 3                                                                                                                                   ## determines the players intelligence
-        self.Agility = 3                                                                                                                                        ## determines the players Agility
+        self.Strength = STR                                                                                                                                       ## determines the players strength 
+        self.Intelligence = INT                                                                                                                                   ## determines the players intelligence
+        self.Agility = DEX                                                                                                                                        ## determines the players Agility
         self.start_point = np.where(map_data == 1)                                                                                                              ## determines where the starting point is on the map
         self.end = np.where(map_data == 6)                                                                                                                      ## determines where the end tile is
         self.goal = [int(self.end[0]),int(self.end[1])]                                                                                                         ## determien a goal tile
@@ -44,20 +43,23 @@ class Player(pygame.sprite.Sprite):
         self.Y_tile = np.where(map_data == 8)                                                                                                                   ## determines where the secret Y tile is on the map
         self.row = int(self.start_point[0])                                                                                                                     ## This is the row the player is at
         self.column = int(self.start_point[1])                                                                                                                  ## This is the column the player is at
-        self.rect.centerx = self.column*TILE_SIZE + TILE_SIZE/2                                                                                                 ## places the player at the starting point's x position
+        self.rect.centerx = len(settings.Players)*10+self.column*TILE_SIZE + TILE_SIZE/3                                                                        ## places the player at the starting point's x position
         self.rect.centery = self.row*TILE_SIZE + TILE_SIZE/2                                                                                                    ## places the player at the starting point's y position
         self.Green_Token = 0                                                                                                                                    ## initalizes the green token count
         self.Red_Token = 0                                                                                                                                      ## initalizes the red token count
         self.Blue_Token = 0                                                                                                                                     ## initalizes the blue token count
-        self.FireofEidolon = 0                                                                                                                                  ## initalizes the grabbing of the Fire of Eidolon
+        self.FireofEidolon = 1                                                                                                                                  ## initalizes the grabbing of the Fire of Eidolon
         self.visited = [[self.row, self.column]]                                                                                                                ## keeps track of the locations visited (starting with the starting points)
         self.actions = ["S"]                                                                                                                                    ## keeps track of actions taken (starting with S for Start)
         self.totalcost = 0                                                                                                                                      ## keeps track of the total cost
         self.heuristic_map_maker(self.goal)                                                                                                                     ## sets up the heruistic map
-        settings.Player_1 = self                                                                                                                                ## sets player 1 as itself
         self.active = True
         self.otherplayer = None
         self.keycount = 3
+        self.plans = []
+        self.todo = []
+        self.explored = []
+        settings.Players.append(self)
 
     def update(self):                                                                                                                                           ## update things if a key is presed
         self.get_event()                                                                                                                                        ## checks if a key was presed
@@ -75,7 +77,9 @@ class Player(pygame.sprite.Sprite):
             #if (keys[pygame.K_s] or keys[pygame.K_w] or keys[pygame.K_a] or keys[pygame.K_d]
             #    or keys[pygame.K_q]):
             #    self.keycount += 1
-            
+            if keys[pygame.K_l]:                                                                                                                                    ## allows the player to skip an action without moving
+                self.keycount += 1            
+                time.sleep(0.5)                                                                                                                                     ## gives the computer a time before reading the next keystroke   
                 
             ## Moving Up
             if keys[pygame.K_w]:                                                                                                                                    ## when the "W" button is pressed
@@ -133,7 +137,7 @@ class Player(pygame.sprite.Sprite):
                 print("explored", self.explored)                                                                                                                    ## prints the explored (visited) states to find path
                 if self.plans != None:                                                                                                                              ## if a path to the goal is found
                     settings.planning = True                                                                                                                        ## let the global know that a planning path was found
-                settings.Player_1 = self                                                                                                                            ## sets player 1 as itself
+                settings.Active_Player = self                                                                                                                            ## sets player 1 as itself
                 settings.seen = True                                                                                                                                ## lets the global know that it has a set of explored (visited) points
                 time.sleep(0.5)                                                                                                                                     ## gives the computer a time before reading the next keystroke   
 
@@ -142,55 +146,71 @@ class Player(pygame.sprite.Sprite):
                 if tile_textures[self.map_data[self.row][self.column]].token != None:                                                                               ## If there is a tile there
                     match tile_textures[self.map_data[self.row][self.column]].type:                                                                                 ## determine what the tile type is
                         case "Red":                                                                                                                                 ## if it's listed as red
-                            self.totalcost = 4 - self.Strength + self.totalcost                                                                                     ## adds cost (1 cost if Strength = 3, 2 cost is Strength = 2, 3 cost is Strength = 1)
-                            self.Red_Token = self.Red_Token + 1                                                                                                     ## increase the Red_Token by 1
-                            settings.total_Red_Tokens += 1
-                            tile_textures[self.map_data[self.row][self.column]].token = None                                                                        ## Removes the token
-                            tile_textures[self.map_data[self.row][self.column]].quickinfo.remove("rt")                                                              ## Removes the token from quick info
+                            if (4 - self.Strength + self.keycount) <= 3:
+                                self.keycount = 4 - self.Strength + self.keycount
+                                self.totalcost = 4 - self.Strength + self.totalcost                                                                                     ## adds cost (1 cost if Strength = 3, 2 cost is Strength = 2, 3 cost is Strength = 1)
+                                settings.total_actions_value = 4 - self.Strength + settings.total_actions_value
+                                self.Red_Token = self.Red_Token + 1                                                                                                     ## increase the Red_Token by 1
+                                settings.total_Red_Tokens += 1
+                                tile_textures[self.map_data[self.row][self.column]].token = None                                                                        ## Removes the token
+                                tile_textures[self.map_data[self.row][self.column]].quickinfo.remove("rt")                                                              ## Removes the token from quick info
                         case "Green":                                                                                                                               ## if it's listed as green
-                            self.totalcost = 4 - self.Agility + self.totalcost                                                                                      ## adds cost (1 cost if Agility = 3, 2 cost is Agility = 2, 3 cost is Agility = 1)
-                            self.Green_Token = self.Green_Token + 1                                                                                                 ## increase the Green_Token by 1
-                            settings.total_Green_Tokens += 1
-                            tile_textures[self.map_data[self.row][self.column]].token = None                                                                        ## Removes the token
-                            tile_textures[self.map_data[self.row][self.column]].quickinfo.remove("gt")                                                              ## Removes the token from quick info  
+                            if (4 - self.Agility + self.keycount) <= 3:
+                                self.keycount = 4 - self.Agility + self.keycount
+                                self.totalcost = 4 - self.Agility + self.totalcost                                                                                      ## adds cost (1 cost if Agility = 3, 2 cost is Agility = 2, 3 cost is Agility = 1)
+                                settings.total_actions_value = 4 - self.Agility + settings.total_actions_value
+                                self.Green_Token = self.Green_Token + 1                                                                                                 ## increase the Green_Token by 1
+                                settings.total_Green_Tokens += 1
+                                tile_textures[self.map_data[self.row][self.column]].token = None                                                                        ## Removes the token
+                                tile_textures[self.map_data[self.row][self.column]].quickinfo.remove("gt")                                                              ## Removes the token from quick info  
                         case "Blue":                                                                                                                                ## if it's listed as blue
-                            self.totalcost = 4 - self.Intelligence + self.totalcost                                                                                 ## adds cost (1 cost if Intelligence = 3, 2 cost is Intelligence = 2, 3 cost is Intelligence = 1)
-                            self.Blue_Token = self.Blue_Token + 1                                                                                                   ## increase the Blue_Token by 1
-                            settings.total_Blue_Tokens += 1
-                            tile_textures[self.map_data[self.row][self.column]].token = None                                                                        ## Removes the token
-                            tile_textures[self.map_data[self.row][self.column]].quickinfo.remove("bt")                                                              ## Removes the token from quick info
+                            if (4 - self.Intelligence + self.keycount) <= 3:
+                                self.keycount = 4 - self.Intelligence + self.keycount
+                                self.totalcost = 4 - self.Intelligence + self.totalcost                                                                                 ## adds cost (1 cost if Intelligence = 3, 2 cost is Intelligence = 2, 3 cost is Intelligence = 1)
+                                settings.total_actions_value = 4 - self.Intelligence + settings.total_actions_value
+                                self.Blue_Token = self.Blue_Token + 1                                                                                                   ## increase the Blue_Token by 1
+                                settings.total_Blue_Tokens += 1
+                                tile_textures[self.map_data[self.row][self.column]].token = None                                                                        ## Removes the token
+                                tile_textures[self.map_data[self.row][self.column]].quickinfo.remove("bt")                                                              ## Removes the token from quick info
                         case "RedEvent":                                                                                                                            ## if it's listed as red event
-                            if self.Red_Token >= 6:                                                                                                                 ## do you have enough tokens to break the red event
+                            if self.Red_Token >= 6 or settings.total_Red_Tokens >= 6:                                                                                                                 ## do you have enough tokens to break the red event
                                 self.totalcost = self.totalcost + 1                                                                                                 ## costs 1 action to break event
+                                settings.total_actions_value += 1
                                 settings.Red_Event_Broken = True                                                                                                    ## breaks the red event
                                 tile_textures[self.map_data[self.row][self.column]].type = "Broken_RedEvent"                                                        ## displays the broken red event token
                                 tile_textures[self.map_data[self.row][self.column]].token = tile_textures[self.map_data[self.row][self.column]].Token_grabber()     ## changes the token visual
                                 tile_textures[self.map_data[self.row][self.column]].quickinfo.remove("ret")                                                         ## Removes the token from quick info
                                 self.Red_Token = 0
                         case "GreenEvent":                                                                                                                          ## if it's listed as green event 
-                            if self.Green_Token >= 6:                                                                                                               ## do you have enough tokens to break the green event
+                            if self.Green_Token >= 6 or settings.total_Green_Tokens >= 6:                                                                                                               ## do you have enough tokens to break the green event
                                 self.totalcost = self.totalcost + 1                                                                                                 ## costs 1 action to break event
+                                settings.total_actions_value += 1
                                 settings.Green_Event_Broken = True                                                                                                  ## breaks the green event
                                 tile_textures[self.map_data[self.row][self.column]].type = "Broken_GreenEvent"                                                      ## displays the broken green event token
                                 tile_textures[self.map_data[self.row][self.column]].token = tile_textures[self.map_data[self.row][self.column]].Token_grabber()     ## changes the token visual
                                 tile_textures[self.map_data[self.row][self.column]].quickinfo.remove("get")                                                         ## Removes the token from quick info
                                 self.Green_Token = 0
+                                self.keycount += 1
                         case "BlueEvent":                                                                                                                           ## if it's listed as blue event
-                            if self.Blue_Token >= 6:                                                                                                                ## do you have enough tokens to break the blue event
+                            if self.Blue_Token >= 6 or settings.total_Blue_Tokens >= 6:                                                                                                                ## do you have enough tokens to break the blue event
                                 self.totalcost = self.totalcost + 1                                                                                                 ## costs 1 action to break event
+                                settings.total_actions_value += 1
                                 settings.Blue_Event_Broken = True                                                                                                   ## breaks the blue event
                                 tile_textures[self.map_data[self.row][self.column]].type = "Broken_BlueEvent"                                                       ## displays the broken blue event token
                                 tile_textures[self.map_data[self.row][self.column]].token = tile_textures[self.map_data[self.row][self.column]].Token_grabber()     ## changes the token visual
                                 tile_textures[self.map_data[self.row][self.column]].quickinfo.remove("bet")                                                         ## Removes the token from quick info
                                 self.Blue_Token = 0
+                                self.keycount += 1
                         case "FireofEidolon":                                                                                                                       ## if it's listed as Fire of Eidolon
                             if settings.Red_Event_Broken == True and settings.Green_Event_Broken == True and settings.Blue_Event_Broken == True:                    ## all other events broken?
                                 self.totalcost = self.totalcost + 1                                                                                                 ## costs 1 action to grab Fire of Eidolon
+                                settings.total_actions_value += 1
                                 settings.FireofEidolon_Grabbed = True                                                                                               ## marks that the Fire of Eidolon has been grabbed
                                 self.FireofEidolon = 1                                                                                                              ## indicates that the player has the Fire of Eidolon
                                 tile_textures[self.map_data[self.row][self.column]].token = None                                                                    ## Removes the token
                                 tile_textures[self.map_data[self.row][self.column]].quickinfo.remove("foe")                                                         ## Removes the token from quick info
-                    #self.goalUpdate()                                                                                                                              ## updates on what your next goal should be
+                                self.keycount += 1
+                    self.goalUpdate()                                                                                                                              ## updates on what your next goal should be
                     print(self.totalcost)                                                                                                                           ## used for debugging 
                     self.actions.append("T")                                                                                                                        ## remembers it grabbed a token (or at least tired)
 
@@ -224,6 +244,7 @@ class Player(pygame.sprite.Sprite):
                 self.keycount = 0
                 pygame.event.clear()
                 if self.otherplayer != None:
+                    #self.active = True
                     self.otherplayer.active = True 
                 
 
@@ -262,11 +283,11 @@ class Player(pygame.sprite.Sprite):
                 blue_states, blue_actionpath, blue_explored = astar(self, goal)                                                                                 ## compute the A* algorithm for green_event tile
                 blue_cal_cost, blue_planned_r, blue_planned_g, blue_planned_b = self.cost_calulator(blue_actionpath)                                            ## calculates the cost of the shortest path
 
-            if self.Red_Token <= 5:
+            if self.Red_Token <= 5 and settings.total_Red_Tokens <= 5:
                 red_cal_cost = 100000
-            if self.Green_Token <= 5:
+            if self.Green_Token <= 5 and settings.total_Green_Tokens <= 5:
                 green_cal_cost = 100000
-            if self.Blue_Token <= 5:
+            if self.Blue_Token <= 5 and settings.total_Blue_Tokens <= 5:
                 blue_cal_cost = 100000
 
             #print("red_cal_cost, green_cal_cost, blue_cal_cost", red_cal_cost, green_cal_cost, blue_cal_cost)
@@ -303,7 +324,8 @@ class Player(pygame.sprite.Sprite):
     ## moves the player on the screen and where the player is on the map
     def move(self, dx, dy):
         self.totalcost = self.totalcost + 1                                                                                                                     ## adds 1 to the total cost
-        print(self.totalcost)                                                                                                                                   ## used for debugging
+        settings.total_actions_value += 1                                                                                                                       ## updates the total actions value of all players
+        #print(self.totalcost)                                                                                                                                   ## used for debugging
         self.rect.x += dx                                                                                                                                       ## lets the compter know where to move the player in the x direction
         self.rect.y += dy                                                                                                                                       ## lets the compter know where to move the player in the y direction
         self.row = self.row + dy//TILE_SIZE                                                                                                                     ## sets the new row
@@ -314,10 +336,9 @@ class Player(pygame.sprite.Sprite):
             settings.seen = False                                                                                                                               ## turns off visted so it doesn't overlap with final backpath
             settings.Win = True
             print("You Win!")                                                                                                                                   ## let the player know they won
-            print("Vistied ", self.visited)                                                                                                                     ## displays the visited tiles in order of vist
-            print("Actions ", self.actions)                                                                                                                     ## displays the actions in order of taken
-            print("Total Cost ", self.totalcost)                                                                                                                ## displays the total costs to win
-            settings.Player_1 = self                                                                                                                            ## sets player 1 as itself
+            print("Vistied Sets of this Player", self.visited)                                                                                                  ## displays the visited tiles in order of vist
+            print("Actions Player_1", self.actions)                                                                                                             ## displays the actions in order of taken
+            print("Total Cost", settings.total_actions_value)                                                                                                   ## displays the total costs to win
         time.sleep(0.5)                                                                                                                                         ## gives the computer a time before reading the next keystroke
     
     def automove(self):
@@ -352,7 +373,6 @@ class Player(pygame.sprite.Sprite):
         keyboard.release('e')
         print('AUTOMOVE DONE!')
         return None
-
 
     ## Calculating the euclidean heuristic value between two points
     def euclidean_heuristic(self, row, column,  tile_num, D = 1):
