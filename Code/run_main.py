@@ -12,7 +12,7 @@ import contextlib
 with contextlib.redirect_stdout(None):
     import pygame
 
-from player import Player
+from player import Player, create_player_texture
 from tilemap import *
 import settings
 # os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
@@ -67,7 +67,19 @@ screen = pygame.display.set_mode((max_mins[1]*TILE_SIZE, max_mins[0]*TILE_SIZE+T
 
 sprites_group = pygame.sprite.Group()
 
+## Player Set up ##
+'''
+Player 1  = player, default settings if only one player
+Player 2  = player2, once a second player is added, must manually set all player settings
+'''
+
 player = Player(sprites_group, map_data)
+player2 = Player(sprites_group, map_data)
+player2.active = False
+player.otherplayer = player2
+player2.otherplayer = player
+player2.image = pygame.image.load("Images/Other/magic_meeple_games_makshift_token2.png") 
+player2.image = create_player_texture(player2.image) 
 
 ## with a ceter piece if everything goes in a straight line it is 29 + 28 = 57
 ## Though with turning corners the max possible length a tunnel can go is 22 tiles

@@ -12,3 +12,4 @@ Player_1 = None                     ## records Player_1
 Red_Tiles = []                      ## these tiles have red tokens
 Green_Tiles = []                    ## these tiles have green tokens
 Blue_Tiles = []                     ## these tiles have blue tokens
+
