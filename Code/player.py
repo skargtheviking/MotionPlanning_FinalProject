@@ -7,6 +7,9 @@ from tilemap import *
 import matplotlib.pyplot as plotter
 from math import hypot, sqrt
 from graph_search import astar
+from pynput.keyboard import Key, Controller
+
+keyboard = Controller()
 
 TILE_SIZE = settings.TILE_SIZE  ## Gets the size of the tile from the settings file and sets it as a global variable
 
@@ -208,7 +211,11 @@ class Player(pygame.sprite.Sprite):
                     self.keycount += 1
                 print(self.totalcost)                                                                                                                               ## used for debugging fro
                 time.sleep(0.5)                                                                                                                                     ## gives the computer a time before reading the next keystroke
-            
+    
+            if keys[pygame.K_b]:
+                print('Automoving...')
+                self.automove()
+
             if self.keycount == 3:
                 self.active = False
                 self.keycount = 0
@@ -301,6 +308,40 @@ class Player(pygame.sprite.Sprite):
             print("Total Cost ", self.totalcost)                                                                                                                ## displays the total costs to win
             settings.Player_1 = self                                                                                                                            ## sets player 1 as itself
         time.sleep(0.5)                                                                                                                                         ## gives the computer a time before reading the next keystroke
+    
+    def automove(self):
+        for step in self.todo:
+            match step:
+                case 'u':
+                    print('U')
+                    keyboard.press('w')
+                    keyboard.release('w')
+                case 'r':
+                    print('R')
+                    keyboard.press('d')
+                    keyboard.release('d')
+                case 'd':
+                    print('D')
+                    keyboard.press('s')
+                    keyboard.release('s')
+                case 'l':
+                    print('L')
+                    keyboard.press('a')
+                    keyboard.release('a')
+                case 'x':
+                    print('TUNNEL')
+                    keyboard.press('q')
+                    keyboard.release('q')
+                case 'y':
+                    print('TUNNEL')
+                    keyboard.press('q')
+                    keyboard.release('q')
+            time.sleep(0.5)
+        keyboard.press('e')
+        keyboard.release('e')
+        print('AUTOMOVE DONE!')
+        return None
+
 
     ## Calculating the euclidean heuristic value between two points
     def euclidean_heuristic(self, row, column,  tile_num, D = 1):
