@@ -73,13 +73,55 @@ Player 1  = player, default settings if only one player
 Player 2  = player2, once a second player is added, must manually set all player settings
 '''
 
+### 1 Player
+#player = Player(sprites_group, map_data)
+
+## 2 Player
+#player = Player(sprites_group, map_data)
+#player2 = Player(sprites_group, map_data)
+#player2.active = False
+#player2.image = pygame.image.load("Images/Other/magic_meeple_games_makshift_token2.png") 
+#player2.image = create_player_texture(player2.image)
+
+#player.otherplayer = player2
+#player2.otherplayer = player
+
+### 3 Player
 player = Player(sprites_group, map_data)
 player2 = Player(sprites_group, map_data)
 player2.active = False
-player.otherplayer = player2
-player2.otherplayer = player
 player2.image = pygame.image.load("Images/Other/magic_meeple_games_makshift_token2.png") 
-player2.image = create_player_texture(player2.image) 
+player2.image = create_player_texture(player2.image)
+player3 = Player(sprites_group, map_data)
+player3.active = False
+player3.image = pygame.image.load("Images/Other/magic_meeple_games_makshift_token3.png") 
+player3.image = create_player_texture(player3.image)
+
+player.otherplayer = player2
+player2.otherplayer = player3
+player3.otherplayer = player
+
+
+### 4 Player
+#player = Player(sprites_group, map_data)
+#player2 = Player(sprites_group, map_data)
+#player2.active = False
+#player2.image = pygame.image.load("Images/Other/magic_meeple_games_makshift_token2.png") 
+#player2.image = create_player_texture(player2.image)
+#player3 = Player(sprites_group, map_data)
+#player3.active = False
+#player3.image = pygame.image.load("Images/Other/magic_meeple_games_makshift_token3.png") 
+#player3.image = create_player_texture(player3.image)
+#player4 = Player(sprites_group, map_data)
+#player4.active = False
+#player4.image = pygame.image.load("Images/Other/magic_meeple_games_makshift_token4.png") 
+#player4.image = create_player_texture(player4.image)
+
+#player.otherplayer = player2
+#player2.otherplayer = player3
+#player3.otherplayer = player4
+#player4.otherplayer = player
+
 
 ## with a ceter piece if everything goes in a straight line it is 29 + 28 = 57
 ## Though with turning corners the max possible length a tunnel can go is 22 tiles

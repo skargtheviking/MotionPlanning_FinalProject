@@ -12,4 +12,7 @@ Player_1 = None                     ## records Player_1
 Red_Tiles = []                      ## these tiles have red tokens
 Green_Tiles = []                    ## these tiles have green tokens
 Blue_Tiles = []                     ## these tiles have blue tokens
+total_Red_Tokens = []              ## keeps track of the total red tokens for all the players
+total_Green_Tokens = []              ## keeps track of the total green tokens for all the players
+total_Blue_Tokens = []              ## keeps track of the total blue tokens for all the players
 

@@ -144,16 +144,19 @@ class Player(pygame.sprite.Sprite):
                         case "Red":                                                                                                                                 ## if it's listed as red
                             self.totalcost = 4 - self.Strength + self.totalcost                                                                                     ## adds cost (1 cost if Strength = 3, 2 cost is Strength = 2, 3 cost is Strength = 1)
                             self.Red_Token = self.Red_Token + 1                                                                                                     ## increase the Red_Token by 1
+                            settings.total_Red_Tokens += 1
                             tile_textures[self.map_data[self.row][self.column]].token = None                                                                        ## Removes the token
                             tile_textures[self.map_data[self.row][self.column]].quickinfo.remove("rt")                                                              ## Removes the token from quick info
                         case "Green":                                                                                                                               ## if it's listed as green
                             self.totalcost = 4 - self.Agility + self.totalcost                                                                                      ## adds cost (1 cost if Agility = 3, 2 cost is Agility = 2, 3 cost is Agility = 1)
                             self.Green_Token = self.Green_Token + 1                                                                                                 ## increase the Green_Token by 1
+                            settings.total_Green_Tokens += 1
                             tile_textures[self.map_data[self.row][self.column]].token = None                                                                        ## Removes the token
                             tile_textures[self.map_data[self.row][self.column]].quickinfo.remove("gt")                                                              ## Removes the token from quick info  
                         case "Blue":                                                                                                                                ## if it's listed as blue
                             self.totalcost = 4 - self.Intelligence + self.totalcost                                                                                 ## adds cost (1 cost if Intelligence = 3, 2 cost is Intelligence = 2, 3 cost is Intelligence = 1)
                             self.Blue_Token = self.Blue_Token + 1                                                                                                   ## increase the Blue_Token by 1
+                            settings.total_Blue_Tokens += 1
                             tile_textures[self.map_data[self.row][self.column]].token = None                                                                        ## Removes the token
                             tile_textures[self.map_data[self.row][self.column]].quickinfo.remove("bt")                                                              ## Removes the token from quick info
                         case "RedEvent":                                                                                                                            ## if it's listed as red event
@@ -220,7 +223,8 @@ class Player(pygame.sprite.Sprite):
                 self.active = False
                 self.keycount = 0
                 pygame.event.clear()
-                self.otherplayer.active = True 
+                if self.otherplayer != None:
+                    self.otherplayer.active = True 
                 
 
     def goalUpdate(self):
@@ -258,23 +262,30 @@ class Player(pygame.sprite.Sprite):
                 blue_states, blue_actionpath, blue_explored = astar(self, goal)                                                                                 ## compute the A* algorithm for green_event tile
                 blue_cal_cost, blue_planned_r, blue_planned_g, blue_planned_b = self.cost_calulator(blue_actionpath)                                            ## calculates the cost of the shortest path
 
-            print("red_cal_cost, green_cal_cost, blue_cal_cost", red_cal_cost, green_cal_cost, blue_cal_cost)
+            if self.Red_Token <= 5:
+                red_cal_cost = 100000
+            if self.Green_Token <= 5:
+                green_cal_cost = 100000
+            if self.Blue_Token <= 5:
+                blue_cal_cost = 100000
+
+            #print("red_cal_cost, green_cal_cost, blue_cal_cost", red_cal_cost, green_cal_cost, blue_cal_cost)
             comparer = (red_cal_cost, green_cal_cost, blue_cal_cost)                                                                                            ## preps to compare the three calculated costs
             small_index = comparer.index(min(comparer))                                                                                                         ## what is the index number of the smallest  calculated costs
             print("small_index", comparer[small_index])
-            if red_cal_cost == comparer[small_index]:                                                                                                           ## if the value of the red_cal_cost is equal to the smallest recorded
+            if red_cal_cost == comparer[small_index] and red_cal_cost != 100000:                                                                                                           ## if the value of the red_cal_cost is equal to the smallest recorded
                     goal[0] = int(red[0][-1])                                                                                                                   ## sets the row of the point
                     goal[1] = int(red[1][-1])
                     self.plans = red_states                                                                                                                     ## sets the plans to be the list of red states
                     self.todo = red_actionpath                                                                                                                  ## sets the todo list to be the planned red actionpath
                     self.explored = red_explored                                                                                                                ## sets the list of explored to the list of red explored
-            elif green_cal_cost == comparer[small_index]:                                                                                                       ## else if the value of the green_heuristic is equal to the smallest recorded
+            elif green_cal_cost == comparer[small_index] and green_cal_cost != 100000:                                                                                                       ## else if the value of the green_heuristic is equal to the smallest recorded
                     goal[0] = int(green[0][-1])                                                                                                                 ## sets the row of the point
                     goal[1] = int(green[1][-1])
                     self.plans = green_states                                                                                                                   ## sets the plans to be the list of green states
                     self.todo = green_actionpath                                                                                                                ## sets the todo list to be the planned green actionpath
                     self.explored = green_explored                                                                                                              ## sets the list of explored to the list of green explored
-            elif blue_cal_cost == comparer[small_index]:                                                                                                        ## else if the value of the blue_cal_cost is equal to the smallest recorded
+            elif blue_cal_cost == comparer[small_index] and blue_cal_cost != 100000:                                                                                                        ## else if the value of the blue_cal_cost is equal to the smallest recorded
                     goal[0] = int(blue[0][-1])                                                                                                                  ## sets the row of the point
                     goal[1] = int(blue[1][-1])
                     self.plans = blue_states                                                                                                                    ## sets the plans to be the list of blue states
