@@ -2,6 +2,7 @@
 import pygame
 import time
 import settings
+import automove
 import numpy as np
 from tilemap import *
 import matplotlib.pyplot as plotter
@@ -214,7 +215,7 @@ class Player(pygame.sprite.Sprite):
                 if tile_textures[self.map_data[self.row][self.column]].name == "SecretX":                                                                           ## if on secret X tile              
                     self.row = int(self.Y_tile[0])                                                                                                                  ## This is the row the player is at
                     self.column = int(self.Y_tile[1])                                                                                                               ## This is the column the player is at
-                    self.rect.centerx = self.adjust + self.column*TILE_SIZE + TILE_SIZE/2                                                                           ## places the player at the Secret Y's x position
+                    self.rect.centerx = self.adjust + self.column*TILE_SIZE + TILE_SIZE/3                                                                           ## places the player at the Secret Y's x position
                     self.rect.centery = self.row*TILE_SIZE + TILE_SIZE/2                                                                                            ## places the player at the Secret Y's y position
                     self.actions.append("X")                                                                                                                        ## Used the secret X tunnel
                     self.move(0, 0)                                                                                                                                 ## records where the player went
@@ -222,7 +223,7 @@ class Player(pygame.sprite.Sprite):
                 elif tile_textures[self.map_data[self.row][self.column]].name == "SecretY":                                                                         ## if on a secret Y tile                  
                     self.row = int(self.X_tile[0])                                                                                                                  ## This is the row the player is at
                     self.column = int(self.X_tile[1])                                                                                                               ## This is the column the player is at
-                    self.rect.centerx = self.adjust + self.column*TILE_SIZE + TILE_SIZE/2                                                                           ## places the player at the Secret Y's x position
+                    self.rect.centerx = self.adjust + self.column*TILE_SIZE + TILE_SIZE/3                                                                           ## places the player at the Secret Y's x position
                     self.rect.centery = self.row*TILE_SIZE + TILE_SIZE/2                                                                                            ## places the player at the Secret Y's y position
                     self.actions.append("Y")                                                                                                                        ## Used the secret Y tunnel
                     self.move(0, 0)                                                                                                                                 ## records where the player went
@@ -232,7 +233,7 @@ class Player(pygame.sprite.Sprite):
     
             if keys[pygame.K_b]:
                 print('Automoving...')
-                self.automove()
+                automove.automove(self)
 
             if self.keycount == 3:
                 self.active = False
@@ -335,45 +336,6 @@ class Player(pygame.sprite.Sprite):
             print("Actions Player_1", self.actions)                                                                                                             ## displays the actions in order of taken
             print("Total Cost", settings.total_actions_value)                                                                                                   ## displays the total costs to win
         time.sleep(0.5)                                                                                                                                         ## gives the computer a time before reading the next keystroke
-    
-    def automove(self):
-        controller = keyboard.Controller()
-        for step in self.todo:
-            if step == 'u':
-                print('U')
-                controller.press('w')
-                time.sleep(0.1)
-                controller.release('w')
-            elif step == 'r':
-                print('R')
-                controller.press('d')
-                time.sleep(0.1)
-                controller.release('d')
-            elif step == 'd':
-                print('D')
-                controller.press('s')
-                time.sleep(0.1)
-                controller.release('s')
-            elif step == 'l':
-                print('L')
-                controller.press('a')
-                time.sleep(0.1)
-                controller.release('a')
-            elif step == 'x':
-                print('TUNNEL')
-                controller.press('q')
-                time.sleep(0.1)
-                controller.release('q')
-            elif step == 'y':
-                print('TUNNEL')
-                controller.press('q')
-                time.sleep(0.1)
-                controller.release('q')
-            time.sleep(0.5)
-        controller.press('e')
-        time.sleep(0.1)
-        controller.release('e')
-        print('AUTOMOVE DONE!')
 
     ## Calculating the euclidean heuristic value between two points
     def euclidean_heuristic(self, row, column,  tile_num, D = 1):
