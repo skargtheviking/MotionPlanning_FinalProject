@@ -8,8 +8,9 @@ from tilemap import *
 import matplotlib.pyplot as plotter
 from math import hypot, sqrt
 from graph_search import astar
+from pynput.keyboard import Key, Controller
 
-# controller = Controller()
+controller = Controller()
 TILE_SIZE = settings.TILE_SIZE  ## Gets the size of the tile from the settings file and sets it as a global variable
 
 ##############################################################################################################################################################################################################################
@@ -64,39 +65,46 @@ class Player(pygame.sprite.Sprite):
         self.goalUpdate()
 
     def update(self):                                                                                                                                           ## update things if a key is presed
-        if self.moving == True:
-            time.sleep(0.5)
-            if self.keycount < 3:
-                self.auto()
-            else:
-                self.moving = False
-        else:
-            if self.keycount == 3:
-                self.active = False
-                if self.moving == True:
-                    print('AUTOMOVE DONE!')  
-                    self.moving = False
-                self.keycount = 0
-                pygame.event.clear()
-                if self.otherplayer != None:
-                    self.otherplayer.active = True
-                    self.otherplayer.goalUpdate()
-                    if self.otherplayer.plans != None:                                                                                                                              ## if a path to the goal is found
-                        settings.planning = True                                                                                                                        ## let the global know that a planning path was found
-                    settings.Active_Player = self.otherplayer                                                                                                                            ## sets player 1 as itself
-                    settings.seen = True                                                                                                                                ## lets the global know that it has a set of explored (visited) points
-  
-            elif settings.selfplay == False:
-                self.get_event()                                                                                                                                        ## checks if a key was presed
-            else:
-                time.sleep(1)
-                if self.keycount < 3:
-                    self.auto()
+        self.get_event()                                                                                                                                        ## checks if a key was presed
 
 
     def get_event(self):
         keys = pygame.key.get_pressed() 
         if self.active == True:
+            if self.moving == True:
+                controller.press('7')
+                if self.keycount < 3:
+                    self.auto()
+                else:
+                    self.moving = False
+                time.sleep(0.25)                                                                                                                                     ## gives the computer a time before reading the next keystroke   
+                controller.release('7')
+            else:
+                if self.keycount == 3:
+                    controller.press('7')
+                    self.active = False
+                    if self.moving == True:
+                        print('AUTOMOVE DONE!')  
+                        self.moving = False
+                    self.keycount = 0
+                    pygame.event.clear()
+                    if self.otherplayer != None:
+                        self.otherplayer.active = True
+                        self.otherplayer.goalUpdate()
+                        if self.otherplayer.plans != None:                                                                                                                              ## if a path to the goal is found
+                            settings.planning = True                                                                                                                        ## let the global know that a planning path was found
+                        settings.Active_Player = self.otherplayer                                                                                                                            ## sets player 1 as itself
+                        settings.seen = True                                                                                                                                ## lets the global know that it has a set of explored (visited) points
+                    time.sleep(0.25)                                                                                                                                     ## gives the computer a time before reading the next keystroke   
+
+                    controller.release('7') 
+                elif settings.selfplay == True:
+                    controller.press('7')
+                    if self.keycount < 3:
+                        self.auto()
+                    time.sleep(0.25)                                                                                                                                     ## gives the computer a time before reading the next keystroke   
+                    controller.release('7') 
+
             #keys = pygame.key.get_pressed()                                                                                                                         ## check what key got pressed
             #if (keys[pygame.K_s] or keys[pygame.K_w] or keys[pygame.K_a] or keys[pygame.K_d]
             #    or keys[pygame.K_q]):
@@ -586,6 +594,9 @@ class Player(pygame.sprite.Sprite):
             automove.automove(self, step)
         except IndexError:
             self.moving = False
+            if self.todo == [] and self.keycount < 3:
+                self.keycount += 1                                                                                                                                  ## passes there action
+                self.actions.append("P")
             print('AUTOMOVE DONE!')            
     
     def make_token_map(self):

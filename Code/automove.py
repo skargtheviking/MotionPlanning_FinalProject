@@ -42,7 +42,7 @@ def automove(self, step):
         if tile_textures[self.map_data[self.row][self.column]].name == "SecretX":                                                                           ## if on secret X tile              
                 self.row = int(self.Y_tile[0])                                                                                                                  ## This is the row the player is at
                 self.column = int(self.Y_tile[1])                                                                                                               ## This is the column the player is at
-                self.rect.centerx = self.adjust + self.column*TILE_SIZE + TILE_SIZE/2                                                                           ## places the player at the Secret Y's x position
+                self.rect.centerx = self.adjust + self.column*TILE_SIZE + TILE_SIZE/3                                                                           ## places the player at the Secret Y's x position
                 self.rect.centery = self.row*TILE_SIZE + TILE_SIZE/2                                                                                            ## places the player at the Secret Y's y position
                 self.actions.append("X")                                                                                                                        ## Used the secret X tunnel
                 self.move(0, 0)                                                                                                                                 ## records where the player went
@@ -51,7 +51,7 @@ def automove(self, step):
         if tile_textures[self.map_data[self.row][self.column]].name == "SecretY":                                                                         ## if on a secret Y tile                  
                 self.row = int(self.X_tile[0])                                                                                                                  ## This is the row the player is at
                 self.column = int(self.X_tile[1])                                                                                                               ## This is the column the player is at
-                self.rect.centerx = self.adjust + self.column*TILE_SIZE + TILE_SIZE/2                                                                           ## places the player at the Secret Y's x position
+                self.rect.centerx = self.adjust + self.column*TILE_SIZE + TILE_SIZE/3                                                                           ## places the player at the Secret Y's x position
                 self.rect.centery = self.row*TILE_SIZE + TILE_SIZE/2                                                                                            ## places the player at the Secret Y's y position
                 self.actions.append("Y")                                                                                                                        ## Used the secret Y tunnel
                 self.move(0, 0)                                                                                                                                 ## records where the player went

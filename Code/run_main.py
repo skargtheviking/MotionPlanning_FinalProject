@@ -15,6 +15,7 @@ with contextlib.redirect_stdout(None):
 from player import Player, create_player_texture
 from tilemap import *
 import settings
+import time
 # os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 
 
