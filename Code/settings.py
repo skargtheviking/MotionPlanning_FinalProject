@@ -12,9 +12,9 @@ Players = []                        ## keeps track of player informaiton
 Red_Tiles = []                      ## these tiles have red tokens
 Green_Tiles = []                    ## these tiles have green tokens
 Blue_Tiles = []                     ## these tiles have blue tokens
-total_Red_Tokens = 0                ## keeps track of the total red tokens for all the players
-total_Green_Tokens = 0              ## keeps track of the total green tokens for all the players
-total_Blue_Tokens = 0               ## keeps track of the total blue tokens for all the players
+total_Red_Tokens = 6                ## keeps track of the total red tokens for all the players
+total_Green_Tokens = 6              ## keeps track of the total green tokens for all the players
+total_Blue_Tokens = 6               ## keeps track of the total blue tokens for all the players
 total_actions_value = 0             ## keeps track of the total cost of all the actions taken
 Active_Player = None                ## shows which player is active
 

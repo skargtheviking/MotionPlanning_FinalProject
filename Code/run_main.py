@@ -64,8 +64,10 @@ map_data, max_mins = building_random_map(width, height)
 
 ## create a surface represent our window
 screen = pygame.display.set_mode((max_mins[1]*TILE_SIZE, max_mins[0]*TILE_SIZE+TILE_SIZE))
+settings.screen = screen
 
 sprites_group = pygame.sprite.Group()
+settings.sprites_group = sprites_group
 
 ## Player Set up ##
 '''
@@ -151,6 +153,7 @@ def main():
         # update
         sprites_group.update()
         pygame.display.flip()
+
 
 if __name__ == "__main__":
     main()

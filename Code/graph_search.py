@@ -203,8 +203,8 @@ def tile_trans(s, a, token, player):
             token[1] += 1                                                                                               ## increase the collected green tokens by 1
         case 'bt':                                                                                                      ## if pick up blue token
             token[2] += 1                                                                                               ## increase the collected blue tokens by 1
-        case _:                                                                                                         ## if the action is not listed
-            print('Unknown action:', str(a))                                                                            ## let the user know what action it didn't understand
+        #case _:                                                                                                         ## if the action is not listed
+            #print('Unknown action:', str(a))                                                                            ## let the user know what action it didn't understand
     
     s_prime = tuple(new_pos)                                                                                            ## save the new position as a tuple
     return s_prime, token                                                                                               ## return the new position
@@ -228,8 +228,8 @@ def getting_path(tile):
         action_path.insert(0, tile.parent_action)                                                                       ## adds the action take to get to tile state
         tile = tile.parent                                                                                              ## sets the next tile to be the tile's parent
     path.insert(0, tile.state)                                                                                          ## adds the tile wihtout a parent to the path
-    print ("action_path", action_path)                                                                                  ## prints out the action's taken (used fod debugging)
-    print("path", path)                                                                                                 ## prints out the planned path (used fod debugging)
+    #print ("action_path", action_path)                                                                                  ## prints out the action's taken (used fod debugging)
+    #print("path", path)                                                                                                 ## prints out the planned path (used fod debugging)
     return path, action_path                                                                                            ## returns the planned path and the actions taken
 
 
@@ -237,7 +237,7 @@ def getting_path(tile):
 def astar(player, goal, num_player = 1):
     token = [player.Red_Token, player.Green_Token, player.Blue_Token]
     n0 = SearchTile((player.row,player.column),tile_textures[player.map_data[player.row][player.column]].quickinfo)     ## sets the SearchTile as the quickinfo from the tile in question
-    print("n0", n0)                                                                                                     ## used for debugggin
+    #print("n0", n0)                                                                                                     ## used for debugggin
     frontier = PriorityQ()                                                                                              ## 
     visited = []                                                                                                        ## initalizes visited nodes    
     n0 = cost(player, n0)                                                                                               ## add cost to current node
