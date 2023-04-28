@@ -56,7 +56,7 @@ def automove(self, step):
                 self.actions.append("Y")                                                                                                                        ## Used the secret Y tunnel
                 self.move(0, 0)                                                                                                                                 ## records where the player went
                 self.keycount += 1
-    elif step == 'bt' or step == 'rt' or step == 'gt' or step == 'ret' or step == 'get' or step == 'bet' or step == 'foe':
+    elif step == 'bt' or step == 'rt' or step == 'gt' or step == 'ret' or step == 'get' or step == 'bet' or step == 'foe' or step == 't':
         if tile_textures[self.map_data[self.row][self.column]].token != None:                                                                               ## If there is a tile there
             match tile_textures[self.map_data[self.row][self.column]].type:                                                                                 ## determine what the tile type is
                 case "Red":                                                                                                                                 ## if it's listed as red
@@ -69,6 +69,9 @@ def automove(self, step):
                         tile_textures[self.map_data[self.row][self.column]].token = None                                                                        ## Removes the token
                         tile_textures[self.map_data[self.row][self.column]].quickinfo.remove("rt")                                                              ## Removes the token from quick info
                         self.actions.append("T")
+                    else:
+                        self.keycount += 1                                                                                                                                  ## passes there action
+                        self.actions.append("P")
                 case "Green":                                                                                                                               ## if it's listed as green
                     if (4 - self.Agility + self.keycount) <= 3:
                         self.keycount = 4 - self.Agility + self.keycount
@@ -79,6 +82,9 @@ def automove(self, step):
                         tile_textures[self.map_data[self.row][self.column]].token = None                                                                        ## Removes the token
                         tile_textures[self.map_data[self.row][self.column]].quickinfo.remove("gt")                                                              ## Removes the token from quick info  
                         self.actions.append("T")
+                    else:
+                        self.keycount += 1                                                                                                                                  ## passes there action
+                        self.actions.append("P")
                 case "Blue":                                                                                                                                ## if it's listed as blue
                     if (4 - self.Intelligence + self.keycount) <= 3:
                         self.keycount = 4 - self.Intelligence + self.keycount
@@ -89,6 +95,9 @@ def automove(self, step):
                         tile_textures[self.map_data[self.row][self.column]].token = None                                                                        ## Removes the token
                         tile_textures[self.map_data[self.row][self.column]].quickinfo.remove("bt")                                                              ## Removes the token from quick info
                         self.actions.append("T")
+                    else:
+                        self.keycount += 1                                                                                                                                  ## passes there action
+                        self.actions.append("P")
                 case "RedEvent":                                                                                                                            ## if it's listed as red event
                     if self.Red_Token >= 6 or settings.total_Red_Tokens >= 6:                                                                                                                 ## do you have enough tokens to break the red event
                         self.totalcost = self.totalcost + 1                                                                                                 ## costs 1 action to break event

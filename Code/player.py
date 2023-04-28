@@ -60,13 +60,14 @@ class Player(pygame.sprite.Sprite):
         self.todo = []
         self.explored = []
         self.moving = False
+        self.selfplay = False
         settings.Players.append(self)
         self.goalUpdate()
 
     def update(self):                                                                                                                                           ## update things if a key is presed
         if self.moving == True:
             time.sleep(0.5)
-            if self.keycount <= 3:
+            if self.keycount < 3:
                 self.auto()
         else:
             self.get_event()                                                                                                                                        ## checks if a key was presed
@@ -93,9 +94,11 @@ class Player(pygame.sprite.Sprite):
             #if (keys[pygame.K_s] or keys[pygame.K_w] or keys[pygame.K_a] or keys[pygame.K_d]
             #    or keys[pygame.K_q]):
             #    self.keycount += 1
+            if keys[pygame.K_u]:
+                self.selfplay = True
 
             if keys[pygame.K_l]:                                                                                                                                    ## allows the player to skip an action without moving
-                self.keycount += 1            
+                self.keycount += 1                                                                                                                                  ## passes there action
                 time.sleep(0.5)                                                                                                                                     ## gives the computer a time before reading the next keystroke   
                 
             ## Moving Up
@@ -261,12 +264,7 @@ class Player(pygame.sprite.Sprite):
 
     def goalUpdate(self):
         goal = [0,0]                                                                                                                                            ## initalizes the goal
-        red = np.where(self.map_data == 3)                                                                                                                      ## gets the red event tile 
-        green = np.where(self.map_data == 4)                                                                                                                    ## gets the green event tile 
-        blue = np.where(self.map_data == 5)                                                                                                                     ## gets the blue event tile 
-        red_cal_cost = 1000000                                                                                                                                  ## initalizes the red calculated costs
-        green_cal_cost = 1000000                                                                                                                                ## initalizes the green calculated costs
-        blue_cal_cost = 1000000                                                                                                                                 ## initalizes the blue calculated costs
+
         if settings.Red_Event_Broken == True and settings.Green_Event_Broken == True and settings.Blue_Event_Broken == True:                                    ## if all the event tokens were grabbed
             tile = np.where(self.map_data == 2)                                                                                                                 ## to search by tile type
             goal[0] = int(tile[0][-1])                                                                                                                          ## sets the row of the point
@@ -274,63 +272,132 @@ class Player(pygame.sprite.Sprite):
             self.heuristic_map_maker(goal)                                                                                                                      ## makes a heuristic map for the Fire of Eidolon tile
             self.plans, self.todo, self.explored = astar(self, goal)                                                                                            ## compute the A* algorithm to find the shortest path to the goal
         else:
-            if settings.Red_Event_Broken == False:                                                                                                              ## red event broken false
+            self.make_token_map()                                                                                                                                   ## makes a map of the remaining tokens
+            #print("token map", settings.token_map)                                                                                                                 ## used for debugging
+            #print("red token locations", settings.red_token_locations)
+            #print("green token locations", settings.green_token_locations)
+            #print("blue token locations", settings.blue_token_locations)
+
+            red = np.where(self.map_data == 3)                                                                                                                      ## gets the red event tile 
+            green = np.where(self.map_data == 4)                                                                                                                    ## gets the green event tile 
+            blue = np.where(self.map_data == 5)                                                                                                                     ## gets the blue event tile 
+            red_cal_cost = 1000000                                                                                                                                  ## initalizes the red calculated costs
+            green_cal_cost = 1000000                                                                                                                                ## initalizes the green calculated costs
+            blue_cal_cost = 1000000                                                                                                                                 ## initalizes the blue calculated costs
+            attributes = [self.Strength, self.Intelligence, self.Agility]                                                                                           ## puts all the ability scores in an index
+            if self.Red_Token > 5 or settings.total_Red_Tokens > 5:                                                                                                 ## if enough red tokens have been grabbed
+                attributes[0] = -1                                                                                                                                  ## don't try to go for that color
+            if self.Blue_Token > 5 or settings.total_Blue_Tokens > 5:                                                                                               ## if enough green tokens have been grabbed
+                attributes[1] = -1                                                                                                                                  ## don't try to go for that color
+            if self.Green_Token > 5 or settings.total_Green_Tokens > 5:                                                                                             ## if enough blue tokens have been grabbed
+                attributes[2] = -1                                                                                                                                  ## don't try to go for that color
+
+            ind_num = attributes.index(max(attributes))
+            match ind_num:
+                case 0:
+                    closest_token = [0, 0]
+                    lowest_token_cost = 100000
+                    for i in range(len(settings.red_token_locations)):
+                        self.heuristic_map_maker(settings.red_token_locations[i])
+                        token_states, token_actionpath, token_explored = astar(self, settings.red_token_locations[i])
+                        token_cal_cost, token_planned_r, token_planned_g, token_planned_b = self.cost_calulator(token_actionpath)
+                        if lowest_token_cost == 100000 or token_cal_cost < lowest_token_cost:
+                            closest_token = settings.red_token_locations[i]
+                            lowest_token_cost = token_cal_cost
+                            least_states = token_states
+                            lest_action = token_actionpath
+                            least_explored = token_explored  
+                            print("red closest_token", closest_token)
+                case 1:
+                    closest_token = [0, 0]
+                    lowest_token_cost = 100000
+                    for i in range(len(settings.blue_token_locations)):
+                        self.heuristic_map_maker(settings.blue_token_locations[i])
+                        token_states, token_actionpath, token_explored = astar(self, settings.blue_token_locations[i])
+                        token_cal_cost, token_planned_r, token_planned_g, token_planned_b = self.cost_calulator(token_actionpath)
+                        if lowest_token_cost == 100000 or token_cal_cost < lowest_token_cost:
+                            closest_token = settings.blue_token_locations[i]
+                            lowest_token_cost = token_cal_cost
+                            least_states = token_states
+                            lest_action = token_actionpath
+                            least_explored = token_explored  
+                            print("blue closest_token", closest_token)
+                case 2:
+                    closest_token = [0, 0]
+                    lowest_token_cost = 100000
+                    for i in range(len(settings.green_token_locations)):
+                        self.heuristic_map_maker(settings.green_token_locations[i])
+                        token_states, token_actionpath, token_explored = astar(self, settings.green_token_locations[i])
+                        token_cal_cost, token_planned_r, token_planned_g, token_planned_b = self.cost_calulator(token_actionpath)
+                        if lowest_token_cost == 100000 or token_cal_cost < lowest_token_cost:
+                            closest_token = settings.green_token_locations[i]
+                            lowest_token_cost = token_cal_cost
+                            least_states = token_states
+                            lest_action = token_actionpath
+                            least_explored = token_explored  
+                            print("green closest_token", closest_token)
+
+            if settings.Red_Event_Broken == False and self.Red_Token > 5 and settings.total_Red_Tokens > 5:                                                                                                              ## red event broken false
                 goal[0] = int(red[0][-1])                                                                                                                       ## sets the row of the potential goal point
                 goal[1] = int(red[1][-1])
                 self.heuristic_map_maker(goal)                                                                                                                  ## makes a heuristic map for the red event tile
                 red_states, red_actionpath, red_explored = astar(self, goal)                                                                                    ## compute the A* algorithm for red_event tile
                 red_cal_cost, red_planned_r, red_planned_g, red_planned_b = self.cost_calulator(red_actionpath)                                                 ## calculates the cost of the shortest path
-
-            if settings.Green_Event_Broken == False:                                                                                                            ## green event broken false
+            else:
+                red_cal_cost = 100000
+            if settings.Green_Event_Broken == False and self.Green_Token > 5 and settings.total_Green_Tokens > 5:                                                                                                            ## green event broken false
                 goal[0] = int(green[0][-1])                                                                                                                     ## sets the row of the potential goal point
                 goal[1] = int(green[1][-1])
                 self.heuristic_map_maker(goal)                                                                                                                  ## makes a heuristic map for the green event tile
                 green_states, green_actionpath, green_explored = astar(self, goal)                                                                              ## compute the A* algorithm for green_event tile
                 green_cal_cost, green_planned_r, green_planned_g, green_planned_b = self.cost_calulator(green_actionpath)                                       ## calculates the cost of the shortest path
-
-            if settings.Blue_Event_Broken == False:                                                                                                             ## blue event broken false
+            else:
+                green_cal_cost = 100000
+            if settings.Blue_Event_Broken == False and self.Blue_Token > 5 and settings.total_Blue_Tokens > 5:                                                                                                             ## blue event broken false
                 goal[0] = int(blue[0][-1])                                                                                                                      ## sets the row of the potential goal point
                 goal[1] = int(blue[1][-1])
                 self.heuristic_map_maker(goal)                                                                                                                  ## makes a heuristic map for the blue event tile
                 blue_states, blue_actionpath, blue_explored = astar(self, goal)                                                                                 ## compute the A* algorithm for green_event tile
                 blue_cal_cost, blue_planned_r, blue_planned_g, blue_planned_b = self.cost_calulator(blue_actionpath)                                            ## calculates the cost of the shortest path
-
-            if self.Red_Token <= 5 and settings.total_Red_Tokens <= 5:
-                red_cal_cost = 100000
-            if self.Green_Token <= 5 and settings.total_Green_Tokens <= 5:
-                green_cal_cost = 100000
-            if self.Blue_Token <= 5 and settings.total_Blue_Tokens <= 5:
+            else:
                 blue_cal_cost = 100000
 
             #print("red_cal_cost, green_cal_cost, blue_cal_cost", red_cal_cost, green_cal_cost, blue_cal_cost)
-            comparer = (red_cal_cost, green_cal_cost, blue_cal_cost)                                                                                            ## preps to compare the three calculated costs
+            comparer = (red_cal_cost, green_cal_cost, blue_cal_cost, lowest_token_cost)                                                                         ## preps to compare the three calculated costs
             small_index = comparer.index(min(comparer))                                                                                                         ## what is the index number of the smallest  calculated costs
-            #print("small_index", comparer[small_index])
             if red_cal_cost == comparer[small_index] and red_cal_cost != 100000:                                                                                                           ## if the value of the red_cal_cost is equal to the smallest recorded
-                    goal[0] = int(red[0][-1])                                                                                                                   ## sets the row of the point
-                    goal[1] = int(red[1][-1])
-                    self.plans = red_states                                                                                                                     ## sets the plans to be the list of red states
-                    self.todo = red_actionpath                                                                                                                  ## sets the todo list to be the planned red actionpath
-                    self.explored = red_explored                                                                                                                ## sets the list of explored to the list of red explored
+                goal[0] = int(red[0][-1])                                                                                                                   ## sets the row of the point
+                goal[1] = int(red[1][-1])
+                self.plans = red_states                                                                                                                     ## sets the plans to be the list of red states
+                self.todo = red_actionpath                                                                                                                  ## sets the todo list to be the planned red actionpath
+                self.explored = red_explored                                                                                                                ## sets the list of explored to the list of red explored
             elif green_cal_cost == comparer[small_index] and green_cal_cost != 100000:                                                                                                       ## else if the value of the green_heuristic is equal to the smallest recorded
-                    goal[0] = int(green[0][-1])                                                                                                                 ## sets the row of the point
-                    goal[1] = int(green[1][-1])
-                    self.plans = green_states                                                                                                                   ## sets the plans to be the list of green states
-                    self.todo = green_actionpath                                                                                                                ## sets the todo list to be the planned green actionpath
-                    self.explored = green_explored                                                                                                              ## sets the list of explored to the list of green explored
+                goal[0] = int(green[0][-1])                                                                                                                 ## sets the row of the point
+                goal[1] = int(green[1][-1])
+                self.plans = green_states                                                                                                                   ## sets the plans to be the list of green states
+                self.todo = green_actionpath                                                                                                                ## sets the todo list to be the planned green actionpath
+                self.explored = green_explored                                                                                                              ## sets the list of explored to the list of green explored
             elif blue_cal_cost == comparer[small_index] and blue_cal_cost != 100000:                                                                                                        ## else if the value of the blue_cal_cost is equal to the smallest recorded
-                    goal[0] = int(blue[0][-1])                                                                                                                  ## sets the row of the point
-                    goal[1] = int(blue[1][-1])
-                    self.plans = blue_states                                                                                                                    ## sets the plans to be the list of blue states
-                    self.todo = blue_actionpath                                                                                                                 ## sets the todo list to be the planned blue actionpath
-                    self.explored = blue_explored                                                                                                               ## sets the list of explored to the list of blue explored
-
-
+                goal[0] = int(blue[0][-1])                                                                                                                  ## sets the row of the point
+                goal[1] = int(blue[1][-1])
+                self.plans = blue_states                                                                                                                    ## sets the plans to be the list of blue states
+                self.todo = blue_actionpath                                                                                                                 ## sets the todo list to be the planned blue actionpath
+                self.explored = blue_explored                                                                                                               ## sets the list of explored to the list of blue explored
+            elif lowest_token_cost == comparer[small_index] and lowest_token_cost != 100000:
+                print("closest token", closest_token)
+                goal = closest_token
+                self.plans = least_states
+                self.todo = lest_action
+                self.explored = least_explored
+                print("goal", goal)
+        self.todo.append('t')
         if settings.FireofEidolon_Grabbed:                                                                                                                      ## If the Fire of Eidolon was Grabbed
             goal = [int(self.end[0]),int(self.end[1])]                                                                                                          ## set the goal to be the end tile
             self.heuristic_map_maker(goal)                                                                                                                      ## makes a heuristic map for the End tile
             self.plans, self.todo, self.explored = astar(self, goal)                                                                                            ## compute the A* algorithm to find the shortest path to the goal  
+        print("goal", goal)
         self.goal = goal                                                                                                                                        ## sets the players goal to the new goal
+        print("self.goal", self.goal)
         self.heuristic_map_maker(goal)                                                                                                                          ## reset the heuristic map
         if self.plans != None:                                                                                                                              ## if a path to the goal is found
             settings.planning = True                                                                                                                        ## let the global know that a planning path was found
@@ -511,4 +578,37 @@ class Player(pygame.sprite.Sprite):
         except IndexError:
             self.moving = False
             print('AUTOMOVE DONE!')            
-            
+    
+    def make_token_map(self):
+        settings.token_map = []                                                                                                                                 ## initalizes the token_map
+        settings.red_token_locations = []            ## list of the locations of the red tokens
+        settings.green_token_locations = []          ## list of the locations of the green tokens
+        settings.blue_token_locations = []           ## list of the locations of the blue tokens
+
+        ## creates the initial token map
+        for i in range(len(self.map_data)):                                                                                                                 ## for each of the rows                                                                 
+            settings.token_map.append([])                                                                                                                       ## initalize space for columns
+            for j in range(len(self.map_data[0])):                                                                                                          ## for each column
+                if tile_textures[self.map_data[i][j]].token != None:                                                                                        ## If there is a tile there
+                    match tile_textures[self.map_data[i][j]].type:                                                                                          ## determine what the tile type is
+                        case "Red":                                                                                                                         ## if it's listed as red
+                            settings.token_map[i].append("r")                                                                                                   ## has a red token
+                            settings.red_token_locations.append((i,j))
+                        case "Green":                                                                                                                       ## if it's listed as green
+                            settings.token_map[i].append("g")                                                                                                   ## has a green token
+                            settings.green_token_locations.append((i,j))
+                        case "Blue":                                                                                                                        ## if it's listed as blue
+                            settings.token_map[i].append("b")                                                                                                   ## has a blue token
+                            settings.blue_token_locations.append((i,j))
+                        case "RedEvent":                                                                                                                    ## if it's listed as red event
+                            settings.token_map[i].append("red")                                                                                                 ## has a red event token
+                        case "GreenEvent":                                                                                                                  ## if it's listed as green event 
+                            settings.token_map[i].append("ge")                                                                                                  ## has a green even token
+                        case "BlueEvent":                                                                                                                   ## if it's listed as blue event
+                            settings.token_map[i].append("be")                                                                                                  ## has a blue event token
+                        case "FireofEidolon":                                                                                                               ## if it's listed as Fire of Eidolon
+                            settings.token_map[i].append("foe")                                                                                                 ## has a fire of Eidolong token
+                        case _:                                                                                                                             ## otherwise
+                            settings.token_map[i].append("n")                                                                                                   ## has no token
+                else:                                                                                                                                       ## otherwise
+                    settings.token_map[i].append("n")                                                                                                           ## has no token
