@@ -60,7 +60,6 @@ class Player(pygame.sprite.Sprite):
         self.todo = []
         self.explored = []
         self.moving = False
-        self.selfplay = False
         settings.Players.append(self)
         self.goalUpdate()
 
@@ -69,23 +68,31 @@ class Player(pygame.sprite.Sprite):
             time.sleep(0.5)
             if self.keycount < 3:
                 self.auto()
-        else:
-            self.get_event()                                                                                                                                        ## checks if a key was presed
-        if self.keycount == 3:
-            self.active = False
-            if self.moving == True:
-                print('AUTOMOVE DONE!')  
+            else:
                 self.moving = False
-            self.keycount = 0
-            pygame.event.clear()
-            if self.otherplayer != None:
-                self.otherplayer.active = True
-                self.otherplayer.goalUpdate()
-                if self.otherplayer.plans != None:                                                                                                                              ## if a path to the goal is found
-                    settings.planning = True                                                                                                                        ## let the global know that a planning path was found
-                settings.Active_Player = self.otherplayer                                                                                                                            ## sets player 1 as itself
-                settings.seen = True                                                                                                                                ## lets the global know that it has a set of explored (visited) points
+        else:
+            if self.keycount == 3:
+                self.active = False
+                if self.moving == True:
+                    print('AUTOMOVE DONE!')  
+                    self.moving = False
+                self.keycount = 0
+                pygame.event.clear()
+                if self.otherplayer != None:
+                    self.otherplayer.active = True
+                    self.otherplayer.goalUpdate()
+                    if self.otherplayer.plans != None:                                                                                                                              ## if a path to the goal is found
+                        settings.planning = True                                                                                                                        ## let the global know that a planning path was found
+                    settings.Active_Player = self.otherplayer                                                                                                                            ## sets player 1 as itself
+                    settings.seen = True                                                                                                                                ## lets the global know that it has a set of explored (visited) points
   
+            elif settings.selfplay == False:
+                self.get_event()                                                                                                                                        ## checks if a key was presed
+            else:
+                time.sleep(1)
+                if self.keycount < 3:
+                    self.auto()
+
 
     def get_event(self):
         keys = pygame.key.get_pressed() 
@@ -95,7 +102,7 @@ class Player(pygame.sprite.Sprite):
             #    or keys[pygame.K_q]):
             #    self.keycount += 1
             if keys[pygame.K_u]:
-                self.selfplay = True
+                settings.selfplay = True
 
             if keys[pygame.K_l]:                                                                                                                                    ## allows the player to skip an action without moving
                 self.keycount += 1                                                                                                                                  ## passes there action
@@ -337,7 +344,7 @@ class Player(pygame.sprite.Sprite):
                             least_explored = token_explored  
                             print("green closest_token", closest_token)
 
-            if settings.Red_Event_Broken == False and self.Red_Token > 5 and settings.total_Red_Tokens > 5:                                                                                                              ## red event broken false
+            if settings.Red_Event_Broken == False and (self.Red_Token > 5 or settings.total_Red_Tokens > 5):                                                                                                              ## red event broken false
                 goal[0] = int(red[0][-1])                                                                                                                       ## sets the row of the potential goal point
                 goal[1] = int(red[1][-1])
                 self.heuristic_map_maker(goal)                                                                                                                  ## makes a heuristic map for the red event tile
@@ -345,7 +352,8 @@ class Player(pygame.sprite.Sprite):
                 red_cal_cost, red_planned_r, red_planned_g, red_planned_b = self.cost_calulator(red_actionpath)                                                 ## calculates the cost of the shortest path
             else:
                 red_cal_cost = 100000
-            if settings.Green_Event_Broken == False and self.Green_Token > 5 and settings.total_Green_Tokens > 5:                                                                                                            ## green event broken false
+
+            if settings.Green_Event_Broken == False and (self.Green_Token > 5 or settings.total_Green_Tokens > 5):                                                                                                            ## green event broken false
                 goal[0] = int(green[0][-1])                                                                                                                     ## sets the row of the potential goal point
                 goal[1] = int(green[1][-1])
                 self.heuristic_map_maker(goal)                                                                                                                  ## makes a heuristic map for the green event tile
@@ -353,7 +361,8 @@ class Player(pygame.sprite.Sprite):
                 green_cal_cost, green_planned_r, green_planned_g, green_planned_b = self.cost_calulator(green_actionpath)                                       ## calculates the cost of the shortest path
             else:
                 green_cal_cost = 100000
-            if settings.Blue_Event_Broken == False and self.Blue_Token > 5 and settings.total_Blue_Tokens > 5:                                                                                                             ## blue event broken false
+
+            if settings.Blue_Event_Broken == False and (self.Blue_Token > 5 or settings.total_Blue_Tokens > 5):                                                                                                             ## blue event broken false
                 goal[0] = int(blue[0][-1])                                                                                                                      ## sets the row of the potential goal point
                 goal[1] = int(blue[1][-1])
                 self.heuristic_map_maker(goal)                                                                                                                  ## makes a heuristic map for the blue event tile

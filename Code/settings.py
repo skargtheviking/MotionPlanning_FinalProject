@@ -21,4 +21,5 @@ token_map = []                      ## map of all the tokens locations
 red_token_locations = []            ## list of the locations of the red tokens
 blue_token_locations = []           ## list of the locations of the blue tokens
 green_token_locations = []          ## list of the locations of the green tokens
+selfplay = False                    ## the game plays by itself
 
