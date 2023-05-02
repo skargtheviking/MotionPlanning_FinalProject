@@ -57,3 +57,5 @@ Change the tile number to match the index of the tile you want at that given loc
     29 : Mimic Chest
 
 Change the rotations to determine how many times a title is rotated 90 degrees clockwise. For example, if I want my tile to be rotate 270 degrees, I would change the number to 3.
+
+Have fun and enjoy!
