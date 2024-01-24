@@ -1,5 +1,7 @@
 # MotionPlanning_FinalProject
 
+A video example can be found here: https://www.youtube.com/watch?v=YeNqiCAQrVg
+
 All of the code to run the program is under the subfolder "Code"
 
 To run the program type in the terminal "python run_main"
